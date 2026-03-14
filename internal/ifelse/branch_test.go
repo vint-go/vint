@@ -5,7 +5,7 @@ import (
 	"go/token"
 	"testing"
 
-	"github.com/mgechev/revive/internal/ifelse"
+	"github.com/strowk/vint/internal/ifelse"
 )
 
 func TestBlockBranch(t *testing.T) {

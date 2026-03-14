@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ContextAsArgumentRule suggests that [context.Context] should be the first argument of a function.
@@ -93,4 +94,9 @@ func (*ContextAsArgumentRule) getAllowTypesFromArguments(args lint.Arguments) (m
 
 	result["context.Context"] = struct{}{} // context.Context is always allowed before another context.Context
 	return result, nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ContextAsArgumentRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -11,6 +11,8 @@ import (
 	"math"
 	"regexp"
 	"strings"
+
+	"github.com/strowk/vint/internal/rulecache"
 )
 
 // File abstraction used for representing files.
@@ -114,15 +116,53 @@ func (f *File) isMain() bool {
 
 const directiveSpecifyDisableReason = "specify-disable-reason"
 
-func (f *File) lint(rules []Rule, config Config, failures chan Failure) error {
+func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rulecache.RuleCache, preCachedHits map[string]bool) error {
 	rulesConfig := config.Rules
 	_, mustSpecifyDisableReason := config.Directives[directiveSpecifyDisableReason]
 	disabledIntervals := f.disabledIntervals(rules, mustSpecifyDisableReason, failures)
+
+	// Collect sibling file contents for package-aware cache tiers (computed lazily).
+	var siblingFiles map[string][]byte
+
 	for _, currentRule := range rules {
-		ruleConfig := rulesConfig[currentRule.Name()]
+		fullName := FullRuleName(currentRule)
+		ruleConfig := rulesConfig[fullName]
 		if ruleConfig.MustExclude(f.Name) {
 			continue
 		}
+
+		// Skip rules already served from pre-parse cache check.
+		if preCachedHits[fullName] {
+			continue
+		}
+
+		// Determine cache tier and cacheability.
+		tier := rulecache.TierCrossPackage // safe default
+		cacheable := rc != nil
+		if tr, ok := currentRule.(TieredRule); ok {
+			tier = tr.CacheTier()
+		}
+		if ur, ok := currentRule.(UncacheableRule); ok && ur.Uncacheable() {
+			cacheable = false
+		}
+
+		// Try cache.
+		if cacheable {
+			if tier >= rulecache.TierPackageAware && siblingFiles == nil {
+				siblingFiles = f.collectSiblingContents()
+			}
+			if cached, hit := rc.Get(fullName, f.Name, tier, siblingFiles); hit {
+				for _, cf := range cached {
+					failure := fromCachedFailure(cf)
+					if failure.Confidence >= config.Confidence {
+						failures <- failure
+					}
+				}
+				continue
+			}
+		}
+
+		// Cache miss — run the rule.
 		currentFailures := currentRule.Apply(f, ruleConfig.Arguments)
 		for idx, failure := range currentFailures {
 			if failure.IsInternal() {
@@ -130,13 +170,26 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure) error {
 			}
 
 			if failure.RuleName == "" {
-				failure.RuleName = currentRule.Name()
+				failure.RuleName = fullName
 			}
 			if failure.Node != nil {
 				failure.Position = ToFailurePosition(failure.Node.Pos(), failure.Node.End(), f)
 			}
 			currentFailures[idx] = failure
 		}
+
+		// Store in cache (post-filter).
+		if cacheable {
+			if tier >= rulecache.TierPackageAware && siblingFiles == nil {
+				siblingFiles = f.collectSiblingContents()
+			}
+			cached := make([]rulecache.CachedFailure, len(currentFailures))
+			for i, fail := range currentFailures {
+				cached[i] = toCachedFailure(fail)
+			}
+			rc.Put(fullName, f.Name, tier, siblingFiles, cached)
+		}
+
 		currentFailures = f.filterFailures(currentFailures, disabledIntervals)
 		for _, failure := range currentFailures {
 			if failure.Confidence >= config.Confidence {
@@ -145,6 +198,56 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure) error {
 		}
 	}
 	return nil
+}
+
+// collectSiblingContents returns the content of all files in the same package.
+func (f *File) collectSiblingContents() map[string][]byte {
+	files := f.Pkg.Files()
+	result := make(map[string][]byte, len(files))
+	for name, file := range files {
+		result[name] = file.content
+	}
+	return result
+}
+
+// toCachedFailure converts a Failure to a CachedFailure for caching.
+func toCachedFailure(f Failure) rulecache.CachedFailure {
+	return rulecache.CachedFailure{
+		Message:         f.Failure,
+		RuleName:        f.RuleName,
+		Category:        string(f.Category),
+		StartFilename:   f.Position.Start.Filename,
+		StartLine:       f.Position.Start.Line,
+		StartColumn:     f.Position.Start.Column,
+		EndFilename:     f.Position.End.Filename,
+		EndLine:         f.Position.End.Line,
+		EndColumn:       f.Position.End.Column,
+		Confidence:      f.Confidence,
+		ReplacementLine: f.ReplacementLine,
+	}
+}
+
+// fromCachedFailure converts a CachedFailure back to a Failure.
+func fromCachedFailure(cf rulecache.CachedFailure) Failure {
+	return Failure{
+		Failure:  cf.Message,
+		RuleName: cf.RuleName,
+		Category: FailureCategory(cf.Category),
+		Position: FailurePosition{
+			Start: token.Position{
+				Filename: cf.StartFilename,
+				Line:     cf.StartLine,
+				Column:   cf.StartColumn,
+			},
+			End: token.Position{
+				Filename: cf.EndFilename,
+				Line:     cf.EndLine,
+				Column:   cf.EndColumn,
+			},
+		},
+		Confidence:      cf.Confidence,
+		ReplacementLine: cf.ReplacementLine,
+	}
 }
 
 type enableDisableConfig struct {
@@ -258,7 +361,7 @@ func (f *File) disabledIntervals(rules []Rule, mustSpecifyDisableReason bool, fa
 			// TODO: optimize
 			if len(ruleNames) == 0 {
 				for _, rule := range rules {
-					ruleNames = append(ruleNames, rule.Name())
+					ruleNames = append(ruleNames, FullRuleName(rule))
 				}
 			}
 

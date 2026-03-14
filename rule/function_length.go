@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"reflect"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // FunctionLength lint.
@@ -155,4 +156,9 @@ func (r *FunctionLength) countFuncLitStmts(stmt ast.Expr) int {
 func (r *FunctionLength) countBodyListStmts(t any) int {
 	i := reflect.ValueOf(t).Elem().FieldByName(`Body`).Elem().FieldByName(`List`).Interface()
 	return r.countStmts(i.([]ast.Stmt))
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*FunctionLength) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

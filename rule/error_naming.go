@@ -6,8 +6,9 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ErrorNamingRule lints naming of error variables.
@@ -88,4 +89,9 @@ func (w lintErrors) Visit(_ ast.Node) ast.Visitor {
 		}
 	}
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ErrorNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

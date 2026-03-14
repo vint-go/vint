@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ImportAliasNamingRule lints import alias naming.
@@ -129,4 +130,9 @@ func (r *ImportAliasNamingRule) setDenyRule(value any) error {
 	}
 	r.denyRegexp = namingRuleRegexp
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ImportAliasNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

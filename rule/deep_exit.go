@@ -7,8 +7,9 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // DeepExitRule lints program exit in functions other than main or init.
@@ -114,4 +115,9 @@ func (w *lintDeepExit) isTestExample(fd *ast.FuncDecl) bool {
 		return false
 	}
 	return len(fd.Type.Params.List) == 0
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*DeepExitRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

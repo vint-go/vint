@@ -4,8 +4,9 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ConstantLogicalExprRule warns on constant logical expressions.
@@ -98,4 +99,9 @@ func (w *lintConstantLogicalExpr) newFailure(node ast.Node, msg string) {
 		Category:   lint.FailureCategoryLogic,
 		Failure:    msg,
 	})
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ConstantLogicalExprRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

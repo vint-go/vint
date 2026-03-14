@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 func TestAddConstantRule_Configure(t *testing.T) {

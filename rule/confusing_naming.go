@@ -6,8 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 type referenceMethod struct {
@@ -207,4 +208,9 @@ func (w *lintConfusingNames) Visit(n ast.Node) ast.Visitor {
 	}
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ConfusingNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -3,7 +3,7 @@ package rule_test
 import (
 	"testing"
 
-	"github.com/mgechev/revive/internal/rule"
+	"github.com/strowk/vint/internal/rule"
 )
 
 func TestName(t *testing.T) {

@@ -5,7 +5,8 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // IfReturnRule searches for redundant `if` when returning an error.
@@ -112,4 +113,9 @@ func containsComments(start, end token.Pos, f *ast.File) bool {
 		}
 	}
 	return false
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*IfReturnRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

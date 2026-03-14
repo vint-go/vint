@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 func TestExportedRule_Configure(t *testing.T) {

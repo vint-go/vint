@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // RedundantTestMainExitRule suggests removing redundant [os.Exit] or [syscall.Exit] calls in TestMain function.
@@ -81,4 +82,9 @@ func (w *lintRedundantTestMainExit) Visit(node ast.Node) ast.Visitor {
 	}
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RedundantTestMainExitRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

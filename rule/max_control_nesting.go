@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // MaxControlNestingRule sets restriction for maximum nesting of control structures.
@@ -118,4 +119,9 @@ func (r *MaxControlNestingRule) Configure(arguments lint.Arguments) error {
 	}
 	r.max = maxNesting
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*MaxControlNestingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

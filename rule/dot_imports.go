@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"strconv"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // DotImportsRule forbids dot imports.
@@ -101,4 +102,9 @@ func (ap allowPackages) add(pkg string) {
 func (ap allowPackages) isAllowedPackage(pkg string) bool {
 	_, allowed := ap[pkg]
 	return allowed
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*DotImportsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

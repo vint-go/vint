@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mgechev/revive/formatter"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/formatter"
+	"github.com/strowk/vint/lint"
 )
 
 //revive:disable:line-length-limit

@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // BlankImportsRule lints blank imports.
@@ -76,3 +77,8 @@ func (*BlankImportsRule) fileHasValidEmbedComment(fileAst *ast.File) bool {
 // isBlank returns whether id is the blank identifier "_".
 // If id == nil, the answer is false.
 func isBlank(id *ast.Ident) bool { return id != nil && id.Name == "_" }
+
+// CacheTier returns the cache tier for this rule.
+func (*BlankImportsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
+}

@@ -3,7 +3,8 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // NestedStructs lints nested structs.
@@ -72,4 +73,9 @@ func (l *lintStruct) fail(n ast.Node) {
 		Node:       n,
 		Confidence: 1,
 	})
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*NestedStructs) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

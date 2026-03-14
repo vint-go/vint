@@ -7,7 +7,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // FilenameFormatRule lints source filenames according to a set of regular expressions given as arguments.
@@ -79,4 +80,9 @@ func (r *FilenameFormatRule) Configure(arguments lint.Arguments) error {
 	r.format = format
 
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*FilenameFormatRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

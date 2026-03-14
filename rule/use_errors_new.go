@@ -3,8 +3,9 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UseErrorsNewRule spots calls to [fmt.Errorf] that can be replaced by [errors.New].
@@ -58,4 +59,9 @@ func (w lintFmtErrorf) Visit(n ast.Node) ast.Visitor {
 	})
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UseErrorsNewRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

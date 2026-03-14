@@ -8,8 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnhandledErrorRule warns on unhandled errors returned by function calls.
@@ -172,4 +173,9 @@ func (w *lintUnhandledErrors) getFunc(call *ast.CallExpr) (*types.Func, bool) {
 	}
 
 	return fn, true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnhandledErrorRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

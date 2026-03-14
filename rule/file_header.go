@@ -5,7 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // FileHeaderRule lints the header that each file should have.
@@ -81,4 +82,9 @@ func (r *FileHeaderRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure
 // Name returns the rule name.
 func (*FileHeaderRule) Name() string {
 	return "file-header"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*FileHeaderRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -3,7 +3,7 @@ package rule
 import (
 	"testing"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 func TestEarlyReturn_Configure(t *testing.T) {

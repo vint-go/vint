@@ -3,8 +3,9 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnconditionalRecursionRule warns on function calls that will lead to infinite recursion.
@@ -200,4 +201,9 @@ func (*lintUnconditionalRecursionRule) hasControlExit(node ast.Node) bool {
 	}
 
 	return astutils.SeekNode[ast.Node](node, isExit) != nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnconditionalRecursionRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

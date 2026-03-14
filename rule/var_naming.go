@@ -6,10 +6,11 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/internal/rule"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/logging"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rule"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/logging"
 )
 
 var knownNameExceptions = map[string]bool{
@@ -362,4 +363,9 @@ func getList(arg any, argName string) ([]string, error) {
 		list = append(list, val)
 	}
 	return list, nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*VarNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

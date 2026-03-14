@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 // Unix is an implementation of the [lint.Formatter] interface

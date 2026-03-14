@@ -7,7 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // PackageCommentsRule lints the package comments. It complains if
@@ -165,4 +166,9 @@ func (l *lintPackageComments) Visit(_ ast.Node) ast.Visitor {
 
 func isEmptyDoc(commentGroup *ast.CommentGroup) bool {
 	return commentGroup == nil || commentGroup.Text() == ""
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*PackageCommentsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

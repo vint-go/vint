@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // BannedCharsRule checks if a file contains banned characters.
@@ -89,4 +90,9 @@ func (w lintBannedCharsRule) Visit(node ast.Node) ast.Visitor {
 	}
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*BannedCharsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

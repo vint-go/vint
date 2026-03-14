@@ -3,7 +3,8 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UseAnyRule proposes to replace `interface{}` with its alias `any`.
@@ -51,4 +52,9 @@ func (w lintUseAny) Visit(n ast.Node) ast.Visitor {
 	})
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UseAnyRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

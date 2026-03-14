@@ -3,7 +3,8 @@ package rule
 import (
 	"fmt"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // DuplicatedImportsRule looks for packages that are imported two or more times.
@@ -36,4 +37,9 @@ func (*DuplicatedImportsRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fa
 // Name returns the rule name.
 func (*DuplicatedImportsRule) Name() string {
 	return "duplicated-imports"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*DuplicatedImportsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

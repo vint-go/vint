@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mgechev/revive/logging"
+	"github.com/strowk/vint/logging"
 )
 
 func TestGetLogger(t *testing.T) {

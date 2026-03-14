@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ImportsBlocklistRule disallows importing the specified packages.
@@ -64,4 +65,9 @@ func (r *ImportsBlocklistRule) Apply(file *lint.File, _ lint.Arguments) []lint.F
 // Name returns the rule name.
 func (*ImportsBlocklistRule) Name() string {
 	return "imports-blocklist"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ImportsBlocklistRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

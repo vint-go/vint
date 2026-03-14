@@ -6,7 +6,8 @@ import (
 	"go/token"
 	"maps"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 var builtInConstAndVars = map[string]bool{
@@ -221,4 +222,9 @@ func (w *lintRedefinesBuiltinID) isBuiltIn(id string) (r bool, builtInKind strin
 	}
 
 	return false, ""
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RedefinesBuiltinIDRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

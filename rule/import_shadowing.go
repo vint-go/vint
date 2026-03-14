@@ -6,7 +6,8 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ImportShadowingRule spots identifiers that shadow an import.
@@ -129,4 +130,9 @@ func (*ImportShadowingRule) isVersion(name string) bool {
 	}
 
 	return true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ImportShadowingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

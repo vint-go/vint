@@ -3,8 +3,9 @@ package rule
 import (
 	"fmt"
 
-	"github.com/mgechev/revive/internal/ifelse"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/ifelse"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // EarlyReturnRule finds opportunities to reduce nesting by inverting
@@ -88,4 +89,9 @@ func (e *EarlyReturnRule) checkIfElse(chain ifelse.Chain) (string, bool) {
 		return fmt.Sprintf("if c { } else %[1]v can be simplified to if !c %[1]v", chain.Else), true
 	}
 	return fmt.Sprintf("if c { ... } else %[1]v can be simplified to if !c %[1]v ...", chain.Else), true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*EarlyReturnRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

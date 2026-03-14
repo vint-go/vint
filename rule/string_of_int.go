@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"go/types"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // StringOfIntRule warns when an integer is converted to a string using a string cast.
@@ -92,4 +93,9 @@ func (w *lintStringInt) isIntExpression(es []ast.Expr) bool {
 	}
 
 	return true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*StringOfIntRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

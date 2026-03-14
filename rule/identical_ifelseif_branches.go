@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // IdenticalIfElseIfBranchesRule warns on if...else if chains with identical branches.
@@ -183,4 +184,9 @@ func (w *lintIfChainIdenticalBranches) identicalBranches(branches []ast.Stmt) []
 	}
 
 	return result
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*IdenticalIfElseIfBranchesRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

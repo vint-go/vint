@@ -9,8 +9,9 @@ import (
 
 	"github.com/fatih/structtag"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // StructTagRule lints struct tags.
@@ -446,7 +447,7 @@ const structTagCodecSpecialField = "_struct"
 
 func checkCodecTag(checkCtx *checkContext, tag *structtag.Tag, field *ast.Field) (message string, succeeded bool) {
 	fieldNames := field.Names
-	mustAddToCommonOptions := len(fieldNames) == 1 && fieldNames[0].Name == structTagCodecSpecialField // see https://github.com/mgechev/revive/issues/1477#issuecomment-3191493076
+	mustAddToCommonOptions := len(fieldNames) == 1 && fieldNames[0].Name == structTagCodecSpecialField // see https://github.com/strowk/vint/issues/1477#issuecomment-3191493076
 	for _, opt := range tag.Options {
 		if mustAddToCommonOptions {
 			checkCtx.addCommonOption(opt)
@@ -1057,4 +1058,9 @@ var validateLHS = map[string]struct{}{
 	"startswith":           {},
 	"unique":               {},
 	"validateFn":           {},
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*StructTagRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

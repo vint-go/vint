@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // FunctionResultsLimitRule limits the maximum number of results a function can return.
@@ -68,4 +69,9 @@ func (r *FunctionResultsLimitRule) Configure(arguments lint.Arguments) error {
 
 	r.max = int(maxResults)
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*FunctionResultsLimitRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

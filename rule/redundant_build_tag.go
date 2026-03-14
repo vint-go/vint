@@ -3,7 +3,8 @@ package rule
 import (
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // RedundantBuildTagRule lints the presence of redundant build tags.
@@ -38,4 +39,9 @@ func (*RedundantBuildTagRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fa
 // Name returns the rule name.
 func (*RedundantBuildTagRule) Name() string {
 	return "redundant-build-tag"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RedundantBuildTagRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

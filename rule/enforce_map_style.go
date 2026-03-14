@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 type enforceMapStyleType string
@@ -150,4 +151,9 @@ func (r *EnforceMapStyleRule) isMapType(v ast.Expr) bool {
 	default:
 		return false
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*EnforceMapStyleRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

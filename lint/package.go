@@ -11,8 +11,9 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/internal/typeparams"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/internal/typeparams"
 )
 
 // Package represents a package in the project.
@@ -203,12 +204,13 @@ func (p *Package) scanSortable() {
 	}
 }
 
-func (p *Package) lint(rules []Rule, config Config, failures chan Failure) error {
+func (p *Package) lint(rules []Rule, config Config, failures chan Failure, rc *rulecache.RuleCache, preCachedHits map[string]map[string]bool) error {
 	p.scanSortable()
 	var eg errgroup.Group
-	for _, file := range p.Files() {
+	for name, file := range p.Files() {
+		hits := preCachedHits[name] // may be nil
 		eg.Go(func() error {
-			return file.lint(rules, config, failures)
+			return file.lint(rules, config, failures, rc, hits)
 		})
 	}
 

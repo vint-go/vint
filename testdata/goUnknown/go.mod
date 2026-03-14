@@ -1,2 +1,2 @@
-module github.com/mgechev/revive/testdata
+module github.com/strowk/vint/testdata
 

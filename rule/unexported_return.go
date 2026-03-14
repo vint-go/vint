@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"go/types"
 
-	"github.com/mgechev/revive/internal/typeparams"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/typeparams"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnexportedReturnRule warns when a public function returns an unexported type.
@@ -110,4 +111,9 @@ func exportedType(typ types.Type) bool {
 	}
 	// Be conservative about other types, such as struct, interface, etc.
 	return true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnexportedReturnRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UselessBreak lint rule.
@@ -82,4 +83,9 @@ func (w *lintUselessBreak) inspectCaseStatement(body []ast.Stmt) {
 func isUnlabelledBreak(stmt ast.Stmt) bool {
 	s, ok := stmt.(*ast.BranchStmt)
 	return ok && s.Tok == token.BREAK && s.Label == nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UselessBreak) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

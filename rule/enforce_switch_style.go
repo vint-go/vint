@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // EnforceSwitchStyleRule implements a rule to enforce default clauses use and/or position.
@@ -139,4 +140,9 @@ func (*EnforceSwitchStyleRule) allBranchesEndWithJumpStmt(body *ast.BlockStmt) b
 // Name returns the rule name.
 func (*EnforceSwitchStyleRule) Name() string {
 	return "enforce-switch-style"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*EnforceSwitchStyleRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

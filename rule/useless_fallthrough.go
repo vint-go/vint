@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UselessFallthroughRule warns on useless fallthroughs in switch case clauses.
@@ -89,4 +90,9 @@ func (w *lintUselessFallthrough) Visit(node ast.Node) ast.Visitor {
 	}
 
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UselessFallthroughRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -4,3 +4,6 @@ vendor
 *.swp
 dist/
 *.log
+
+architecture/
+solution-deliverable/

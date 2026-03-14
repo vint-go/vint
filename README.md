@@ -1,8 +1,8 @@
 # revive
 
-[![Build Status](https://github.com/mgechev/revive/actions/workflows/test.yaml/badge.svg)](https://github.com/mgechev/revive/actions/workflows/test.yaml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/mgechev/revive.svg)](https://pkg.go.dev/github.com/mgechev/revive)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mgechev/revive)
+[![Build Status](https://github.com/strowk/vint/actions/workflows/test.yaml/badge.svg)](https://github.com/strowk/vint/actions/workflows/test.yaml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/strowk/vint.svg)](https://pkg.go.dev/github.com/strowk/vint)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/strowk/vint)
 
 Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
 **`Revive` provides a framework for development of custom rules,
@@ -107,13 +107,13 @@ brew upgrade revive
 Install the latest stable release directly from source:
 
 ```bash
-go install github.com/mgechev/revive@latest
+go install github.com/strowk/vint@latest
 ```
 
 To install the latest commit from the main branch:
 
 ```bash
-go install github.com/mgechev/revive@HEAD
+go install github.com/strowk/vint@HEAD
 ```
 
 ### Docker
@@ -121,7 +121,7 @@ go install github.com/mgechev/revive@HEAD
 You can run `revive` using Docker to avoid installing it directly on your system:
 
 ```bash
-docker run -v "$(pwd)":/var/YOUR_REPOSITORY ghcr.io/mgechev/revive:v1.10.0 -config /var/YOUR_REPOSITORY/revive.toml -formatter stylish ./var/YOUR_REPOSITORY/...
+docker run -v "$(pwd)":/var/YOUR_REPOSITORY ghcr.io/strowk/vint:v1.10.0 -config /var/YOUR_REPOSITORY/revive.toml -formatter stylish ./var/YOUR_REPOSITORY/...
 ```
 
 _Note_: Replace `YOUR_REPOSITORY` with the path to your repository.
@@ -130,13 +130,13 @@ A volume must be mounted to share the current repository with the container.
 For more details, refer to the [bind mounts Docker documentation](https://docs.docker.com/storage/bind-mounts/).
 
 - `-v`: Mounts the current directory (`$(pwd)`) to `/var/YOUR_REPOSITORY` inside the container.
-- `ghcr.io/mgechev/revive:v1.10.0`: Specifies the Docker image and its version.
+- `ghcr.io/strowk/vint:v1.10.0`: Specifies the Docker image and its version.
 - `revive`: The command to run inside the container.
 - Flags like `-config` and `-formatter` are the same as when using the binary directly.
 
 ### Manual Binary Download
 
-Download the precompiled binary from the [Releases page](https://github.com/mgechev/revive/releases):
+Download the precompiled binary from the [Releases page](https://github.com/strowk/vint/releases):
 
 1. Select the appropriate binary for your OS and architecture.
 2. Extract the binary and move it to a directory in your `PATH` (e.g., `/usr/local/bin`).
@@ -232,7 +232,7 @@ When a configuration is provided, only rules in the configuration are enabled.
 
 - `-config [PATH]` - path to the config file in TOML format, defaults to `$HOME/revive.toml` if present.
 - `-exclude [PATTERN]` - pattern for files/directories/packages to be excluded for linting.
-You can specify the files you want to exclude for linting either as package name (i.e. `github.com/mgechev/revive`),
+You can specify the files you want to exclude for linting either as package name (i.e. `github.com/strowk/vint`),
 list them as individual files (i.e. `file.go`), directories (i.e. `./foo/...`), or any combination of the three.
 If no exclusion patterns are specified, `vendor/...` will be excluded by default.
 - `-formatter [NAME]` - formatter to be used for the output. The currently available formatters are:
@@ -250,13 +250,13 @@ If no exclusion patterns are specified, `vendor/...` will be excluded by default
 ### Sample Invocations
 
 ```shell
-revive -config revive.toml -exclude file1.go -exclude file2.go -formatter friendly github.com/mgechev/revive package/...
+revive -config revive.toml -exclude file1.go -exclude file2.go -formatter friendly github.com/strowk/vint package/...
 ```
 
 - The command above will use the configuration from `revive.toml`
 - `revive` will ignore `file1.go` and `file2.go`
 - The output will be formatted with the `friendly` formatter
-- The linter will analyze `github.com/mgechev/revive` and the files in `package`
+- The linter will analyze `github.com/strowk/vint` and the files in `package`
 
 ### Comment Directives
 
@@ -415,10 +415,10 @@ Arguments = ["mypackage.Error"]
 ### Custom Configuration
 
 ```shell
-revive -config config.toml -formatter friendly github.com/mgechev/revive
+revive -config config.toml -formatter friendly github.com/strowk/vint
 ```
 
-This will use `config.toml`, the `friendly` formatter, and will run linting over the `github.com/mgechev/revive` package.
+This will use `config.toml`, the `friendly` formatter, and will run linting over the `github.com/strowk/vint` package.
 
 ### Recommended Configuration
 
@@ -692,9 +692,9 @@ The full rule set of `revive` is also actionable by your application.
 package main
 
 import (
-	"github.com/mgechev/revive/cli"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/revivelib"
+	"github.com/strowk/vint/cli"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/revivelib"
 )
 
 func main() {
@@ -718,9 +718,9 @@ You can still go further and use `revive` without its CLI, as part of your libra
 package mylib
 
 import (
-	"github.com/mgechev/revive/config"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/revivelib"
+	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/revivelib"
 )
 
 // Error checking removed for clarity
@@ -832,72 +832,17 @@ To force colorization, add `REVIVE_FORCE_COLOR=1` to the environment you're runn
 REVIVE_FORCE_COLOR=1 revive -formatter friendly ./... | tee revive.log
 ```
 
-## Who uses Revive
-
-<!-- markdownlint-disable MD013 -->
-
-- [`tidb`](https://github.com/pingcap/tidb) - TiDB is a distributed HTAP database compatible with the MySQL protocol
-- [`grafana`](https://github.com/grafana/grafana) - The tool for beautiful monitoring and metric analytics & dashboards for Graphite, InfluxDB & Prometheus & More
-- [`etcd`](https://github.com/etcd-io/etcd) - Distributed reliable key-value store for the most critical data of a distributed system
-- [`cadence`](https://github.com/uber/cadence) - Cadence is a distributed, scalable, durable, and highly available orchestration engine by Uber to execute asynchronous long-running business logic in a scalable and resilient way
-- [`ferret`](https://github.com/MontFerret/ferret) - Declarative web scraping
-- [`gopass`](https://github.com/gopasspw/gopass) - The slightly more awesome standard unix password manager for teams
-- [`gitea`](https://github.com/go-gitea/gitea) - Git with a cup of tea, painless self-hosted git service
-- [`excelize`](https://github.com/360EntSecGroup-Skylar/excelize) - Go library for reading and writing Microsoft Excel™ (XLSX) files
-- [`aurora`](https://github.com/xuri/aurora) - aurora is a web-based Beanstalk queue server console written in Go
-- [`soar`](https://github.com/XiaoMi/soar) - SQL Optimizer And Rewriter
-- [`pyroscope`](https://github.com/pyroscope-io/pyroscope) - Continuous profiling platform
-- [`gorush`](https://github.com/appleboy/gorush) - A push notification server written in Go (Golang).
-- [`dry`](https://github.com/moncho/dry) - dry - A Docker manager for the terminal.
-- [`go-echarts`](https://github.com/chenjiandongx/go-echarts) - The adorable charts library for Golang
-- [`reviewdog`](https://github.com/reviewdog/reviewdog) - Automated code review tool integrated with any code analysis tools regardless of programming language
-- [`rudder-server`](https://github.com/rudderlabs/rudder-server) - Privacy and Security focused Segment-alternative, in Golang and React.
-- [`sklearn`](https://github.com/pa-m/sklearn) - A partial port of scikit-learn written in Go.
-- [`protoc-gen-doc`](https://github.com/pseudomuto/protoc-gen-doc) - Documentation generator plugin for Google Protocol Buffers.
-- [`llvm`](https://github.com/llir/llvm) - Library for interacting with LLVM IR in pure Go.
-- [`jenkins-library`](https://github.com/SAP/jenkins-library) - Jenkins shared library for Continuous Delivery pipelines by SAP.
-- [`pd`](https://github.com/tikv/pd) - Placement driver for TiKV.
-- [`shellhub`](https://github.com/shellhub-io/shellhub) - ShellHub enables teams to easily access any Linux device behind firewall and NAT.
-- [`lorawan-stack`](https://github.com/TheThingsNetwork/lorawan-stack) - The Things Network Stack for LoRaWAN V3
-- [`gin-jwt`](https://github.com/appleboy/gin-jwt) - This is a JWT middleware for Gin framework.
-- [`gofight`](https://github.com/appleboy/gofight) - Testing API Handler written in Golang.
-- [`Beaver`](https://github.com/Clivern/Beaver) - A Real Time Messaging Server.
-- [`ggz`](https://github.com/go-ggz/ggz) - An URL shortener service written in Golang
-- [`Codeac.io`](https://www.codeac.io?ref=revive) - Automated code review service integrates with GitHub, Bitbucket and GitLab (even self-hosted) and helps you fight technical debt.
-- [`DevLake`](https://github.com/apache/incubator-devlake) - Apache DevLake is an open-source dev data platform to ingest, analyze, and visualize the fragmented data from DevOps tools，which can distill insights to improve engineering productivity.
-- [`checker`](https://github.com/cinar/checker) - Checker helps validating user input through rules defined in struct tags or directly through functions.
-- [`milvus`](https://github.com/milvus-io/milvus) - A cloud-native vector database, storage for next generation AI applications.
-- [`indicator`](https://github.com/cinar/indicator) - Indicator provides various technical analysis indicators, strategies, and a backtesting framework.
-
-<!-- markdownlint-enable MD013 -->
-
 _Open a PR to add your project_.
 
 ## Contributors
 
-### Maintainers
+### Credits
 
-| [<img alt="mgechev" src="https://avatars.githubusercontent.com/u/455023?v=4&s=100" width="100">](https://github.com/mgechev) | [<img alt="chavacava" src="https://avatars.githubusercontent.com/u/25788468?v=4&s=100" width="100">](https://github.com/chavacava) | [<img alt="denisvmedia" src="https://avatars.githubusercontent.com/u/5462781?v=4&s=100" width="100">](https://github.com/denisvmedia) | [<img alt="alexandear" src="https://avatars.githubusercontent.com/u/3228886?v=4&s=100" width="100">](https://github.com/alexandear) |
-|---|---|---|---|
-| [mgechev](https://github.com/mgechev) | [chavacava](https://github.com/chavacava) | [denisvmedia](https://github.com/denisvmedia) | [alexandear](https://github.com/alexandear) |
+This project is a fork of [revive](https://github.com/mgechev/revive) and contains all its original code and rules, with the addition of rules from these repositories:
 
-### All
-
-This project exists thanks to all the people who contribute.
-
-<a href="https://github.com/mgechev/revive/graphs/contributors">
-  <img alt="All Contributors" src="https://contrib.rocks/image?repo=mgechev/revive&max=500" />
-</a>
-
-## Star History
-
-<a href="https://www.star-history.com/#mgechev/revive&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mgechev/revive&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mgechev/revive&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mgechev/revive&type=date&legend=top-left" />
- </picture>
-</a>
+| | | |
+|-|-|-|
+| [bodyclose](https://github.com/timakin/bodyclose) | | |
 
 ## License
 

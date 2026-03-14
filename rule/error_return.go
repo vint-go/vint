@@ -3,8 +3,9 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ErrorReturnRule ensures that the error return parameter is the last parameter.
@@ -49,4 +50,9 @@ func (*ErrorReturnRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure 
 // Name returns the rule name.
 func (*ErrorReturnRule) Name() string {
 	return "error-return"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ErrorReturnRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

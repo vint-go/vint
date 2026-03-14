@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/typeparams"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/typeparams"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ReceiverNamingRule lints a receiver name.
@@ -107,4 +108,9 @@ func (r *ReceiverNamingRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fai
 // Name returns the rule name.
 func (*ReceiverNamingRule) Name() string {
 	return "receiver-naming"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ReceiverNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // CommentsDensityRule enforces a minimum comment / code relation.
@@ -83,4 +84,9 @@ func countDocLines(comments []*ast.CommentGroup) int {
 	}
 
 	return acc
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*CommentsDensityRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

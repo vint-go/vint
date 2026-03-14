@@ -9,7 +9,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ErrorStringsRule lints error strings.
@@ -203,4 +204,9 @@ func lintErrorString(s string) (isClean bool, conf float64) {
 
 	// Flag strings starting with something that doesn't look like an initialism.
 	return false, capConfidence
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ErrorStringsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

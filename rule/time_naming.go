@@ -6,7 +6,8 @@ import (
 	"go/types"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // TimeNamingRule lints the name of a time variable.
@@ -93,4 +94,9 @@ func isNamedType(typ types.Type, importPath, name string) bool {
 
 	typeName := n.Obj()
 	return typeName != nil && typeName.Pkg() != nil && typeName.Pkg().Path() == importPath && typeName.Name() == name
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*TimeNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

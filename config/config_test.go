@@ -8,9 +8,9 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 
-	"github.com/mgechev/revive/config"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/rule"
+	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/rule"
 )
 
 func TestGetConfig(t *testing.T) {
@@ -61,6 +61,165 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityWarning,
 						},
 						"indent-error-flow": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnclosedBodies": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/complexity/noDuplicateCode": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/complexity/noExcessiveStatements": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/complexity/noHighCyclomaticComplexity": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/complexity/noLongFunctions": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noDeniedImport": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noDirectErrorComparison": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noDynamicErrors": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noFileScopedDeniedImport": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSpaceInDirective": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnallowedImport": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUncheckedError": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noRangeVariableAlias": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSliceBoundsOutOfRange": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnrecognizedDirective": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noAtoiOverflow": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noBindToAllInterfaces": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noExposedPprof": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noFilesystemRootServing": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noHardcodedCredentials": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noHardcodedIv": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noHttpRequestSmuggling": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noInsecureCookie": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noInsecureHostKeyCallback": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noIntegerOverflowConversion": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noMissingReadHeaderTimeout": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noServeWithoutTimeout": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSsrfViaVariable": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noTrojanSourceBidi": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnboundedDecompression": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnsafePackage": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noCgiImport": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noCommandInjectionTaint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noContextPropagationFailure": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noDeprecatedHashFunction": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noFileInclusionViaVariable": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noFilesystemToctou": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noInsecureRandom": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noInsecureTlsConfig": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noLogInjectionTaint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noPathTraversalTaint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noPermissiveDirectoryPermissions": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noPermissiveFilePermissions": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noPermissiveOsCreate": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noPermissiveWriteFilePermissions": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noPredictableTempFile": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSecretInSerialization": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noShortRsaKey": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSmtpInjectionTaint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSqlConcatenation": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSqlFormatString": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSqlInjectionTaint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noSshAuthBypass": {
 							Severity: lint.SeverityWarning,
 						},
 						"package-comments": {
@@ -171,6 +330,59 @@ func TestGetConfig(t *testing.T) {
 						"exported":             {},
 						"increment-decrement":  {},
 						"indent-error-flow":    {},
+						"lint/correctness/noUnclosedBodies":   {},
+						"lint/complexity/noDuplicateCode":             {},
+						"lint/complexity/noExcessiveStatements":       {},
+						"lint/complexity/noHighCyclomaticComplexity":  {},
+						"lint/complexity/noLongFunctions":              {},
+						"lint/correctness/noDeniedImport":              {},
+						"lint/correctness/noDirectErrorComparison":     {},
+						"lint/correctness/noDynamicErrors":             {},
+						"lint/correctness/noFileScopedDeniedImport":    {},
+						"lint/correctness/noSpaceInDirective":           {},
+						"lint/correctness/noUnallowedImport":            {},
+						"lint/correctness/noUncheckedError":              {},
+						"lint/correctness/noRangeVariableAlias":          {},
+						"lint/correctness/noSliceBoundsOutOfRange":        {},
+						"lint/correctness/noUnrecognizedDirective":        {},
+						"lint/security/noAtoiOverflow":                    {},
+						"lint/security/noBindToAllInterfaces":             {},
+						"lint/security/noExposedPprof":                    {},
+						"lint/security/noFilesystemRootServing":           {},
+						"lint/security/noHardcodedCredentials":             {},
+						"lint/security/noHardcodedIv":                      {},
+						"lint/security/noHttpRequestSmuggling":             {},
+						"lint/security/noInsecureCookie":                    {},
+						"lint/security/noInsecureHostKeyCallback":          {},
+						"lint/security/noIntegerOverflowConversion":        {},
+						"lint/security/noMissingReadHeaderTimeout":         {},
+						"lint/security/noServeWithoutTimeout":               {},
+						"lint/security/noSsrfViaVariable":                   {},
+						"lint/security/noTrojanSourceBidi":                   {},
+						"lint/security/noUnboundedDecompression":             {},
+						"lint/security/noUnsafePackage":                       {},
+						"lint/security/noCgiImport":                            {},
+						"lint/security/noCommandInjectionTaint":                {},
+						"lint/security/noContextPropagationFailure":            {},
+						"lint/security/noDeprecatedHashFunction":               {},
+						"lint/security/noFileInclusionViaVariable":             {},
+						"lint/security/noFilesystemToctou":                     {},
+						"lint/security/noInsecureRandom":                       {},
+						"lint/security/noInsecureTlsConfig":                    {},
+						"lint/security/noLogInjectionTaint":                    {},
+						"lint/security/noPathTraversalTaint":                   {},
+						"lint/security/noPermissiveDirectoryPermissions":       {},
+						"lint/security/noPermissiveFilePermissions":            {},
+						"lint/security/noPermissiveOsCreate":                   {},
+						"lint/security/noPermissiveWriteFilePermissions":       {},
+						"lint/security/noPredictableTempFile":                  {},
+						"lint/security/noSecretInSerialization":                 {},
+						"lint/security/noShortRsaKey":                           {},
+						"lint/security/noSmtpInjectionTaint":                    {},
+						"lint/security/noSqlConcatenation":                      {},
+						"lint/security/noSqlFormatString":                       {},
+						"lint/security/noSqlInjectionTaint":                     {},
+						"lint/security/noSshAuthBypass":                          {},
 						"package-comments":     {},
 						"range":                {},
 						"receiver-naming":      {},
@@ -241,6 +453,165 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityError,
 						},
 						"indent-error-flow": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnclosedBodies": {
+							Severity: lint.SeverityError,
+						},
+						"lint/complexity/noDuplicateCode": {
+							Severity: lint.SeverityError,
+						},
+						"lint/complexity/noExcessiveStatements": {
+							Severity: lint.SeverityError,
+						},
+						"lint/complexity/noHighCyclomaticComplexity": {
+							Severity: lint.SeverityError,
+						},
+						"lint/complexity/noLongFunctions": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noDeniedImport": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noDirectErrorComparison": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noDynamicErrors": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noFileScopedDeniedImport": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSpaceInDirective": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnallowedImport": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUncheckedError": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noRangeVariableAlias": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSliceBoundsOutOfRange": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnrecognizedDirective": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noAtoiOverflow": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noBindToAllInterfaces": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noExposedPprof": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noFilesystemRootServing": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noHardcodedCredentials": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noHardcodedIv": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noHttpRequestSmuggling": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noInsecureCookie": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noInsecureHostKeyCallback": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noIntegerOverflowConversion": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noMissingReadHeaderTimeout": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noServeWithoutTimeout": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSsrfViaVariable": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noTrojanSourceBidi": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnboundedDecompression": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnsafePackage": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noCgiImport": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noCommandInjectionTaint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noContextPropagationFailure": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noDeprecatedHashFunction": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noFileInclusionViaVariable": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noFilesystemToctou": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noInsecureRandom": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noInsecureTlsConfig": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noLogInjectionTaint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noPathTraversalTaint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noPermissiveDirectoryPermissions": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noPermissiveFilePermissions": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noPermissiveOsCreate": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noPermissiveWriteFilePermissions": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noPredictableTempFile": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSecretInSerialization": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noShortRsaKey": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSmtpInjectionTaint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSqlConcatenation": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSqlFormatString": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSqlInjectionTaint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noSshAuthBypass": {
 							Severity: lint.SeverityError,
 						},
 						"package-comments": {
@@ -440,9 +811,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 23
+		defaultRulesCount = 76
 		// len of allRules: update this when adding new rules
-		allRulesCount = 102
+		allRulesCount = 157
 	)
 
 	tt := map[string]struct {
@@ -642,17 +1013,17 @@ func TestGetGlobalSeverity(t *testing.T) {
 				t.Fatalf("Unexpected error while loading conf: %v", err)
 			}
 			for _, r := range rules {
-				ruleName := r.Name()
-				ruleCfg := cfg.Rules[ruleName]
+				fullName := lint.FullRuleName(r)
+				ruleCfg := cfg.Rules[fullName]
 				ruleSeverity := string(ruleCfg.Severity)
-				switch ruleName {
+				switch r.Name() {
 				case tc.particularRule.Name():
 					if tc.wantParticularSeverity != ruleSeverity {
-						t.Fatalf("Expected Severity %v for rule %v, got %v", tc.wantParticularSeverity, ruleName, ruleSeverity)
+						t.Fatalf("Expected Severity %v for rule %v, got %v", tc.wantParticularSeverity, fullName, ruleSeverity)
 					}
 				default:
 					if tc.wantGlobalSeverity != ruleSeverity {
-						t.Fatalf("Expected Severity %v for rule %v, got %v", tc.wantGlobalSeverity, ruleName, ruleSeverity)
+						t.Fatalf("Expected Severity %v for rule %v, got %v", tc.wantGlobalSeverity, fullName, ruleSeverity)
 					}
 				}
 			}

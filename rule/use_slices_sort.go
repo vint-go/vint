@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UseSlicesSort spots calls to sort.* that can be replaced by [slices] package methods.
@@ -91,4 +92,9 @@ func findCallToSortReplacement(expr ast.Expr) (isCallToSort bool, sortMethod, sl
 	}
 
 	return true, sortMethod, slicesMethod
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UseSlicesSort) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

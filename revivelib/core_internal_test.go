@@ -3,8 +3,8 @@ package revivelib
 import (
 	"testing"
 
-	"github.com/mgechev/revive/config"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/lint"
 )
 
 func TestReviveCreateInstance(t *testing.T) {

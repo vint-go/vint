@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnexportedNamingRule lints wrongly named unexported symbols.
@@ -112,4 +113,9 @@ func (unl unexportablenamingLinter) lintIDs(ids []*ast.Ident) {
 			})
 		}
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnexportedNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

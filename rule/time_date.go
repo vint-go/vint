@@ -9,9 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/logging"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/logging"
 )
 
 // TimeDateRule lints the way [time.Date] is used.
@@ -479,4 +480,9 @@ func parseDecimalInteger(bl *ast.BasicLit) (int64, error) {
 	}
 
 	return parsedValue, nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*TimeDateRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

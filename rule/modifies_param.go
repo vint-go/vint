@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ModifiesParamRule warns on assignments to function parameters.
@@ -130,4 +131,9 @@ func (w *lintModifiesParamRule) checkModifyingFunction(callNode ast.Node) {
 			Failure:    fmt.Sprintf("parameter '%s' seems to be modified by '%s'", id.Name, funcName),
 		})
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ModifiesParamRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

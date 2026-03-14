@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // BoolLiteralRule warns when logic expressions contain boolean literals.
@@ -88,4 +89,9 @@ func isExprABooleanLit(n ast.Node) (lexeme string, ok bool) {
 	}
 
 	return oper.Name, oper.Name == "true" || oper.Name == "false"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*BoolLiteralRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

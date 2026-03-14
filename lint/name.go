@@ -1,6 +1,6 @@
 package lint
 
-import "github.com/mgechev/revive/internal/rule"
+import "github.com/strowk/vint/internal/rule"
 
 // Name returns a different name if it should be different.
 //

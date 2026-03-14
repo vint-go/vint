@@ -3,8 +3,9 @@ package rule
 import (
 	"fmt"
 
-	"github.com/mgechev/revive/internal/ifelse"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/ifelse"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // SuperfluousElseRule lints given else constructs.
@@ -71,4 +72,9 @@ func (e *SuperfluousElseRule) checkIfElse(chain ifelse.Chain) (string, bool) {
 	}
 
 	return fmt.Sprintf("if block ends with %v, so drop this else and outdent its block", chain.If.LongString()), true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*SuperfluousElseRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

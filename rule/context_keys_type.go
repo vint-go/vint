@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"go/types"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ContextKeysType disallows the usage of basic types in [context.WithValue].
@@ -70,4 +71,9 @@ func checkContextKeyType(w lintContextKeyTypes, x *ast.CallExpr) {
 			Failure:    fmt.Sprintf("should not use basic type %s as key in context.WithValue", key.Type),
 		})
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ContextKeysType) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

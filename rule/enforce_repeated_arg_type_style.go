@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 type enforceRepeatedArgTypeStyleType string
@@ -188,4 +189,9 @@ func (r *EnforceRepeatedArgTypeStyleRule) Apply(file *lint.File, _ lint.Argument
 // Name returns the name of the linter rule.
 func (*EnforceRepeatedArgTypeStyleRule) Name() string {
 	return "enforce-repeated-arg-type-style"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*EnforceRepeatedArgTypeStyleRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

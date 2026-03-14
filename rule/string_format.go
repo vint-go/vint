@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // StringFormatRule lints strings and/or comments according to a set of regular expressions given as arguments.
@@ -308,4 +309,9 @@ func (r *stringFormatSubrule) generateFailure(node ast.Node) {
 		Failure:    failure,
 		Node:       node,
 	})
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*StringFormatRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

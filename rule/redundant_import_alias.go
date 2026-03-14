@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // RedundantImportAlias warns on import aliases matching the imported package name.
@@ -49,4 +50,9 @@ func getImportPackageName(imp *ast.ImportSpec) string {
 	}
 
 	return strings.Trim(path[i+1:], strDelim)
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RedundantImportAlias) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

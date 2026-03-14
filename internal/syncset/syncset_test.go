@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/mgechev/revive/internal/syncset"
+	"github.com/strowk/vint/internal/syncset"
 )
 
 func TestNew_ConcurrentElementsAreInitiallyEmpty(t *testing.T) {

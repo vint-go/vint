@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // CommentSpacingsRule checks whether there is a space between
@@ -78,4 +79,9 @@ func (r *CommentSpacingsRule) isAllowed(line string) bool {
 	}
 
 	return isDirectiveComment(line)
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*CommentSpacingsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

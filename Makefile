@@ -4,7 +4,7 @@ GIT_COMMIT ?= $(shell git rev-parse --verify HEAD)
 GIT_VERSION ?= $(shell git describe --tags --always --dirty="-dev")
 DATE ?= $(shell date -u '+%Y-%m-%d %H:%M UTC')
 BUILDER ?= Makefile
-VERSION_FLAGS := -X "github.com/mgechev/revive/cli.version=$(GIT_VERSION)" -X "github.com/mgechev/revive/cli.date=$(DATE)" -X "github.com/mgechev/revive/cli.commit=$(GIT_COMMIT)" -X "github.com/mgechev/revive/cli.builtBy=$(BUILDER)"
+VERSION_FLAGS := -X "github.com/strowk/vint/cli.version=$(GIT_VERSION)" -X "github.com/strowk/vint/cli.date=$(DATE)" -X "github.com/strowk/vint/cli.commit=$(GIT_COMMIT)" -X "github.com/strowk/vint/cli.builtBy=$(BUILDER)"
 
 all: test lint build
 

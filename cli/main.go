@@ -12,8 +12,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/afero"
 
-	"github.com/mgechev/revive/config"
-	"github.com/mgechev/revive/revivelib"
+	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/revivelib"
 )
 
 const (

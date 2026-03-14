@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnnecessaryFormatRule spots calls to formatting functions without leveraging formatting directives.
@@ -126,4 +127,9 @@ func (w lintUnnecessaryFormat) Visit(n ast.Node) ast.Visitor {
 	w.onFailure(failure)
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnnecessaryFormatRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

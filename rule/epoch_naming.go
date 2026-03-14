@@ -7,7 +7,8 @@ import (
 	"go/types"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // EpochNamingRule lints epoch time variable naming.
@@ -146,4 +147,9 @@ func hasAnySuffix(s string, suffixes []string) bool {
 		}
 	}
 	return false
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*EpochNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

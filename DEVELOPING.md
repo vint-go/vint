@@ -7,7 +7,7 @@ This document explains how to build, test, and develop features for revive.
 Clone the project:
 
 ```bash
-git clone git@github.com:mgechev/revive.git
+git clone git@github.com:strowk/vint.git
 cd revive
 ```
 
@@ -45,7 +45,7 @@ GitHub Copilot.
 
 ## Development of rules
 
-If you want to develop a new rule, follow as an example the already existing rules in the [rule package](https://github.com/mgechev/revive/tree/master/rule).
+If you want to develop a new rule, follow as an example the already existing rules in the [rule package](https://github.com/strowk/vint/tree/master/rule).
 
 When adding a new rule that does not require type information (for example, a rule that does not call `file.Pkg.TypeCheck()` and works purely on syntax/AST),
 add its name to `untyped.toml` and keep that file in sync with any such rules.
@@ -89,7 +89,7 @@ A sample rule implementation can be [found here](/rule/argument_limit.go).
 
 ## Development of formatters
 
-If you want to develop a new formatter, follow as an example the already existing formatters in the [formatter package](https://github.com/mgechev/revive/tree/master/formatter).
+If you want to develop a new formatter, follow as an example the already existing formatters in the [formatter package](https://github.com/strowk/vint/tree/master/formatter).
 
 All formatters should implement the following interface:
 

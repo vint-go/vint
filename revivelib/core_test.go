@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mgechev/revive/config"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/revivelib"
-	"github.com/mgechev/revive/rule"
+	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/revivelib"
+	"github.com/strowk/vint/rule"
 )
 
 func TestReviveLint(t *testing.T) {

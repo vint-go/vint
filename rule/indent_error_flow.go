@@ -1,8 +1,9 @@
 package rule
 
 import (
-	"github.com/mgechev/revive/internal/ifelse"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/ifelse"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // IndentErrorFlowRule prevents redundant else statements.
@@ -69,4 +70,9 @@ func (e *IndentErrorFlowRule) checkIfElse(chain ifelse.Chain) (string, bool) {
 	}
 
 	return "if block ends with a return statement, so drop this else and outdent its block", true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*IndentErrorFlowRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

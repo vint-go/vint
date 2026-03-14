@@ -7,7 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // PackageDirectoryMismatchRule detects when package name doesn't match directory name.
@@ -191,4 +192,9 @@ func isRootDir(dirPath string) bool {
 // Name returns the rule name.
 func (*PackageDirectoryMismatchRule) Name() string {
 	return "package-directory-mismatch"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*PackageDirectoryMismatchRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

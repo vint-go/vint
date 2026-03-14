@@ -3,7 +3,7 @@ package rule
 import (
 	"testing"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 func TestIndentErrorFlowRule_Configure(t *testing.T) {

@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // OptimizeOperandsOrderRule checks inefficient conditional expressions.
@@ -84,4 +85,9 @@ func (w lintOptimizeOperandsOrderExpr) Visit(node ast.Node) ast.Visitor {
 	})
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*OptimizeOperandsOrderRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

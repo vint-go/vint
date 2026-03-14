@@ -6,7 +6,8 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // RangeValAddress warns if address of range value is used dangerously.
@@ -163,4 +164,9 @@ func (bw rangeBodyVisitor) newFailure(node ast.Node) lint.Failure {
 		Confidence: 1,
 		Failure:    fmt.Sprintf("suspicious assignment of '%s'. range-loop variables always have the same address", bw.valueID.Name),
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RangeValAddress) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

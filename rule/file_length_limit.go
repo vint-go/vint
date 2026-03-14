@@ -8,7 +8,8 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // FileLengthLimitRule lints the number of lines in a file.
@@ -128,4 +129,9 @@ func countCommentLines(comments []*ast.CommentGroup) int {
 		}
 	}
 	return count
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*FileLengthLimitRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

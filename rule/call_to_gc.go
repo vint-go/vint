@@ -3,8 +3,9 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // CallToGCRule lints calls to the garbage collector.
@@ -25,7 +26,12 @@ func (*CallToGCRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
 
 // Name returns the rule name.
 func (*CallToGCRule) Name() string {
-	return "call-to-gc"
+	return "noCallToGC"
+}
+
+// Group returns the rule group.
+func (*CallToGCRule) Group() string {
+	return "performance"
 }
 
 type lintCallToGC struct {
@@ -50,4 +56,9 @@ func (w lintCallToGC) Visit(node ast.Node) ast.Visitor {
 	})
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*CallToGCRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

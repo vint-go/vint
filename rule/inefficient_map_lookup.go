@@ -6,8 +6,9 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // InefficientMapLookupRule spots potential inefficient map lookups.
@@ -171,4 +172,9 @@ func (w *lintInefficientMapLookup) isRangeOverMapKey(stmt ast.Stmt) bool {
 	// Check if we range over a map
 	t := w.file.Pkg.TypeOf(rangeStmt.X)
 	return t != nil && strings.HasPrefix(t.String(), "map[")
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*InefficientMapLookupRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

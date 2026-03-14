@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // IncrementDecrementRule suggests replacing `i += 1` and `i -= 1` with `i++` and `i--`.
@@ -70,4 +71,9 @@ func (w lintIncrementDecrement) Visit(n ast.Node) ast.Visitor {
 func isOne(expr ast.Expr) bool {
 	lit, ok := expr.(*ast.BasicLit)
 	return ok && lit.Kind == token.INT && lit.Value == "1"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*IncrementDecrementRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnnecessaryStmtRule warns on unnecessary statements.
@@ -104,4 +105,9 @@ func (w lintUnnecessaryStmtRule) newFailure(node ast.Node, msg string) {
 		Category:   lint.FailureCategoryStyle,
 		Failure:    msg,
 	})
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnnecessaryStmtRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

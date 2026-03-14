@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // TimeEqualRule flags where "==" and "!=" are used for equality checks on [time.Time].
@@ -71,4 +72,9 @@ func (l *lintTimeEqual) Visit(node ast.Node) ast.Visitor {
 	})
 
 	return l
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*TimeEqualRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

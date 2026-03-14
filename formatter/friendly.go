@@ -11,7 +11,7 @@ import (
 
 	"github.com/fatih/color"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 // Friendly is an implementation of the [lint.Formatter] interface

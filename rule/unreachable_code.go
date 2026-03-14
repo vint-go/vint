@@ -3,7 +3,8 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnreachableCodeRule lints unreachable code.
@@ -118,4 +119,9 @@ func newUnreachableCodeFailure(node ast.Node) lint.Failure {
 		Category:   lint.FailureCategoryLogic,
 		Failure:    "unreachable code after this statement",
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnreachableCodeRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 // configureRule configures the given rule with the given configuration
@@ -48,7 +48,7 @@ func testRule(tb testing.TB, filename string, rule lint.Rule, config ...*lint.Ru
 	c := map[string]lint.RuleConfig{}
 	if len(config) > 0 {
 		ruleConfig = *config[0]
-		c[rule.Name()] = ruleConfig
+		c[lint.FullRuleName(rule)] = ruleConfig
 	}
 	configureRule(tb, rule, ruleConfig.Arguments)
 

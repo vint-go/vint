@@ -6,8 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ErrorfRule suggests using `fmt.Errorf` instead of `errors.New(fmt.Sprintf())`.
@@ -91,4 +92,9 @@ func srcLineWithMatch(file *lint.File, node ast.Node, pattern string) (m []strin
 	line = strings.TrimSuffix(line, "\n")
 	rx := regexp.MustCompile(pattern)
 	return rx.FindStringSubmatch(line)
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ErrorfRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

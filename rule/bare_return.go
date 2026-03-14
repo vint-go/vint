@@ -3,7 +3,8 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // BareReturnRule lints bare returns.
@@ -81,4 +82,9 @@ func (w bareReturnFinder) Visit(node ast.Node) ast.Visitor {
 	})
 
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*BareReturnRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

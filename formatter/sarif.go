@@ -7,7 +7,7 @@ import (
 
 	"codeberg.org/chavacava/garif"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/lint"
 )
 
 // Sarif is an implementation of the [lint.Formatter] interface

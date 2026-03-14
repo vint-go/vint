@@ -7,7 +7,8 @@ import (
 
 	"golang.org/x/tools/go/ast/astutil"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // CognitiveComplexityRule sets restriction for maximum cognitive complexity.
@@ -238,4 +239,9 @@ func (becc *binExprComplexityCalculator) post(c *astutil.Cursor) bool {
 	}
 
 	return true
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*CognitiveComplexityRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

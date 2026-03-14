@@ -10,8 +10,9 @@ import (
 
 	gopackages "golang.org/x/tools/go/packages"
 
-	"github.com/mgechev/revive/internal/syncset"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/syncset"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // defaultBadNames is the list of "bad" package names from https://go.dev/blog/package-names#bad-package-names.
@@ -312,4 +313,9 @@ func (*PackageNamingRule) pkgNameFailure(node ast.Node, msg string, args ...any)
 		Node:       node,
 		Category:   lint.FailureCategoryNaming,
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*PackageNamingRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

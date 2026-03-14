@@ -4,7 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // EmptyLinesRule lints empty lines in blocks.
@@ -102,4 +103,9 @@ func (*EmptyLinesRule) commentLines(cmap ast.CommentMap, file *lint.File) map[in
 	}
 
 	return result
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*EmptyLinesRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

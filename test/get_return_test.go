@@ -3,7 +3,7 @@ package test_test
 import (
 	"testing"
 
-	"github.com/mgechev/revive/rule"
+	"github.com/strowk/vint/rule"
 )
 
 func TestGetReturn(t *testing.T) {

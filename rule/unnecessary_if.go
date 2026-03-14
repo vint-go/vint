@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // UnnecessaryIfRule warns on if...else statements that can be replaced by simpler expressions.
@@ -199,4 +200,9 @@ func (*lintUnnecessaryIf) isSingleBooleanLiteral(exprs []ast.Expr) (string, bool
 	}
 
 	return ident.Name, (ident.Name == "true" || ident.Name == "false")
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*UnnecessaryIfRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

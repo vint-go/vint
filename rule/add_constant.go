@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 const (
@@ -263,4 +264,9 @@ func (r *AddConstantRule) Configure(arguments lint.Arguments) error {
 	}
 
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*AddConstantRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

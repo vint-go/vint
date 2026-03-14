@@ -8,8 +8,9 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/mgechev/revive/internal/typeparams"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/typeparams"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // disabledChecks store ignored warnings types.
@@ -543,4 +544,9 @@ func (w *lintExported) addFailuref(node ast.Node, confidence float64, category l
 		Category:   category,
 		Failure:    fmt.Sprintf(message, args...),
 	})
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ExportedRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

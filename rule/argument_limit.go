@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ArgumentsLimitRule lints the number of arguments a function can receive.
@@ -64,4 +65,9 @@ func (r *ArgumentsLimitRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fai
 // Name returns the rule name.
 func (*ArgumentsLimitRule) Name() string {
 	return "argument-limit"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ArgumentsLimitRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

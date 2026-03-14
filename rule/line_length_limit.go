@@ -9,7 +9,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // LineLengthLimitRule lints the number of characters in a line.
@@ -96,4 +97,9 @@ func (r lintLineLengthNum) check() {
 		}
 		l++
 	}
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*LineLengthLimitRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

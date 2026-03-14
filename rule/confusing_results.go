@@ -3,8 +3,9 @@ package rule
 import (
 	"go/ast"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ConfusingResultsRule lints given function declarations.
@@ -52,4 +53,9 @@ func (*ConfusingResultsRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fai
 // Name returns the rule name.
 func (*ConfusingResultsRule) Name() string {
 	return "confusing-results"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ConfusingResultsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

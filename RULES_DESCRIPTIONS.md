@@ -515,8 +515,8 @@ analysis that this rule performs.
 
 For more details, see:
 
-- <https://github.com/mgechev/revive/issues/1622>
-- <https://github.com/mgechev/revive/issues/386>
+- <https://github.com/strowk/vint/issues/1622>
+- <https://github.com/strowk/vint/issues/386>
 
 ## empty-lines
 
@@ -1855,5 +1855,75 @@ arguments = [["ID"], ["VM"], [{ upper-case-const = true }]]
 _Description_: Function parameters that are passed by value, are in fact a copy of the original argument.
 Passing a copy of a `sync.WaitGroup` is usually not what the developer wants to do.
 This rule warns when a `sync.WaitGroup` expected as a by-value parameter in a function or method.
+
+_Configuration_: N/A
+
+## noDuplicateCode
+
+_Description_: Detects duplicate fragments of code across Go source files using suffix tree analysis on serialized ASTs.
+Structurally identical code blocks are flagged regardless of specific variable names or literal values.
+
+_Configuration_: (int) the minimum token threshold for duplicate detection (default `150`).
+
+## noExcessiveStatements
+
+_Description_: Checks that functions do not exceed a maximum number of statements (default: 40).
+Counts executable statements recursively, including those inside control flow structures, inline function literals, `go` statements, and `defer` statements.
+
+_Configuration_: (int) the maximum number of statements allowed per function (default `40`). Set to `-1` to disable.
+
+## noHighCyclomaticComplexity
+
+_Description_: Checks the cyclomatic complexity of Go functions and reports those that exceed a configurable threshold (default: 30).
+Complexity increases by +1 for each `if`, `for`, `case`, `&&`, or `||`.
+
+_Configuration_: (int) the maximum cyclomatic complexity allowed per function (default `30`).
+
+## noLongFunctions
+
+_Description_: Checks that functions do not exceed a maximum number of lines (default: 60).
+Lines are counted from the opening brace to the closing brace of the function body, excluding the function signature.
+
+_Configuration_: (int) the maximum number of lines allowed per function (default `60`). Set to `-1` to disable.
+
+## noBlankErrorAssignment
+
+_Description_: Detects when error return values are explicitly assigned to the blank identifier (`_`).
+This rule is not enabled by default and must be explicitly enabled.
+
+_Configuration_: N/A
+
+## noDeniedImport
+
+_Description_: Reports when a Go source file imports a package that appears on the deny list configured for the matching depguard rule group.
+Package matching uses prefix matching by default; append `$` for exact matching.
+
+_Configuration_: ([]map) list of rule group configurations with `deny`, `allow`, `files`, and `list-mode` fields.
+
+## noDirectErrorComparison
+
+_Description_: Flags direct comparisons of error values using `==` or `!=` and recommends using `errors.Is()` instead.
+Comparisons to `nil` and `io.EOF` are allowed. An auto-fix is available.
+
+_Configuration_: N/A
+
+## noDynamicErrors
+
+_Description_: Flags the creation of dynamic errors inside functions using `errors.New()` or `fmt.Errorf()` without `%w`, and requires errors be defined as package-level sentinel variables.
+Wrapping with `fmt.Errorf` using `%w` is allowed.
+
+_Configuration_: N/A
+
+## noFileScopedDeniedImport
+
+_Description_: Reports when a package import violates a file-scoped depguard rule, meaning the import is prohibited specifically in certain types of files based on glob patterns.
+Commonly used to prevent test dependencies from leaking into production code.
+
+_Configuration_: ([]map) list of rule group configurations with `files`, `deny`, and `allow` fields.
+
+## noSpaceInDirective
+
+_Description_: Detects Go compiler directives that contain a space between the comment slashes (`//`) and the `go:` prefix (e.g., `// go:embed` instead of `//go:embed`).
+A space causes the compiler to silently ignore the directive.
 
 _Configuration_: N/A

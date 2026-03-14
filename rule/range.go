@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // RangeRule prevents redundant variables when iterating over a collection.
@@ -80,4 +81,9 @@ func indentOf(f *lint.File, node ast.Node) string {
 		}
 	}
 	return line // unusual or empty line
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RangeRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

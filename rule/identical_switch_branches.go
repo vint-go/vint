@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // IdenticalSwitchBranchesRule warns on identical switch branches.
@@ -91,4 +92,9 @@ func (w *lintIdenticalSwitchBranches) Visit(node ast.Node) ast.Visitor {
 	}
 
 	return nil // switch branches already analyzed
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*IdenticalSwitchBranchesRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

@@ -3,8 +3,8 @@ package test_test
 import (
 	"testing"
 
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/rule"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/rule"
 )
 
 func TestInefficientMapLookup(t *testing.T) {

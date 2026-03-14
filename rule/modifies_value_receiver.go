@@ -5,8 +5,9 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ModifiesValRecRule lints assignments to value method-receivers.
@@ -181,4 +182,9 @@ func (r *ModifiesValRecRule) getReceiverModifications(receiverName string, funcB
 	}
 
 	return astutils.PickNodes(funcBody, receiverModificationFinder)
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ModifiesValRecRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

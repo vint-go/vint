@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // GetReturnRule warns on getters that do not yield any result.
@@ -85,4 +86,9 @@ func isHTTPHandler(params *ast.FieldList) bool {
 	}
 
 	return typeNames[0] == "http.ResponseWriter" && typeNames[1] == "*http.Request"
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*GetReturnRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

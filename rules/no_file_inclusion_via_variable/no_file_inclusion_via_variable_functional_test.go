@@ -1,0 +1,12 @@
+package no_file_inclusion_via_variable_test
+
+import (
+	"testing"
+
+	"github.com/strowk/vint/rules/functional_test_helpers"
+	"github.com/strowk/vint/rules/no_file_inclusion_via_variable"
+)
+
+func TestNoFileInclusionViaVariable(t *testing.T) {
+	functional_test_helpers.TestRule(t, "no_file_inclusion_via_variable", &no_file_inclusion_via_variable.NoFileInclusionViaVariableRule{})
+}

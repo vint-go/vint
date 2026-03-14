@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // RangeValInClosureRule warns if range value is used in a closure dispatched as goroutine.
@@ -122,4 +123,9 @@ func (w rangeValInClosure) Visit(node ast.Node) ast.Visitor {
 	}
 	ast.Inspect(lit.Body, inspector)
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*RangeValInClosureRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

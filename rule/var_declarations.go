@@ -7,8 +7,9 @@ import (
 	"go/types"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 var zeroLiteral = map[string]bool{
@@ -155,4 +156,9 @@ func isZeroValue(litValue string, typ ast.Expr) bool {
 	}
 
 	return zeroLiteral[litValue]
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*VarDeclarationsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierPackageAware
 }

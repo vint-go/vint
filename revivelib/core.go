@@ -12,9 +12,9 @@ import (
 
 	"github.com/mgechev/dots"
 
-	"github.com/mgechev/revive/config"
-	"github.com/mgechev/revive/lint"
-	"github.com/mgechev/revive/logging"
+	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/logging"
 )
 
 // Revive is responsible for running linters and formatters
@@ -47,7 +47,7 @@ func New(
 	for i, extraRule := range extraRules {
 		extraRuleInstances[i] = extraRule.Rule
 
-		ruleName := extraRule.Rule.Name()
+		ruleName := lint.FullRuleName(extraRule.Rule)
 
 		_, isRuleAlreadyConfigured := conf.Rules[ruleName]
 		if !isRuleAlreadyConfigured {

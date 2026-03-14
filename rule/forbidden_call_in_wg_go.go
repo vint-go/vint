@@ -5,8 +5,9 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/internal/astutils"
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/astutils"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // ForbiddenCallInWgGoRule spots calls to panic or wg.Done when using [sync.WaitGroup.Go].
@@ -110,4 +111,9 @@ func (w *lintForbiddenCallInWgGo) Visit(node ast.Node) ast.Visitor {
 	})
 
 	return nil
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*ForbiddenCallInWgGoRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }

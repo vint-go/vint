@@ -6,7 +6,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/mgechev/revive/lint"
+	"github.com/strowk/vint/internal/rulecache"
+	"github.com/strowk/vint/lint"
 )
 
 // MaxPublicStructsRule lints the number of public structs in a file.
@@ -84,4 +85,9 @@ func (w *lintMaxPublicStructs) Visit(n ast.Node) ast.Visitor {
 		}
 	}
 	return w
+}
+
+// CacheTier returns the cache tier for this rule.
+func (*MaxPublicStructsRule) CacheTier() rulecache.CacheTier {
+	return rulecache.TierFileOnly
 }
