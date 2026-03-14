@@ -222,6 +222,9 @@ func TestGetConfig(t *testing.T) {
 						"lint/security/noSshAuthBypass": {
 							Severity: lint.SeverityWarning,
 						},
+						"lint/security/noSsrfTaint": {
+							Severity: lint.SeverityWarning,
+						},
 						"package-comments": {
 							Severity: lint.SeverityWarning,
 						},
@@ -383,6 +386,7 @@ func TestGetConfig(t *testing.T) {
 						"lint/security/noSqlFormatString":                       {},
 						"lint/security/noSqlInjectionTaint":                     {},
 						"lint/security/noSshAuthBypass":                          {},
+						"lint/security/noSsrfTaint":                              {},
 						"package-comments":     {},
 						"range":                {},
 						"receiver-naming":      {},
@@ -614,6 +618,9 @@ func TestGetConfig(t *testing.T) {
 						"lint/security/noSshAuthBypass": {
 							Severity: lint.SeverityError,
 						},
+						"lint/security/noSsrfTaint": {
+							Severity: lint.SeverityError,
+						},
 						"package-comments": {
 							Severity: lint.SeverityError,
 						},
@@ -811,9 +818,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 76
+		defaultRulesCount = 77
 		// len of allRules: update this when adding new rules
-		allRulesCount = 157
+		allRulesCount = 158
 	)
 
 	tt := map[string]struct {

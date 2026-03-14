@@ -67,6 +67,7 @@ import (
 	"github.com/strowk/vint/rules/no_sql_format_string"
 	"github.com/strowk/vint/rules/no_sql_injection_taint"
 	"github.com/strowk/vint/rules/no_ssh_auth_bypass"
+	"github.com/strowk/vint/rules/no_ssrf_taint"
 )
 
 var defaultRules = []lint.Rule{
@@ -146,6 +147,7 @@ var defaultRules = []lint.Rule{
 	&no_sql_format_string.NoSqlFormatStringRule{},
 	&no_sql_injection_taint.NoSqlInjectionTaintRule{},
 	&no_ssh_auth_bypass.NoSshAuthBypassRule{},
+	&no_ssrf_taint.NoSsrfTaintRule{},
 }
 
 var allRules = append([]lint.Rule{
