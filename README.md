@@ -1,4 +1,4 @@
-# revive
+# vint
 
 [![Build Status](https://github.com/strowk/vint/actions/workflows/test.yaml/badge.svg)](https://github.com/strowk/vint/actions/workflows/test.yaml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/strowk/vint.svg)](https://pkg.go.dev/github.com/strowk/vint)
@@ -14,19 +14,10 @@ and lets you define a strict preset for enhancing your development & code review
   Logo by <a href="https://github.com/hawkgs">Georgi Serev</a>
 </p>
 
-Here's how `revive` is different from `golint`:
+Here's how `vint` is different from `golangci-lint`:
 
-- Allows to enable or disable rules using a configuration file.
-- Allows to configure the linting rules with a TOML file.
-- 2x faster running the same rules as golint.
-- Provides functionality for disabling a specific rule or the entire linter for a file or a range of lines.
-  - `golint` allows this only for generated files.
-- Optional type checking. Most rules in golint do not require type checking.
-If you disable them in the config file, revive will run over 6x faster than golint.
-- Provides multiple formatters which let us customize the output.
-- Allows to customize the return code for the entire linter or based on the failure of only some rules.
-- _Everyone can extend it easily with custom rules or formatters._
-- `Revive` provides more rules compared to `golint`.
+- 3x faster running the same rules as golangci-lint (on cold cache)
+- Clear centralized unified configuration.
 
 <p align="center">
   <img src="./assets/demo.svg" alt="" width="700">
