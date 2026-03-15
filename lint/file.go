@@ -132,6 +132,9 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 
 	// Collect sibling file contents for package-aware cache tiers (computed lazily).
 	var siblingFiles map[string][]byte
+	// Pre-computed sibling digest — computed once on first need, reused for
+	// every subsequent package-aware rule on this file.
+	var siblingDigest *[32]byte
 
 	var walkingRules []WalkingRule = make([]WalkingRule, 0, len(rules))
 
@@ -164,12 +167,21 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 			}
 		}
 
-		// Try cache.
-		if cacheable {
-			if tier >= rulecache.TierPackageAware && siblingFiles == nil {
+		// Lazily collect sibling contents and compute the sibling digest
+		// once for all package-aware (and above) rules on this file.
+		if cacheable && tier >= rulecache.TierPackageAware {
+			if siblingFiles == nil {
 				siblingFiles = f.collectSiblingContents()
 			}
-			if cached, hit := rc.Get(fullName, f.Name, tier, siblingFiles); hit {
+			if siblingDigest == nil {
+				d := rc.SiblingDigest(f.Name, siblingFiles)
+				siblingDigest = &d
+			}
+		}
+
+		// Try cache.
+		if cacheable {
+			if cached, hit := rc.Get(fullName, f.Name, tier, siblingFiles, siblingDigest); hit {
 				for _, cf := range cached {
 					failure := fromCachedFailure(cf)
 					if failure.Confidence >= config.Confidence {
@@ -198,14 +210,11 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 
 		// Store in cache (post-filter).
 		if cacheable {
-			if tier >= rulecache.TierPackageAware && siblingFiles == nil {
-				siblingFiles = f.collectSiblingContents()
-			}
 			cached := make([]rulecache.CachedFailure, len(currentFailures))
 			for i, fail := range currentFailures {
 				cached[i] = toCachedFailure(fail)
 			}
-			rc.Put(fullName, f.Name, tier, siblingFiles, cached)
+			rc.Put(fullName, f.Name, tier, siblingFiles, siblingDigest, cached)
 		}
 
 		currentFailures = f.filterFailures(currentFailures, disabledIntervals)

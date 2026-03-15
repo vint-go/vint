@@ -7,6 +7,7 @@ import (
 	"go/importer"
 	"go/token"
 	"go/types"
+	"runtime"
 	"sync"
 
 	goversion "github.com/hashicorp/go-version"
@@ -17,9 +18,59 @@ import (
 	"github.com/strowk/vint/internal/typeparams"
 )
 
+// sharedImporter wraps a types.ImporterFrom with a lock-free cache so that
+// already-resolved packages are returned instantly without filesystem
+// syscalls. The inner importer's FindPkg is expensive (EvalSymlinks etc.)
+// and is called even on map hits, so we cache results in a sync.Map keyed
+// by import path to bypass it entirely for known packages.
+type sharedImporter struct {
+	cache sync.Map    // import path → *importResult (lock-free reads)
+	mu    sync.Mutex  // serializes actual import resolution (cache misses)
+	inner types.ImporterFrom
+}
+
+type importResult struct {
+	pkg *types.Package
+	err error
+}
+
+func newSharedImporter() *sharedImporter {
+	imp := importer.ForCompiler(token.NewFileSet(), runtime.Compiler, nil)
+	return &sharedImporter{
+		inner: imp.(types.ImporterFrom),
+	}
+}
+
+func (s *sharedImporter) Import(path string) (*types.Package, error) {
+	return s.ImportFrom(path, "", 0)
+}
+
+func (s *sharedImporter) ImportFrom(path, srcDir string, mode types.ImportMode) (*types.Package, error) {
+	// Fast path: lock-free cache check — no FindPkg, no syscalls.
+	if v, ok := s.cache.Load(path); ok {
+		r := v.(*importResult)
+		return r.pkg, r.err
+	}
+
+	// Slow path: resolve under lock (first time only per import path).
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Double-check after acquiring lock.
+	if v, ok := s.cache.Load(path); ok {
+		r := v.(*importResult)
+		return r.pkg, r.err
+	}
+
+	pkg, err := s.inner.ImportFrom(path, srcDir, mode)
+	s.cache.Store(path, &importResult{pkg: pkg, err: err})
+	return pkg, err
+}
+
 // Package represents a package in the project.
 type Package struct {
-	fset *token.FileSet
+	fset     *token.FileSet
+	importer *sharedImporter
 
 	mu        sync.RWMutex
 	files     map[string]*File
@@ -111,10 +162,16 @@ func (p *Package) TypeCheck() error {
 		return nil
 	}
 
+	var imp types.Importer
+	if p.importer != nil {
+		imp = p.importer
+	} else {
+		imp = importer.Default()
+	}
 	config := &types.Config{
 		// By setting a no-op error reporter, the type checker does as much work as possible.
 		Error:    func(error) {},
-		Importer: importer.Default(),
+		Importer: imp,
 	}
 	info := &types.Info{
 		Types:  map[ast.Expr]types.TypeAndValue{},
@@ -208,6 +265,7 @@ func (p *Package) scanSortable() {
 func (p *Package) lint(rules []Rule, config Config, failures chan Failure, rc *rulecache.RuleCache, preCachedHits map[string]map[string]bool) error {
 	p.scanSortable()
 	var eg errgroup.Group
+	eg.SetLimit(runtime.GOMAXPROCS(0))
 	for name, file := range p.Files() {
 		hits := preCachedHits[name] // may be nil
 		eg.Go(func() error {

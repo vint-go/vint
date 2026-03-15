@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -25,6 +26,7 @@ type Linter struct {
 	reader         ReadFile
 	fileReadTokens chan struct{}
 	cache          *rulecache.RuleCache
+	importer       *sharedImporter
 }
 
 // New creates a new Linter.
@@ -37,6 +39,7 @@ func New(reader ReadFile, maxOpenFiles int) Linter {
 	l := Linter{
 		reader:         reader,
 		fileReadTokens: fileReadTokens,
+		importer:       newSharedImporter(),
 	}
 
 	// Auto-configure disk cache from environment.
@@ -124,18 +127,19 @@ func (l *Linter) Lint(packages [][]string, ruleSet []Rule, config Config) (<-cha
 	}
 
 	var wg errgroup.Group
-	for n := range packages {
-		wg.Go(func() error {
-			pkg := packages[n]
-			gover := perPkgVersions[n]
-			if err := l.lintPackage(pkg, gover, ruleSet, config, failures); err != nil {
-				return fmt.Errorf("error during linting: %w", err)
-			}
-			return nil
-		})
-	}
+	wg.SetLimit(2 * runtime.GOMAXPROCS(0))
 
 	go func() {
+		for n := range packages {
+			wg.Go(func() error {
+				pkg := packages[n]
+				gover := perPkgVersions[n]
+				if err := l.lintPackage(pkg, gover, ruleSet, config, failures); err != nil {
+					return fmt.Errorf("error during linting: %w", err)
+				}
+				return nil
+			})
+		}
 		err := wg.Wait()
 		if err != nil {
 			failures <- NewInternalFailure(err.Error())
@@ -210,7 +214,7 @@ func (l *Linter) lintPackage(filenames []string, gover *goversion.Version, ruleS
 				if ur, ok := r.(UncacheableRule); ok && ur.Uncacheable() {
 					continue
 				}
-				if cached, hit := l.cache.Get(r.Name(), filename, rulecache.TierFileOnly, nil); hit {
+				if cached, hit := l.cache.Get(r.Name(), filename, rulecache.TierFileOnly, nil, nil); hit {
 					for _, cf := range cached {
 						failure := fromCachedFailure(cf)
 						if failure.Confidence >= config.Confidence {
@@ -238,6 +242,7 @@ func (l *Linter) lintPackage(filenames []string, gover *goversion.Version, ruleS
 	// Phase 2: Parse AST only for files that had cache misses.
 	pkg := &Package{
 		fset:      token.NewFileSet(),
+		importer:  l.importer,
 		files:     map[string]*File{},
 		goVersion: gover,
 	}
