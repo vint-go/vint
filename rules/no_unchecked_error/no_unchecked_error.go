@@ -103,6 +103,22 @@ func (r *NoUncheckedErrorRule) Apply(file *lint.File, _ lint.Arguments) []lint.F
 	return failures
 }
 
+// ApplyToNode applies the rule while walking the AST together with other rules
+func (r *NoUncheckedErrorRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	var failures []lint.Failure
+
+	w := &lintNoUncheckedError{
+		pkg:                      file.Pkg,
+		disableDefaultExclusions: r.disableDefaultExclusions,
+		excludeFunctions:         r.excludeFunctions,
+		onFailure: func(f lint.Failure) {
+			failures = append(failures, f)
+		},
+	}
+	w.Visit(node)
+	return failures
+}
+
 // Name returns the rule name.
 func (*NoUncheckedErrorRule) Name() string {
 	return "noUncheckedError"
@@ -111,6 +127,10 @@ func (*NoUncheckedErrorRule) Name() string {
 // Group returns the rule group.
 func (*NoUncheckedErrorRule) Group() string {
 	return "correctness"
+}
+
+func (*NoUncheckedErrorRule) RequiresTypecheck() bool {
+	return true
 }
 
 type lintNoUncheckedError struct {

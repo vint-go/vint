@@ -2,6 +2,7 @@ package lint
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/importer"
 	"go/token"
@@ -223,6 +224,22 @@ func (p *Package) IsAtLeastGoVersion(v *goversion.Version) bool {
 	defer p.mu.RUnlock()
 
 	return p.goVersion.GreaterThanOrEqual(v)
+}
+
+// GoVersionString returns the Go version for this package as a "go1.X" string
+// suitable for use with golang.org/x/tools/internal/versions.
+func (p *Package) GoVersionString() string {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	if p.goVersion == nil {
+		return ""
+	}
+	segments := p.goVersion.Segments()
+	if len(segments) < 2 {
+		return "go" + p.goVersion.String()
+	}
+	return fmt.Sprintf("go%d.%d", segments[0], segments[1])
 }
 
 func getSortableMethodFlagForFunction(fn *ast.FuncDecl) sortableMethodsFlags {

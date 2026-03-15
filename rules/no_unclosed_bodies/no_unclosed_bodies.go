@@ -130,6 +130,10 @@ func (*NoUnclosedBodiesRule) Group() string {
 	return "correctness"
 }
 
+func (*NoUnclosedBodiesRule) RequiresTypecheck() bool {
+	return true
+}
+
 // isRuleOption returns true if arg and name are the same after normalization.
 func isRuleOption(arg, name string) bool {
 	return normalizeRuleOption(arg) == normalizeRuleOption(name)

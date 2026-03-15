@@ -1,6 +1,7 @@
 package lint
 
 import (
+	"go/ast"
 	"go/token"
 
 	"github.com/strowk/vint/internal/rulecache"
@@ -17,6 +18,12 @@ type DisabledInterval struct {
 type Rule interface {
 	Name() string
 	Apply(*File, Arguments) []Failure
+}
+
+// WalkingRule is can be implemented to walk the AST together with other rules
+type WalkingRule interface {
+	Rule
+	ApplyToNode(*File, ast.Node, Arguments) []Failure
 }
 
 // Grouped defines an interface for rules that belong to a group.

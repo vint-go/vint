@@ -103,14 +103,14 @@ var (
 var originalUsage = flag.Usage
 
 func logo() string {
-	return color.YellowString(` _ __ _____   _(_)__  _____
-| '__/ _ \ \ / / \ \ / / _ \
-| | |  __/\ V /| |\ V /  __/
-|_|  \___| \_/ |_| \_/ \___|`)
+	return color.YellowString(` _   _______  ________
+| | / /  _/ |/ /_  __/
+| |/ // //    / / /   
+|___/___/_/|_/ /_/    `)
 }
 
 func call() string {
-	return color.MagentaString("revive -config c.toml -formatter friendly -exclude a.go -exclude b.go ./...")
+	return color.MagentaString("vint -config c.toml -formatter friendly -exclude a.go -exclude b.go ./...")
 }
 
 func banner() string {
@@ -170,6 +170,10 @@ func initConfig() {
 	flag.Var(&excludePatterns, "exclude", excludeUsage)
 	flag.StringVar(&formatterName, "formatter", "", formatterUsage)
 	flag.BoolVar(&versionFlag, "version", false, versionUsage)
+
+	// TODO: clean this up a bit, as we now default to exiting with status 1 if any errors are found..
+	// Consider how to align with industry best practices, but exiting with 1 on errors is common enough, warnings and other severeties are less clear..
+	// Also check how golangci lint is configured for this..
 	flag.BoolVar(&setExitStatus, "set_exit_status", false, exitStatusUsage)
 	flag.IntVar(&maxOpenFiles, "max_open_files", 0, maxOpenFilesUsage)
 	flag.Parse() //revive:disable-line:deep-exit

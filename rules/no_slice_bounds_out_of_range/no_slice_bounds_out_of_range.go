@@ -45,6 +45,10 @@ func (*NoSliceBoundsOutOfRangeRule) Group() string {
 	return "correctness"
 }
 
+func (*NoSliceBoundsOutOfRangeRule) RequiresTypecheck() bool {
+	return true
+}
+
 type lintNoSliceBoundsOutOfRange struct {
 	pkg       *lint.Package
 	onFailure func(lint.Failure)
@@ -211,4 +215,3 @@ func (w *lintNoSliceBoundsOutOfRange) isLenCall(expr ast.Expr, sliceName string)
 func containsPos(node ast.Node, pos token.Pos) bool {
 	return node.Pos() <= pos && pos <= node.End()
 }
-

@@ -45,6 +45,10 @@ func (*NoRangeVariableAliasRule) Group() string {
 	return "correctness"
 }
 
+func (*NoRangeVariableAliasRule) RequiresTypecheck() bool {
+	return true
+}
+
 type lintNoRangeVariableAlias struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

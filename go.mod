@@ -7,12 +7,14 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/fatih/color v1.18.0
 	github.com/fatih/structtag v1.2.0
+	github.com/golangci/misspell v0.8.0
 	github.com/hashicorp/go-version v1.8.0
 	github.com/mgechev/dots v1.0.0
 	github.com/spf13/afero v1.15.0
 	golang.org/x/mod v0.34.0
 	golang.org/x/sync v0.20.0
 	golang.org/x/tools v0.43.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -20,5 +22,4 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

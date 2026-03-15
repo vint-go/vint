@@ -25,6 +25,19 @@ func (r *NoSqlConcatenationRule) Apply(file *lint.File, _ lint.Arguments) []lint
 	return failures
 }
 
+// ApplyToNode applies the rule while walking the AST together with other rules
+func (r *NoSqlConcatenationRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	var failures []lint.Failure
+
+	w := &lintNoSqlConcatenation{
+		onFailure: func(f lint.Failure) {
+			failures = append(failures, f)
+		},
+	}
+	w.Visit(node)
+	return failures
+}
+
 // Name returns the rule name.
 func (*NoSqlConcatenationRule) Name() string {
 	return "noSqlConcatenation"

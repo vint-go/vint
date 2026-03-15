@@ -41,6 +41,10 @@ func (*NoDirectErrorComparisonRule) Group() string {
 	return "correctness"
 }
 
+func (*NoDirectErrorComparisonRule) RequiresTypecheck() bool {
+	return true
+}
+
 type lintNoDirectErrorComparison struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

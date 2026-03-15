@@ -27,6 +27,19 @@ func (r *NoBlankErrorAssignmentRule) Apply(file *lint.File, _ lint.Arguments) []
 	return failures
 }
 
+// ApplyToNode applies the rule while walking the AST together with other rules
+func (r *NoBlankErrorAssignmentRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	var failures []lint.Failure
+	w := &lintNoBlankErrorAssignment{
+		pkg: file.Pkg,
+		onFailure: func(f lint.Failure) {
+			failures = append(failures, f)
+		},
+	}
+	w.Visit(node)
+	return failures
+}
+
 // Name returns the rule name.
 func (*NoBlankErrorAssignmentRule) Name() string {
 	return "noBlankErrorAssignment"
@@ -35,6 +48,10 @@ func (*NoBlankErrorAssignmentRule) Name() string {
 // Group returns the rule group.
 func (*NoBlankErrorAssignmentRule) Group() string {
 	return "correctness"
+}
+
+func (*NoBlankErrorAssignmentRule) RequiresTypecheck() bool {
+	return true
 }
 
 type lintNoBlankErrorAssignment struct {
@@ -107,11 +124,11 @@ func (w *lintNoBlankErrorAssignment) isTupleErrorAtIndex(expr ast.Expr, index in
 }
 
 func isErrorType(t types.Type) bool {
-	// Check if the type implements the error interface
-	// The error interface is a named type with Id "_.error"
+	// Check if the type is the builtin error interface.
+	// The builtin error has a nil package and name "error".
 	named, ok := t.(*types.Named)
 	if ok {
-		return named.Obj().Id() == "_.error"
+		return named.Obj().Pkg() == nil && named.Obj().Name() == "error"
 	}
 
 	return false

@@ -116,6 +116,15 @@ func (f *File) isMain() bool {
 
 const directiveSpecifyDisableReason = "specify-disable-reason"
 
+type togetherApplier struct {
+	rules       []WalkingRule
+	file        *File
+	args        Arguments
+	allFailures []Failure
+}
+
+const walkingOptimizationOn = false
+
 func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rulecache.RuleCache, preCachedHits map[string]bool) error {
 	rulesConfig := config.Rules
 	_, mustSpecifyDisableReason := config.Directives[directiveSpecifyDisableReason]
@@ -123,6 +132,8 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 
 	// Collect sibling file contents for package-aware cache tiers (computed lazily).
 	var siblingFiles map[string][]byte
+
+	var walkingRules []WalkingRule = make([]WalkingRule, 0, len(rules))
 
 	for _, currentRule := range rules {
 		fullName := FullRuleName(currentRule)
@@ -144,6 +155,13 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 		}
 		if ur, ok := currentRule.(UncacheableRule); ok && ur.Uncacheable() {
 			cacheable = false
+		}
+
+		if walkingOptimizationOn {
+			if wr, ok := currentRule.(WalkingRule); ok {
+				walkingRules = append(walkingRules, wr)
+				continue
+			}
 		}
 
 		// Try cache.
@@ -197,7 +215,45 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 			}
 		}
 	}
+
+	if len(walkingRules) > 0 {
+		applier := &togetherApplier{
+			rules: walkingRules,
+			file:  f,
+			args:  Arguments{},
+		}
+		ast.Walk(applier, f.AST)
+		for _, failure := range applier.allFailures {
+			if failure.IsInternal() {
+				return errors.New(failure.Failure)
+			}
+		}
+		applier.allFailures = f.filterFailures(applier.allFailures, disabledIntervals)
+		for _, failure := range applier.allFailures {
+			if failure.Confidence >= config.Confidence {
+				failures <- failure
+			}
+		}
+	}
+
 	return nil
+}
+
+func (v *togetherApplier) Visit(node ast.Node) ast.Visitor {
+	for _, rule := range v.rules {
+		newFailures := rule.ApplyToNode(v.file, node, v.args)
+		for idx, failure := range newFailures {
+			if failure.RuleName == "" {
+				failure.RuleName = FullRuleName(rule)
+			}
+			if failure.Node != nil {
+				failure.Position = ToFailurePosition(failure.Node.Pos(), failure.Node.End(), v.file)
+			}
+			newFailures[idx] = failure
+		}
+		v.allFailures = append(v.allFailures, newFailures...)
+	}
+	return v
 }
 
 // collectSiblingContents returns the content of all files in the same package.

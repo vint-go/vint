@@ -225,6 +225,405 @@ func TestGetConfig(t *testing.T) {
 						"lint/security/noSsrfTaint": {
 							Severity: lint.SeverityWarning,
 						},
+						"lint/security/noTemplateInjection": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noTlsSessionResumptionBypass": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnboundedFormParsing": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnsafeCorsBypass": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnsafeRedirectPolicy": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnescapedHtmlTemplate": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noUnsafeDeserialization": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noVariableCommandExecution": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noWeakCryptoHash": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noWeakEncryptionAlgorithm": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noXssTaint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/security/noZipSlip": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noExcessiveBlankIdentifiers": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noInitFunction": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noLeadingBlankLine": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noTrailingBlankLine": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noRepeatedStrings": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noUnnecessaryConversion": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noUnnecessaryLoopVarCopy": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/usePrintfSuffix": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSingleArgAppend": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noAsmDeclMismatch": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSelfAssignment": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noAtomicAssignMisuse": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noMalformedBuildTag": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noMalformedDirective": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noMalformedStructTag": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noCgoPointerViolation": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noUnkeyedLiteral": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noCopiedLock": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noDeferTimeMisuse": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noIncorrectTimeFormat": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpClientGet": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpClientHead": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpClientPost": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpClientPostForm": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpGet": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpHead": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpPost": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpPostForm": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpNewRequest": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttpResponseMisuse": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noHttptestNewRequest": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noInvalidErrorsAs": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noFramePointerClobber": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/useJoinHostPort": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noImpossibleInterfaceAssert": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noLoopClosureCapture": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noLostCancel": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noWaitGroupMisuse": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNilFuncComparison": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noPrintfFormatMismatch": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noExcessiveShift": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnbufferedSignalChannel": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSlogKeyValueMismatch": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noStdMethodSignatureMismatch": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noStdlibVersionMismatch": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noStringIntConversion": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noTestFatalInGoroutine": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noMalformedTestFunction": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNonPointerUnmarshal": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnreachableCode": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noInvalidUnsafePointer": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedFunctionResult": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedWrite": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noIneffectualAssignment": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noLineTooLong": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMagicNumberInArgument": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMagicNumberInAssignment": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMagicNumberInCase": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMagicNumberInCondition": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMagicNumberInOperation": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMagicNumberInReturn": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noMisspelledWords": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noNakedReturn": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noTlsConnHandshake": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noTlsDial": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noTlsDialWithDialer": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetDial": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetDialTimeout": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetListen": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetListenPacket": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupCname": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupHost": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupIp": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupMx": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupPort": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupSrv": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupNs": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupTxt": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNetLookupAddr": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlDbBegin": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlDbExec": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlDbPing": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlDbPrepare": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlDbQuery": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlDbQueryRow": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlTxExec": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlTxPrepare": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlTxQuery": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlTxQueryRow": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlTxStmt": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlStmtExec": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlStmtQuery": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noSqlStmtQueryRow": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noExecCommand": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noNolintNonMachineReadable": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNolintParseError": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noNolintWithoutSpecificLinter": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noNolintWithoutExplanation": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noUnusedNolint": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noUnusedParameter": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noConstantParameter": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noConstantResult": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedFunction": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedType": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedVariable": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedConstant": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnusedField": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noMismatchedAppendAssign": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/performance/useCombinedAppend": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noSwappedArguments": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/useAssignmentOperator": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNoopFunctionCall": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noImpossibleCondition": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noCapitalizedLocal": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noUnreachableTypeCase": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/noMisplacedDefaultCase": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/useStandardCodegenComment": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/useStandardDeprecationComment": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/useCommentSpacing": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noDuplicateArgument": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/suspicious/noDuplicateBranchBody": {
+							Severity: lint.SeverityWarning,
+						},
 						"package-comments": {
 							Severity: lint.SeverityWarning,
 						},
@@ -387,6 +786,139 @@ func TestGetConfig(t *testing.T) {
 						"lint/security/noSqlInjectionTaint":                     {},
 						"lint/security/noSshAuthBypass":                          {},
 						"lint/security/noSsrfTaint":                              {},
+						"lint/security/noTemplateInjection":                      {},
+						"lint/security/noTlsSessionResumptionBypass":             {},
+						"lint/security/noUnboundedFormParsing":                    {},
+						"lint/security/noUnsafeCorsBypass":                         {},
+						"lint/security/noUnsafeRedirectPolicy":                     {},
+						"lint/security/noUnescapedHtmlTemplate":                   {},
+						"lint/security/noUnsafeDeserialization":                    {},
+						"lint/security/noVariableCommandExecution":                 {},
+						"lint/security/noWeakCryptoHash":                            {},
+						"lint/security/noWeakEncryptionAlgorithm":                   {},
+						"lint/security/noXssTaint":                                   {},
+						"lint/security/noZipSlip":                                    {},
+						"lint/style/noExcessiveBlankIdentifiers":                     {},
+						"lint/style/noInitFunction":                                  {},
+						"lint/style/noLeadingBlankLine":                              {},
+						"lint/style/noTrailingBlankLine":                             {},
+						"lint/style/noRepeatedStrings":                               {},
+						"lint/style/noUnnecessaryConversion":                         {},
+						"lint/style/noUnnecessaryLoopVarCopy":                        {},
+						"lint/style/usePrintfSuffix":                                 {},
+						"lint/correctness/noSingleArgAppend":                         {},
+						"lint/correctness/noAsmDeclMismatch":                         {},
+						"lint/correctness/noSelfAssignment":                          {},
+						"lint/correctness/noAtomicAssignMisuse":                      {},
+						"lint/correctness/noMalformedBuildTag":                       {},
+						"lint/correctness/noMalformedDirective":                      {},
+						"lint/correctness/noMalformedStructTag":                      {},
+						"lint/correctness/noCgoPointerViolation":                     {},
+						"lint/style/noUnkeyedLiteral":                                {},
+						"lint/correctness/noCopiedLock":                              {},
+						"lint/correctness/noDeferTimeMisuse":                         {},
+						"lint/correctness/noIncorrectTimeFormat":                     {},
+						"lint/correctness/noHttpClientGet":                           {},
+						"lint/correctness/noHttpClientHead":                          {},
+						"lint/correctness/noHttpClientPost":                          {},
+						"lint/correctness/noHttpClientPostForm":                      {},
+						"lint/correctness/noHttpGet":                                 {},
+						"lint/correctness/noHttpHead":                                {},
+						"lint/correctness/noHttpPost":                                {},
+						"lint/correctness/noHttpPostForm":                            {},
+						"lint/correctness/noHttpNewRequest":                          {},
+						"lint/correctness/noHttpResponseMisuse":                      {},
+						"lint/correctness/noHttptestNewRequest":                      {},
+						"lint/correctness/noInvalidErrorsAs":                         {},
+						"lint/correctness/noFramePointerClobber":                     {},
+						"lint/correctness/useJoinHostPort":                           {},
+						"lint/correctness/noImpossibleInterfaceAssert":               {},
+						"lint/correctness/noLoopClosureCapture":                      {},
+						"lint/correctness/noLostCancel":                              {},
+						"lint/correctness/noWaitGroupMisuse":                         {},
+						"lint/correctness/noNilFuncComparison":                       {},
+						"lint/correctness/noPrintfFormatMismatch":                    {},
+						"lint/correctness/noExcessiveShift":                          {},
+						"lint/correctness/noUnbufferedSignalChannel":                 {},
+						"lint/correctness/noSlogKeyValueMismatch":                    {},
+						"lint/correctness/noStdMethodSignatureMismatch":              {},
+						"lint/correctness/noStdlibVersionMismatch":                   {},
+						"lint/correctness/noStringIntConversion":                     {},
+						"lint/correctness/noTestFatalInGoroutine":                    {},
+						"lint/correctness/noMalformedTestFunction":                   {},
+						"lint/correctness/noNonPointerUnmarshal":                     {},
+						"lint/correctness/noUnreachableCode":                         {},
+						"lint/correctness/noInvalidUnsafePointer":                    {},
+						"lint/correctness/noUnusedFunctionResult":                    {},
+						"lint/correctness/noUnusedWrite":                             {},
+						"lint/correctness/noIneffectualAssignment":                   {},
+						"lint/style/noLineTooLong":                                   {},
+						"lint/style/noMagicNumberInArgument":                         {},
+						"lint/style/noMagicNumberInAssignment":                       {},
+						"lint/style/noMagicNumberInCase":                             {},
+						"lint/style/noMagicNumberInCondition":                        {},
+						"lint/style/noMagicNumberInOperation":                        {},
+						"lint/style/noMagicNumberInReturn":                           {},
+						"lint/correctness/noMisspelledWords":                         {},
+						"lint/style/noNakedReturn":                                   {},
+						"lint/correctness/noTlsConnHandshake":                        {},
+						"lint/correctness/noTlsDial":                                 {},
+						"lint/correctness/noTlsDialWithDialer":                       {},
+						"lint/correctness/noNetDial":                                 {},
+						"lint/correctness/noNetDialTimeout":                          {},
+						"lint/correctness/noNetListen":                               {},
+						"lint/correctness/noNetListenPacket":                         {},
+						"lint/correctness/noNetLookupCname":                          {},
+						"lint/correctness/noNetLookupHost":                           {},
+						"lint/correctness/noNetLookupIp":                             {},
+						"lint/correctness/noNetLookupMx":                             {},
+						"lint/correctness/noNetLookupPort":                           {},
+						"lint/correctness/noNetLookupSrv":                            {},
+						"lint/correctness/noNetLookupNs":                             {},
+						"lint/correctness/noNetLookupTxt":                            {},
+						"lint/correctness/noNetLookupAddr":                           {},
+						"lint/correctness/noSqlDbBegin":                              {},
+						"lint/correctness/noSqlDbExec":                               {},
+						"lint/correctness/noSqlDbPing":                               {},
+						"lint/correctness/noSqlDbPrepare":                            {},
+						"lint/correctness/noSqlDbQuery":                              {},
+						"lint/correctness/noSqlDbQueryRow":                           {},
+						"lint/correctness/noSqlTxExec":                               {},
+						"lint/correctness/noSqlTxPrepare":                            {},
+						"lint/correctness/noSqlTxQuery":                              {},
+						"lint/correctness/noSqlTxQueryRow":                            {},
+						"lint/correctness/noSqlTxStmt":                                {},
+						"lint/correctness/noSqlStmtExec":                              {},
+						"lint/correctness/noSqlStmtQuery":                             {},
+						"lint/correctness/noSqlStmtQueryRow":                          {},
+						"lint/correctness/noExecCommand":                               {},
+						"lint/style/noNolintNonMachineReadable":                        {},
+						"lint/correctness/noNolintParseError":                          {},
+						"lint/style/noNolintWithoutSpecificLinter":                     {},
+						"lint/style/noNolintWithoutExplanation":                        {},
+						"lint/suspicious/noUnusedNolint":                               {},
+						"lint/suspicious/noUnusedParameter":                            {},
+						"lint/suspicious/noConstantParameter":                          {},
+						"lint/suspicious/noConstantResult":                             {},
+						"lint/correctness/noUnusedFunction":                            {},
+						"lint/correctness/noUnusedType":                                {},
+						"lint/correctness/noUnusedVariable":                            {},
+						"lint/correctness/noUnusedConstant":                            {},
+						"lint/correctness/noUnusedField":                               {},
+						"lint/suspicious/noMismatchedAppendAssign":                     {},
+						"lint/performance/useCombinedAppend":                           {},
+						"lint/suspicious/noSwappedArguments":                           {},
+						"lint/style/useAssignmentOperator":                             {},
+						"lint/correctness/noNoopFunctionCall":                          {},
+						"lint/correctness/noImpossibleCondition":                       {},
+						"lint/style/noCapitalizedLocal":                                {},
+						"lint/correctness/noUnreachableTypeCase":                       {},
+						"lint/style/noMisplacedDefaultCase":                            {},
+						"lint/style/useStandardCodegenComment":                         {},
+						"lint/style/useStandardDeprecationComment":                     {},
+						"lint/style/useCommentSpacing":                                 {},
+						"lint/correctness/noDuplicateArgument":                         {},
+						"lint/suspicious/noDuplicateBranchBody":                        {},
 						"package-comments":     {},
 						"range":                {},
 						"receiver-naming":      {},
@@ -621,6 +1153,405 @@ func TestGetConfig(t *testing.T) {
 						"lint/security/noSsrfTaint": {
 							Severity: lint.SeverityError,
 						},
+						"lint/security/noTemplateInjection": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noTlsSessionResumptionBypass": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnboundedFormParsing": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnsafeCorsBypass": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnsafeRedirectPolicy": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnescapedHtmlTemplate": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noUnsafeDeserialization": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noVariableCommandExecution": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noWeakCryptoHash": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noWeakEncryptionAlgorithm": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noXssTaint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/security/noZipSlip": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noExcessiveBlankIdentifiers": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noInitFunction": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noLeadingBlankLine": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noTrailingBlankLine": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noRepeatedStrings": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noUnnecessaryConversion": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noUnnecessaryLoopVarCopy": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/usePrintfSuffix": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSingleArgAppend": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noAsmDeclMismatch": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSelfAssignment": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noAtomicAssignMisuse": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noMalformedBuildTag": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noMalformedDirective": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noMalformedStructTag": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noCgoPointerViolation": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noUnkeyedLiteral": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noCopiedLock": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noDeferTimeMisuse": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noIncorrectTimeFormat": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpClientGet": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpClientHead": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpClientPost": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpClientPostForm": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpGet": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpHead": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpPost": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpPostForm": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpNewRequest": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttpResponseMisuse": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noHttptestNewRequest": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noInvalidErrorsAs": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noFramePointerClobber": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/useJoinHostPort": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noImpossibleInterfaceAssert": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noLoopClosureCapture": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noLostCancel": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noWaitGroupMisuse": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNilFuncComparison": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noPrintfFormatMismatch": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noExcessiveShift": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnbufferedSignalChannel": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSlogKeyValueMismatch": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noStdMethodSignatureMismatch": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noStdlibVersionMismatch": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noStringIntConversion": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noTestFatalInGoroutine": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noMalformedTestFunction": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNonPointerUnmarshal": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnreachableCode": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noInvalidUnsafePointer": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedFunctionResult": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedWrite": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noIneffectualAssignment": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noLineTooLong": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMagicNumberInArgument": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMagicNumberInAssignment": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMagicNumberInCase": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMagicNumberInCondition": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMagicNumberInOperation": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMagicNumberInReturn": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noMisspelledWords": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noNakedReturn": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noTlsConnHandshake": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noTlsDial": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noTlsDialWithDialer": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetDial": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetDialTimeout": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetListen": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetListenPacket": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupCname": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupHost": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupIp": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupMx": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupPort": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupSrv": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupNs": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupTxt": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNetLookupAddr": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlDbBegin": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlDbExec": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlDbPing": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlDbPrepare": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlDbQuery": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlDbQueryRow": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlTxExec": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlTxPrepare": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlTxQuery": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlTxQueryRow": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlTxStmt": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlStmtExec": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlStmtQuery": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noSqlStmtQueryRow": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noExecCommand": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noNolintNonMachineReadable": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNolintParseError": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noNolintWithoutSpecificLinter": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noNolintWithoutExplanation": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noUnusedNolint": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noUnusedParameter": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noConstantParameter": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noConstantResult": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedFunction": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedType": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedVariable": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedConstant": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnusedField": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noMismatchedAppendAssign": {
+							Severity: lint.SeverityError,
+						},
+						"lint/performance/useCombinedAppend": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noSwappedArguments": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/useAssignmentOperator": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNoopFunctionCall": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noImpossibleCondition": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noCapitalizedLocal": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noUnreachableTypeCase": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/noMisplacedDefaultCase": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/useStandardCodegenComment": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/useStandardDeprecationComment": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/useCommentSpacing": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noDuplicateArgument": {
+							Severity: lint.SeverityError,
+						},
+						"lint/suspicious/noDuplicateBranchBody": {
+							Severity: lint.SeverityError,
+						},
 						"package-comments": {
 							Severity: lint.SeverityError,
 						},
@@ -818,9 +1749,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 77
+		defaultRulesCount = 210
 		// len of allRules: update this when adding new rules
-		allRulesCount = 158
+		allRulesCount = 316
 	)
 
 	tt := map[string]struct {

@@ -55,6 +55,10 @@ func (*NoIntegerOverflowConversionRule) CacheTier() rulecache.CacheTier {
 	return rulecache.TierPackageAware
 }
 
+func (*NoIntegerOverflowConversionRule) RequiresTypecheck() bool {
+	return true
+}
+
 type lintIntegerOverflow struct {
 	file              *lint.File
 	boundsCheckedVars map[string]bool
