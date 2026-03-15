@@ -43,10 +43,20 @@ func RunRevive(extraRules ...revivelib.ExtraRule) {
 	// More info: https://github.com/golang/go/issues/46869#issuecomment-865695953
 	initConfig()
 
+	if listRulesFlag {
+		rules := config.GetAllRules()
+		for _, rule := range rules {
+			fmt.Println(rule.Name())
+		}
+		return
+	}
+
 	if versionFlag {
 		fmt.Print(getVersion(builtBy, date, commit, version))
 		return
 	}
+
+	stopProfile := startProfile()
 
 	conf, err := config.GetConfig(configPath)
 	if err != nil {
@@ -88,6 +98,7 @@ func RunRevive(extraRules ...revivelib.ExtraRule) {
 		fmt.Println(output)
 	}
 
+	stopProfile()
 	os.Exit(exitCode) //revive:disable-line:deep-exit
 }
 
@@ -98,6 +109,7 @@ var (
 	versionFlag     bool
 	setExitStatus   bool
 	maxOpenFiles    int
+	listRulesFlag   bool
 )
 
 var originalUsage = flag.Usage
@@ -170,6 +182,7 @@ func initConfig() {
 	flag.Var(&excludePatterns, "exclude", excludeUsage)
 	flag.StringVar(&formatterName, "formatter", "", formatterUsage)
 	flag.BoolVar(&versionFlag, "version", false, versionUsage)
+	flag.BoolVar(&listRulesFlag, "list_rules", false, "list all available rules and exit")
 
 	// TODO: clean this up a bit, as we now default to exiting with status 1 if any errors are found..
 	// Consider how to align with industry best practices, but exiting with 1 on errors is common enough, warnings and other severeties are less clear..
@@ -194,10 +207,14 @@ func getVersion(builtBy, date, commit, version string) string {
 		bi, ok := debug.ReadBuildInfo()
 		if ok {
 			version = strings.TrimPrefix(bi.Main.Version, "v")
-			if buildInfo == "" {
+			if buildInfo == "" && !profileEnabled {
 				return fmt.Sprintf("version %s\n", version)
 			}
 		}
+	}
+
+	if profileEnabled {
+		buildInfo += "Profile:\tenabled\n"
 	}
 
 	return fmt.Sprintf("Version:\t%s\n%s", version, buildInfo)
