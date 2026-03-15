@@ -18,7 +18,7 @@ func TestRuleCache_RegisterAndGet(t *testing.T) {
 	rc.CacheFileHash("/tmp/test.go", content)
 
 	// Miss before Put.
-	_, hit := rc.Get("test-rule", "/tmp/test.go", TierFileOnly, nil)
+	_, hit := rc.Get("test-rule", "/tmp/test.go", TierFileOnly, nil, nil)
 	if hit {
 		t.Fatal("expected cache miss before Put")
 	}
@@ -35,9 +35,9 @@ func TestRuleCache_RegisterAndGet(t *testing.T) {
 			Confidence:    1.0,
 		},
 	}
-	rc.Put("test-rule", "/tmp/test.go", TierFileOnly, nil, failures)
+	rc.Put("test-rule", "/tmp/test.go", TierFileOnly, nil, nil, failures)
 
-	got, hit := rc.Get("test-rule", "/tmp/test.go", TierFileOnly, nil)
+	got, hit := rc.Get("test-rule", "/tmp/test.go", TierFileOnly, nil, nil)
 	if !hit {
 		t.Fatal("expected cache hit after Put")
 	}
@@ -59,9 +59,9 @@ func TestRuleCache_DifferentConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 	rc.CacheFileHash("/tmp/test.go", content)
-	rc.Put("rule", "/tmp/test.go", TierFileOnly, nil, []CachedFailure{{Message: "A"}})
+	rc.Put("rule", "/tmp/test.go", TierFileOnly, nil, nil, []CachedFailure{{Message: "A"}})
 
-	got, hit := rc.Get("rule", "/tmp/test.go", TierFileOnly, nil)
+	got, hit := rc.Get("rule", "/tmp/test.go", TierFileOnly, nil, nil)
 	if !hit {
 		t.Fatal("expected hit")
 	}
@@ -74,7 +74,7 @@ func TestRuleCache_DifferentConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, hit = rc.Get("rule", "/tmp/test.go", TierFileOnly, nil)
+	_, hit = rc.Get("rule", "/tmp/test.go", TierFileOnly, nil, nil)
 	if hit {
 		t.Fatal("expected cache miss after config change")
 	}
@@ -99,9 +99,9 @@ func TestRuleCache_PackageAwareTier(t *testing.T) {
 	}
 
 	// Put with package-aware tier.
-	rc.Put("rule", "/tmp/a.go", TierPackageAware, siblings, []CachedFailure{{Message: "pkg"}})
+	rc.Put("rule", "/tmp/a.go", TierPackageAware, siblings, nil, []CachedFailure{{Message: "pkg"}})
 
-	got, hit := rc.Get("rule", "/tmp/a.go", TierPackageAware, siblings)
+	got, hit := rc.Get("rule", "/tmp/a.go", TierPackageAware, siblings, nil)
 	if !hit {
 		t.Fatal("expected hit")
 	}
@@ -109,14 +109,25 @@ func TestRuleCache_PackageAwareTier(t *testing.T) {
 		t.Errorf("expected pkg, got %s", got[0].Message)
 	}
 
-	// Change sibling content — should invalidate.
+	// Simulate a second lint run where sibling content has changed.
+	// A new cache instance means CacheFileHash stores the updated hash.
+	rc2 := New()
+	if err := rc2.RegisterRule("rule", nil); err != nil {
+		t.Fatal(err)
+	}
+	rc2.CacheFileHash("/tmp/a.go", content1)
 	content2Changed := []byte("package p\nvar Y = 3\n")
-	rc.CacheFileHash("/tmp/b.go", content2Changed) // overwrite cached hash
-	siblings["/tmp/b.go"] = content2Changed
+	rc2.CacheFileHash("/tmp/b.go", content2Changed)
 
-	_, hit = rc.Get("rule", "/tmp/a.go", TierPackageAware, siblings)
+	siblings2 := map[string][]byte{
+		"/tmp/a.go": content1,
+		"/tmp/b.go": content2Changed,
+	}
+
+	// Different sibling hash → different action ID → cache miss.
+	_, hit = rc2.Get("rule", "/tmp/a.go", TierPackageAware, siblings2, nil)
 	if hit {
-		t.Fatal("expected miss after sibling change")
+		t.Fatal("expected miss after sibling change in new run")
 	}
 }
 
@@ -124,7 +135,7 @@ func TestRuleCache_UnregisteredRule(t *testing.T) {
 	rc := New()
 	rc.CacheFileHash("/tmp/test.go", []byte("package main\n"))
 
-	_, hit := rc.Get("unregistered", "/tmp/test.go", TierFileOnly, nil)
+	_, hit := rc.Get("unregistered", "/tmp/test.go", TierFileOnly, nil, nil)
 	if hit {
 		t.Fatal("expected miss for unregistered rule")
 	}
@@ -139,9 +150,9 @@ func TestRuleCache_EmptyFailures(t *testing.T) {
 	rc.CacheFileHash("/tmp/clean.go", []byte("package clean\n"))
 
 	// Cache empty result (file has no issues).
-	rc.Put("clean-rule", "/tmp/clean.go", TierFileOnly, nil, []CachedFailure{})
+	rc.Put("clean-rule", "/tmp/clean.go", TierFileOnly, nil, nil, []CachedFailure{})
 
-	got, hit := rc.Get("clean-rule", "/tmp/clean.go", TierFileOnly, nil)
+	got, hit := rc.Get("clean-rule", "/tmp/clean.go", TierFileOnly, nil, nil)
 	if !hit {
 		t.Fatal("expected hit for empty result")
 	}
@@ -165,7 +176,7 @@ func TestRuleCache_DiskPersistence(t *testing.T) {
 		t.Fatal(err)
 	}
 	rc1.CacheFileHash("/tmp/test.go", content)
-	rc1.Put("rule", "/tmp/test.go", TierFileOnly, nil, failures)
+	rc1.Put("rule", "/tmp/test.go", TierFileOnly, nil, nil, failures)
 	if err := rc1.FlushAll(); err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +191,7 @@ func TestRuleCache_DiskPersistence(t *testing.T) {
 	}
 	rc2.CacheFileHash("/tmp/test.go", content)
 
-	got, hit := rc2.Get("rule", "/tmp/test.go", TierFileOnly, nil)
+	got, hit := rc2.Get("rule", "/tmp/test.go", TierFileOnly, nil, nil)
 	if !hit {
 		t.Fatal("expected disk cache hit from second instance")
 	}
@@ -203,7 +214,7 @@ func TestRuleCache_DiskMissOnContentChange(t *testing.T) {
 		t.Fatal(err)
 	}
 	rc1.CacheFileHash("/tmp/test.go", content)
-	rc1.Put("rule", "/tmp/test.go", TierFileOnly, nil, failures)
+	rc1.Put("rule", "/tmp/test.go", TierFileOnly, nil, nil, failures)
 	if err := rc1.FlushAll(); err != nil {
 		t.Fatal(err)
 	}
@@ -218,27 +229,47 @@ func TestRuleCache_DiskMissOnContentChange(t *testing.T) {
 	}
 	rc2.CacheFileHash("/tmp/test.go", []byte("package main\n// changed\n"))
 
-	_, hit := rc2.Get("rule", "/tmp/test.go", TierFileOnly, nil)
+	_, hit := rc2.Get("rule", "/tmp/test.go", TierFileOnly, nil, nil)
 	if hit {
 		t.Fatal("expected miss after file content change")
 	}
 }
 
-func TestCacheFileHash_UpdatesOnNewContent(t *testing.T) {
+func TestCacheFileHash_ReturnsCachedOnSubsequentCall(t *testing.T) {
 	rc := New()
 
 	content := []byte("package main\n")
 	h1 := rc.CacheFileHash("/tmp/test.go", content)
-	h2 := rc.CacheFileHash("/tmp/test.go", []byte("different content"))
 
-	// Second call with different content should produce different hash.
-	if h1 == h2 {
-		t.Error("expected different hash for different content")
+	// Second call with different content returns the cached hash (first wins).
+	h2 := rc.CacheFileHash("/tmp/test.go", []byte("different content"))
+	if h1 != h2 {
+		t.Error("expected cached hash to be returned on subsequent call")
 	}
 
-	// Same content should produce same hash.
+	// Same content should still produce the same hash.
 	h3 := rc.CacheFileHash("/tmp/test.go", content)
 	if h1 != h3 {
 		t.Error("expected same hash for same content")
+	}
+
+	// Different path should produce a different hash.
+	h4 := rc.CacheFileHash("/tmp/other.go", []byte("different content"))
+	if h1 == h4 {
+		t.Error("expected different hash for different path with different content")
+	}
+}
+
+func TestCacheFileHash_DifferentInstancesCanDiffer(t *testing.T) {
+	// Separate cache instances (simulating separate lint runs) compute
+	// independent hashes, so changed file content is correctly detected.
+	rc1 := New()
+	rc2 := New()
+
+	h1 := rc1.CacheFileHash("/tmp/test.go", []byte("package main\n"))
+	h2 := rc2.CacheFileHash("/tmp/test.go", []byte("package main\n// changed\n"))
+
+	if h1 == h2 {
+		t.Error("expected different hash from different cache instances with different content")
 	}
 }

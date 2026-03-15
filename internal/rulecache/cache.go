@@ -71,9 +71,14 @@ func (rc *RuleCache) RegisterRule(ruleName string, args []any) error {
 	return nil
 }
 
-// CacheFileHash computes and stores the hash of a file's content.
-// It always updates the stored hash for the given path.
+// CacheFileHash returns the cached content hash for filePath, computing and
+// storing it only when no entry exists yet. Within a single lint run the
+// content for a given path never changes, so the first call wins and all
+// subsequent calls (e.g. from actionID for sibling files) skip SHA-256.
 func (rc *RuleCache) CacheFileHash(filePath string, content []byte) [32]byte {
+	if existing, ok := rc.fileHashes.Load(filePath); ok {
+		return existing.([32]byte)
+	}
 	hash := sha256.Sum256(content)
 	rc.fileHashes.Store(filePath, hash)
 	return hash
@@ -81,13 +86,19 @@ func (rc *RuleCache) CacheFileHash(filePath string, content []byte) [32]byte {
 
 // Get retrieves cached failures for a (rule, file) pair.
 // Returns (failures, true) on hit, (nil, false) on miss.
+//
+// siblingDigest is an optional pre-computed digest of the sibling files
+// (from SiblingDigest). When non-nil and tier >= TierPackageAware, the
+// digest is used directly instead of re-sorting and re-hashing siblings.
+// Pass nil to have actionID compute it on the fly (original behaviour).
 func (rc *RuleCache) Get(
 	ruleName string,
 	filePath string,
 	tier CacheTier,
 	siblingFiles map[string][]byte, // filePath → content, for TierPackageAware+
+	siblingDigest *[32]byte, // optional pre-computed sibling digest
 ) ([]CachedFailure, bool) {
-	actionID, ok := rc.actionID(ruleName, filePath, tier, siblingFiles)
+	actionID, ok := rc.actionID(ruleName, filePath, tier, siblingFiles, siblingDigest)
 	if !ok {
 		return nil, false
 	}
@@ -114,14 +125,17 @@ func (rc *RuleCache) Get(
 
 // Put stores failures for a (rule, file) pair.
 // Writes to memory immediately; call FlushPackage to persist to disk.
+//
+// siblingDigest is an optional pre-computed digest (see Get).
 func (rc *RuleCache) Put(
 	ruleName string,
 	filePath string,
 	tier CacheTier,
 	siblingFiles map[string][]byte,
+	siblingDigest *[32]byte,
 	failures []CachedFailure,
 ) {
-	actionID, ok := rc.actionID(ruleName, filePath, tier, siblingFiles)
+	actionID, ok := rc.actionID(ruleName, filePath, tier, siblingFiles, siblingDigest)
 	if !ok {
 		return
 	}
@@ -214,12 +228,41 @@ func (rc *RuleCache) loadPkgFromDisk(pkgKey string) {
 	}
 }
 
+// SiblingDigest computes a single SHA-256 hash that represents all sibling
+// files (every file in siblingFiles except filePath itself). The result is
+// deterministic: sibling paths are sorted before hashing.
+//
+// Call this once per (filePath, siblingFiles) pair, then pass the result as
+// siblingDigest to Get/Put to avoid re-sorting and re-hashing for every rule.
+func (rc *RuleCache) SiblingDigest(filePath string, siblingFiles map[string][]byte) [32]byte {
+	h := sha256.New()
+	paths := make([]string, 0, len(siblingFiles))
+	for p := range siblingFiles {
+		if p == filePath {
+			continue
+		}
+		paths = append(paths, p)
+	}
+	sort.Strings(paths)
+	for _, p := range paths {
+		sibHash := rc.CacheFileHash(p, siblingFiles[p])
+		fmt.Fprintf(h, "sibling %s %x\n", p, sibHash)
+	}
+	var digest [32]byte
+	copy(digest[:], h.Sum(nil))
+	return digest
+}
+
 // actionID computes the unique cache key for a (rule, file) pair.
+//
+// When siblingDigest is non-nil and tier >= TierPackageAware, the provided
+// digest is folded in directly, skipping the per-sibling sort+hash work.
 func (rc *RuleCache) actionID(
 	ruleName string,
 	filePath string,
 	tier CacheTier,
 	siblingFiles map[string][]byte,
+	siblingDigest *[32]byte,
 ) ([32]byte, bool) {
 	confHash, ok := rc.ruleConfigs.Load(ruleName)
 	if !ok {
@@ -238,20 +281,25 @@ func (rc *RuleCache) actionID(
 	fmt.Fprintf(h, "file %s %x\n", filePath, fh)
 
 	// For package-aware and cross-package tiers, include sibling file hashes.
-	if tier >= TierPackageAware && siblingFiles != nil {
-		// Sort paths for deterministic hashing.
-		paths := make([]string, 0, len(siblingFiles))
-		for p := range siblingFiles {
-			if p == filePath {
-				continue // already included above
+	if tier >= TierPackageAware {
+		if siblingDigest != nil {
+			// Fast path: use pre-computed digest.
+			fmt.Fprintf(h, "siblings %x\n", *siblingDigest)
+		} else if siblingFiles != nil {
+			// Slow path: sort paths and hash each sibling individually.
+			paths := make([]string, 0, len(siblingFiles))
+			for p := range siblingFiles {
+				if p == filePath {
+					continue // already included above
+				}
+				paths = append(paths, p)
 			}
-			paths = append(paths, p)
-		}
-		sort.Strings(paths)
+			sort.Strings(paths)
 
-		for _, p := range paths {
-			sibHash := rc.CacheFileHash(p, siblingFiles[p])
-			fmt.Fprintf(h, "sibling %s %x\n", p, sibHash)
+			for _, p := range paths {
+				sibHash := rc.CacheFileHash(p, siblingFiles[p])
+				fmt.Fprintf(h, "sibling %s %x\n", p, sibHash)
+			}
 		}
 	}
 
