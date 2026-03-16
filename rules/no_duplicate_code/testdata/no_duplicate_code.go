@@ -44,7 +44,7 @@ func processDuplicateUser(db *sql.DB, userID int) (string, error) {
 	return name, nil
 }
 
-func processDuplicateAdmin(db *sql.DB, adminID int) (string, error) { // MATCH /duplicate code detected: processDuplicateUser and processDuplicateAdmin share 153 tokens of identical structure/
+func processDuplicateAdmin(db *sql.DB, adminID int) (string, error) { // MATCH /duplicate code detected: processDuplicateUser and processDuplicateAdmin share 150 tokens of identical structure/
 	row := db.QueryRow("SELECT id, name, email FROM admins WHERE id = ?", adminID)
 	var id int
 	var name string

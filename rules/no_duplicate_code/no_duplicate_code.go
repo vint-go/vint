@@ -73,26 +73,61 @@ func (r *NoDuplicateCodeRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fa
 		return nil
 	}
 
-	// Serialize each function body into a token sequence.
+	// Serialize each function body into a token sequence, compute histograms,
+	// and pre-compute rolling hash sets for the pair comparison phase.
 	type serializedDecl struct {
-		decl   *ast.FuncDecl
-		tokens []duplToken
+		decl    *ast.FuncDecl
+		tokens  []duplToken
+		freq    [numTokenTypes]int
+		hashSet map[uint64]struct{} // rolling hash fingerprints of all windows of size threshold
+	}
+
+	// Pre-compute base^(threshold-1) for rolling hash removal.
+	const hashBase uint64 = 257
+	basePow := uint64(1)
+	for k := 0; k < r.threshold-1; k++ {
+		basePow *= hashBase
 	}
 
 	serialized := make([]serializedDecl, len(decls))
 	for i, d := range decls {
-		serialized[i] = serializedDecl{
-			decl:   d,
-			tokens: serializeAST(d.Body),
+		tokens := serializeAST(d.Body)
+		var freq [numTokenTypes]int
+		for _, t := range tokens {
+			freq[t]++
 		}
+		sd := serializedDecl{
+			decl:   d,
+			tokens: tokens,
+			freq:   freq,
+		}
+		// Build hash set for functions large enough to participate in comparison.
+		if len(tokens) >= r.threshold {
+			sd.hashSet = buildHashSet(tokens, r.threshold, hashBase, basePow)
+		}
+		serialized[i] = sd
 	}
 
-	// Compare each pair of functions for structural similarity.
+	// Compare each pair of functions for structural similarity using rolling hash.
 	reported := map[token.Pos]bool{}
 	for i := 0; i < len(serialized); i++ {
+		if serialized[i].hashSet == nil {
+			continue
+		}
 		for j := i + 1; j < len(serialized); j++ {
-			lcsLen := longestCommonSubsequenceLen(serialized[i].tokens, serialized[j].tokens)
-			if lcsLen >= r.threshold {
+			// Skip if this function was already reported as a duplicate.
+			if reported[serialized[j].decl.Pos()] {
+				continue
+			}
+			if serialized[j].hashSet == nil {
+				continue
+			}
+			// Quick histogram pre-filter: if the token frequency overlap is
+			// below threshold, no common substring of that length can exist.
+			if tokenOverlap(&serialized[i].freq, &serialized[j].freq) < r.threshold {
+				continue
+			}
+			if hasCommonWindow(serialized[i].tokens, serialized[j].hashSet, r.threshold, hashBase, basePow) {
 				// Report on the second (later) function to avoid double-reporting.
 				pos := serialized[j].decl.Pos()
 				if !reported[pos] {
@@ -104,7 +139,7 @@ func (r *NoDuplicateCodeRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fa
 							"duplicate code detected: %s and %s share %d tokens of identical structure",
 							serialized[i].decl.Name.Name,
 							serialized[j].decl.Name.Name,
-							lcsLen,
+							r.threshold,
 						),
 						Node: serialized[j].decl,
 					})
@@ -137,7 +172,8 @@ func normalizeRuleOption(arg string) string {
 }
 
 // duplToken represents a serialized AST node type, abstracting away concrete values.
-type duplToken int
+// Uses uint8 since there are fewer than 256 token types, keeping token arrays compact.
+type duplToken uint8
 
 const (
 	tokIdent duplToken = iota
@@ -186,12 +222,14 @@ const (
 	tokStructType
 	tokFuncDecl
 	tokGenDecl
+
+	numTokenTypes // sentinel: total number of token types
 )
 
 // serializeAST converts an AST node into a sequence of tokens representing
 // structural shape, ignoring concrete values like identifiers and literals.
 func serializeAST(node ast.Node) []duplToken {
-	var tokens []duplToken
+	tokens := make([]duplToken, 0, 128)
 	ast.Inspect(node, func(n ast.Node) bool {
 		if n == nil {
 			return false
@@ -295,38 +333,68 @@ func serializeAST(node ast.Node) []duplToken {
 	return tokens
 }
 
-// longestCommonSubsequenceLen computes the length of the longest common
-// contiguous subsequence (substring) between two token sequences.
-func longestCommonSubsequenceLen(a, b []duplToken) int {
-	if len(a) == 0 || len(b) == 0 {
-		return 0
+// tokenOverlap computes the sum of min(freqA[t], freqB[t]) over all token
+// types. This is an upper bound on the longest common substring length.
+func tokenOverlap(a, b *[numTokenTypes]int) int {
+	total := 0
+	for i := 0; i < int(numTokenTypes); i++ {
+		va, vb := a[i], b[i]
+		if va < vb {
+			total += va
+		} else {
+			total += vb
+		}
+	}
+	return total
+}
+
+// buildHashSet computes rolling hash fingerprints for all windows of size
+// windowSize in the token sequence, returning a set of hashes.
+func buildHashSet(tokens []duplToken, windowSize int, base, basePow uint64) map[uint64]struct{} {
+	n := len(tokens)
+	numWindows := n - windowSize + 1
+	set := make(map[uint64]struct{}, numWindows)
+
+	// Compute hash for the first window.
+	var h uint64
+	for i := 0; i < windowSize; i++ {
+		h = h*base + uint64(tokens[i])
+	}
+	set[h] = struct{}{}
+
+	// Slide the window, updating the hash in O(1).
+	for i := 1; i < numWindows; i++ {
+		h = (h-uint64(tokens[i-1])*basePow)*base + uint64(tokens[i+windowSize-1])
+		set[h] = struct{}{}
 	}
 
-	maxLen := 0
+	return set
+}
 
-	// Use a rolling-row DP approach for longest common substring.
-	// dp[j] = length of the longest common suffix ending at a[i-1] and b[j-1].
-	dp := make([]int, len(b)+1)
+// hasCommonWindow checks if token sequence a has any window of windowSize
+// whose rolling hash appears in setB (pre-computed from another sequence).
+func hasCommonWindow(a []duplToken, setB map[uint64]struct{}, windowSize int, base, basePow uint64) bool {
+	numWindows := len(a) - windowSize + 1
+	if numWindows <= 0 {
+		return false
+	}
 
-	for i := 1; i <= len(a); i++ {
-		// Process in reverse to avoid overwriting values we still need.
-		for j := len(b); j >= 1; j-- {
-			if a[i-1] == b[j-1] {
-				if i == 1 || j == 1 {
-					dp[j] = 1
-				} else {
-					// We need dp[j-1] from the previous row (i-1).
-					// Since we process j in reverse, dp[j-1] still has the value from row i-1.
-					dp[j] = dp[j-1] + 1
-				}
-				if dp[j] > maxLen {
-					maxLen = dp[j]
-				}
-			} else {
-				dp[j] = 0
-			}
+	// Compute hash for the first window.
+	var h uint64
+	for i := 0; i < windowSize; i++ {
+		h = h*base + uint64(a[i])
+	}
+	if _, ok := setB[h]; ok {
+		return true
+	}
+
+	// Slide the window.
+	for i := 1; i < numWindows; i++ {
+		h = (h-uint64(a[i-1])*basePow)*base + uint64(a[i+windowSize-1])
+		if _, ok := setB[h]; ok {
+			return true
 		}
 	}
 
-	return maxLen
+	return false
 }
