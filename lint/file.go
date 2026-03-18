@@ -116,14 +116,15 @@ func (f *File) isMain() bool {
 
 const directiveSpecifyDisableReason = "specify-disable-reason"
 
-type togetherApplier struct {
-	rules       []WalkingRule
-	file        *File
-	args        Arguments
-	allFailures []Failure
-}
-
-const walkingOptimizationOn = false
+// This optimization did not give good results in testing,
+// so for now commented out and would probably be reworked in future.
+// type togetherApplier struct {
+// 	rules       []WalkingRule
+// 	file        *File
+// 	args        Arguments
+// 	allFailures []Failure
+// }
+// const walkingOptimizationOn = false
 
 func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rulecache.RuleCache, preCachedHits map[string]bool) error {
 	rulesConfig := config.Rules
@@ -136,7 +137,7 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 	// every subsequent package-aware rule on this file.
 	var siblingDigest *[32]byte
 
-	var walkingRules []WalkingRule = make([]WalkingRule, 0, len(rules))
+	// var walkingRules []WalkingRule = make([]WalkingRule, 0, len(rules))
 
 	for _, currentRule := range rules {
 		fullName := FullRuleName(currentRule)
@@ -160,12 +161,12 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 			cacheable = false
 		}
 
-		if walkingOptimizationOn {
-			if wr, ok := currentRule.(WalkingRule); ok {
-				walkingRules = append(walkingRules, wr)
-				continue
-			}
-		}
+		// if walkingOptimizationOn {
+		// 	if wr, ok := currentRule.(WalkingRule); ok {
+		// 		walkingRules = append(walkingRules, wr)
+		// 		continue
+		// 	}
+		// }
 
 		// Lazily collect sibling contents and compute the sibling digest
 		// once for all package-aware (and above) rules on this file.
@@ -225,45 +226,45 @@ func (f *File) lint(rules []Rule, config Config, failures chan Failure, rc *rule
 		}
 	}
 
-	if len(walkingRules) > 0 {
-		applier := &togetherApplier{
-			rules: walkingRules,
-			file:  f,
-			args:  Arguments{},
-		}
-		ast.Walk(applier, f.AST)
-		for _, failure := range applier.allFailures {
-			if failure.IsInternal() {
-				return errors.New(failure.Failure)
-			}
-		}
-		applier.allFailures = f.filterFailures(applier.allFailures, disabledIntervals)
-		for _, failure := range applier.allFailures {
-			if failure.Confidence >= config.Confidence {
-				failures <- failure
-			}
-		}
-	}
+	// if len(walkingRules) > 0 {
+	// 	applier := &togetherApplier{
+	// 		rules: walkingRules,
+	// 		file:  f,
+	// 		args:  Arguments{},
+	// 	}
+	// 	ast.Walk(applier, f.AST)
+	// 	for _, failure := range applier.allFailures {
+	// 		if failure.IsInternal() {
+	// 			return errors.New(failure.Failure)
+	// 		}
+	// 	}
+	// 	applier.allFailures = f.filterFailures(applier.allFailures, disabledIntervals)
+	// 	for _, failure := range applier.allFailures {
+	// 		if failure.Confidence >= config.Confidence {
+	// 			failures <- failure
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }
 
-func (v *togetherApplier) Visit(node ast.Node) ast.Visitor {
-	for _, rule := range v.rules {
-		newFailures := rule.ApplyToNode(v.file, node, v.args)
-		for idx, failure := range newFailures {
-			if failure.RuleName == "" {
-				failure.RuleName = FullRuleName(rule)
-			}
-			if failure.Node != nil {
-				failure.Position = ToFailurePosition(failure.Node.Pos(), failure.Node.End(), v.file)
-			}
-			newFailures[idx] = failure
-		}
-		v.allFailures = append(v.allFailures, newFailures...)
-	}
-	return v
-}
+// func (v *togetherApplier) Visit(node ast.Node) ast.Visitor {
+// 	for _, rule := range v.rules {
+// 		newFailures := rule.ApplyToNode(v.file, node, v.args)
+// 		for idx, failure := range newFailures {
+// 			if failure.RuleName == "" {
+// 				failure.RuleName = FullRuleName(rule)
+// 			}
+// 			if failure.Node != nil {
+// 				failure.Position = ToFailurePosition(failure.Node.Pos(), failure.Node.End(), v.file)
+// 			}
+// 			newFailures[idx] = failure
+// 		}
+// 		v.allFailures = append(v.allFailures, newFailures...)
+// 	}
+// 	return v
+// }
 
 // collectSiblingContents returns the content of all files in the same package.
 func (f *File) collectSiblingContents() map[string][]byte {

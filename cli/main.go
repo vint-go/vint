@@ -13,7 +13,9 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/strowk/vint/config"
+	"github.com/strowk/vint/lint"
 	"github.com/strowk/vint/revivelib"
+	"github.com/strowk/vint/vintlint0"
 )
 
 const (
@@ -63,6 +65,11 @@ func RunRevive(extraRules ...revivelib.ExtraRule) {
 		fail(err.Error())
 	}
 
+	if vintlintFlag {
+		runVintlint(conf, stopProfile, extraRules...)
+		return
+	}
+
 	revive, err := revivelib.New(
 		conf,
 		setExitStatus,
@@ -102,6 +109,93 @@ func RunRevive(extraRules ...revivelib.ExtraRule) {
 	os.Exit(exitCode) //revive:disable-line:deep-exit
 }
 
+// runVintlint runs the experimental vintlint0 orchestrator.
+func runVintlint(conf *lint.Config, stopProfile func(), extraRules ...revivelib.ExtraRule) {
+	conf.ErrorCode = 1
+	if setExitStatus {
+		conf.WarningCode = 1
+	}
+
+	extraRuleInstances := make([]lint.Rule, len(extraRules))
+	for i, r := range extraRules {
+		extraRuleInstances[i] = r.Rule
+		ruleName := lint.FullRuleName(r.Rule)
+		if _, ok := conf.Rules[ruleName]; !ok {
+			conf.Rules[ruleName] = r.DefaultConfig
+		}
+	}
+
+	lintingRules, err := config.GetLintingRules(conf, extraRuleInstances)
+	if err != nil {
+		fail(err.Error())
+	}
+
+	includes := flag.Args()
+	if len(includes) == 0 {
+		includes = []string{"."}
+	}
+
+	excludes := []string(excludePatterns)
+	if len(excludes) == 0 {
+		excludes = conf.Exclude
+	}
+	if len(excludes) == 0 {
+		excludes = []string{"vendor/..."}
+	}
+
+	linter := vintlint0.New(lintingRules, *conf)
+	failures, err := linter.Lint(includes, excludes)
+	if err != nil {
+		fail(err.Error())
+	}
+
+	// Format output using existing formatter infrastructure.
+	formatter, err := config.GetFormatter(formatterName)
+	if err != nil {
+		fail(err.Error())
+	}
+
+	formatChan := make(chan lint.Failure)
+	exitChan := make(chan bool)
+	var (
+		output    string
+		formatErr error
+	)
+	go func() {
+		output, formatErr = formatter.Format(formatChan, *conf)
+		exitChan <- true
+	}()
+
+	exitCode := 0
+	for failure := range failures {
+		if failure.Confidence < conf.Confidence {
+			continue
+		}
+		if exitCode == 0 {
+			exitCode = conf.WarningCode
+		}
+		if c, ok := conf.Rules[failure.RuleName]; ok && c.Severity == lint.SeverityError {
+			exitCode = conf.ErrorCode
+		}
+		if c, ok := conf.Directives[failure.RuleName]; ok && c.Severity == lint.SeverityError {
+			exitCode = conf.ErrorCode
+		}
+		formatChan <- failure
+	}
+	close(formatChan)
+	<-exitChan
+
+	if formatErr != nil {
+		fail(formatErr.Error())
+	}
+	if output != "" {
+		fmt.Println(output)
+	}
+
+	stopProfile()
+	os.Exit(exitCode) //revive:disable-line:deep-exit
+}
+
 var (
 	configPath      string
 	excludePatterns revivelib.ArrayFlags
@@ -110,6 +204,7 @@ var (
 	setExitStatus   bool
 	maxOpenFiles    int
 	listRulesFlag   bool
+	vintlintFlag    bool
 )
 
 var originalUsage = flag.Usage
@@ -189,6 +284,7 @@ func initConfig() {
 	// Also check how golangci lint is configured for this..
 	flag.BoolVar(&setExitStatus, "set_exit_status", false, exitStatusUsage)
 	flag.IntVar(&maxOpenFiles, "max_open_files", 0, maxOpenFilesUsage)
+	flag.BoolVar(&vintlintFlag, "vintlint", false, "use experimental vintlint0 orchestrator")
 	flag.Parse() //revive:disable-line:deep-exit
 }
 
