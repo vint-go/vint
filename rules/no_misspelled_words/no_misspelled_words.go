@@ -12,10 +12,11 @@ import (
 
 // NoMisspelledWordsRule detects commonly misspelled English words in Go source files.
 type NoMisspelledWordsRule struct {
-	locale     string
-	mode       string
-	extraWords []extraWord
+	locale      string
+	mode        string
+	extraWords  []extraWord
 	ignoreRules []string
+	replacer    *misspell.Replacer
 }
 
 type extraWord struct {
@@ -31,6 +32,7 @@ func (r *NoMisspelledWordsRule) Configure(arguments lint.Arguments) error {
 	r.ignoreRules = nil
 
 	if len(arguments) < 1 {
+		r.replacer = r.buildReplacer()
 		return nil
 	}
 
@@ -92,16 +94,16 @@ func (r *NoMisspelledWordsRule) Configure(arguments lint.Arguments) error {
 		}
 	}
 
+	r.replacer = r.buildReplacer()
 	return nil
 }
 
-// Apply applies the rule to given file.
-func (r *NoMisspelledWordsRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
-	var failures []lint.Failure
+// buildReplacer creates and compiles a misspell.Replacer from the current configuration.
+func (r *NoMisspelledWordsRule) buildReplacer() *misspell.Replacer {
+	replacer := &misspell.Replacer{
+		Replacements: misspell.DictMain,
+	}
 
-	replacer := misspell.New()
-
-	// Apply locale settings
 	switch r.locale {
 	case "US":
 		replacer.AddRuleList(misspell.DictAmerican)
@@ -109,33 +111,38 @@ func (r *NoMisspelledWordsRule) Apply(file *lint.File, _ lint.Arguments) []lint.
 		replacer.AddRuleList(misspell.DictBritish)
 	}
 
-	// Add extra custom words
 	if len(r.extraWords) > 0 {
-		var additions []string
+		additions := make([]string, 0, len(r.extraWords)*2)
 		for _, ew := range r.extraWords {
 			additions = append(additions, ew.Typo, ew.Correction)
 		}
 		replacer.AddRuleList(additions)
 	}
 
-	// Remove ignored rules
 	if len(r.ignoreRules) > 0 {
-		var ignores []string
-		for _, ig := range r.ignoreRules {
-			ignores = append(ignores, ig)
-		}
-		replacer.RemoveRule(ignores)
+		replacer.RemoveRule(r.ignoreRules)
 	}
 
 	replacer.Compile()
+	return replacer
+}
+
+// Apply applies the rule to given file.
+func (r *NoMisspelledWordsRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	// In the default (Go-aware) mode, skip files with no comments.
+	if r.mode != "unrestricted" && file.AST != nil && len(file.AST.Comments) == 0 {
+		return nil
+	}
+
+	var failures []lint.Failure
 
 	content := string(file.Content())
 
 	var diffs []misspell.Diff
-	if r.mode == "restricted" {
-		_, diffs = replacer.ReplaceGo(content)
-	} else {
-		_, diffs = replacer.Replace(content)
+	if r.mode == "unrestricted" {
+		_, diffs = r.replacer.Replace(content)
+	} else { // default or "restricted" — both use Go-aware scanning
+		_, diffs = r.replacer.ReplaceGo(content)
 	}
 
 	for _, diff := range diffs {

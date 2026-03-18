@@ -178,6 +178,12 @@ func (r *NoUnusedFieldRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fail
 		return nil
 	}
 
+	// Build a fieldName → []fieldKey index for fast lookup when struct name is unknown.
+	fieldsByName := map[string][]fieldKey{}
+	for key := range allFields {
+		fieldsByName[key.fieldName] = append(fieldsByName[key.fieldName], key)
+	}
+
 	// Mark all fields in HostLayout structs as used.
 	for key := range allFields {
 		if hostLayoutStructs[key.structName] {
@@ -187,7 +193,7 @@ func (r *NoUnusedFieldRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fail
 
 	// Phase 2: Scan for field usages across the package.
 	for _, f := range pkg.Files() {
-		scanFileForFieldUsages(f, allFields, usedFields, fieldWritesAreUses)
+		scanFileForFieldUsages(f, allFields, fieldsByName, usedFields, fieldWritesAreUses)
 	}
 
 	// Phase 3: Report unused fields declared in this file.
@@ -245,7 +251,7 @@ func (r *NoUnusedFieldRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fail
 }
 
 // scanFileForFieldUsages scans a file's AST for field accesses (reads and writes).
-func scanFileForFieldUsages(file *lint.File, allFields map[fieldKey]*fieldInfo, usedFields map[fieldKey]bool, fieldWritesAreUses bool) {
+func scanFileForFieldUsages(file *lint.File, allFields map[fieldKey]*fieldInfo, fieldsByName map[string][]fieldKey, usedFields map[fieldKey]bool, fieldWritesAreUses bool) {
 	// Collect named struct types for struct-name resolution from composite literals.
 	structTypes := map[string]*ast.StructType{}
 	for _, decl := range file.AST.Decls {
@@ -284,11 +290,9 @@ func scanFileForFieldUsages(file *lint.File, allFields map[fieldKey]*fieldInfo, 
 			} else {
 				// If we cannot determine the struct type, mark any field
 				// with this name as used (conservative approach).
-				for key := range allFields {
-					if key.fieldName == fieldName {
-						if fieldWritesAreUses || !isWriteOnlyAccess(x, file) {
-							usedFields[key] = true
-						}
+				for _, key := range fieldsByName[fieldName] {
+					if fieldWritesAreUses || !isWriteOnlyAccess(x, file) {
+						usedFields[key] = true
 					}
 				}
 			}

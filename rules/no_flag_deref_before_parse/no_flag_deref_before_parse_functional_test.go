@@ -1,0 +1,12 @@
+package no_flag_deref_before_parse_test
+
+import (
+	"testing"
+
+	"github.com/strowk/vint/rules/functional_test_helpers"
+	"github.com/strowk/vint/rules/no_flag_deref_before_parse"
+)
+
+func TestNoFlagDerefBeforeParse(t *testing.T) {
+	functional_test_helpers.TestRule(t, "no_flag_deref_before_parse", &no_flag_deref_before_parse.NoFlagDerefBeforeParseRule{})
+}

@@ -16,7 +16,7 @@ description: Detects and corrects commonly misspelled English words in Go source
 settings:
   lint/correctness/noMisspelledWords:
     locale: "" # Set to "US" or "UK" to enforce locale-specific spelling (e.g., "colour" vs "color")
-    mode: "" # Set to "restricted" to check only comments, leave empty to check all text
+    mode: "" # Set to "unrestricted" to check all text, leave empty to check only comments (default)
     extra-words: [] # List of custom misspelling corrections: [{typo: "misspeling", correction: "misspelling"}]
     ignore-rules: [] # List of correction rules to ignore (e.g., ["importas"])
 ```
@@ -26,8 +26,8 @@ settings:
 The `noMisspelledWords` rule detects commonly misspelled English words in Go source files and provides automatic corrections. It works by maintaining a large dictionary of known misspellings (thousands of entries) and scanning source code to find and flag them.
 
 The linter supports two scanning modes:
-- **Default mode**: Scans the entire file content including identifiers, string literals, comments, and other text using the `Replace` function.
-- **Restricted mode** (`mode: "restricted"`): Only scans Go comments using the `ReplaceGo` function, leaving identifiers and string literals unchecked.
+- **Default mode**: Only scans Go comments, leaving identifiers and string literals unchecked. This is the recommended mode for Go source files as it avoids false positives on code and is significantly faster.
+- **Unrestricted mode** (`mode: "unrestricted"`): Scans the entire file content including identifiers, string literals, comments, and other text. Use this if you want to catch misspellings in string literals as well. This mode is more computationally expensive and may produce false positives on code identifiers, so it should be used with caution.
 
 ### Locale Support
 

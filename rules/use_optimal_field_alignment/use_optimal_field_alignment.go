@@ -107,7 +107,10 @@ func (w *lintFieldAlignment) Visit(node ast.Node) ast.Visitor {
 		return w
 	}
 
-	currentSize := w.sizes.Sizeof(st)
+	currentSize, ok := safeSizeof(w.sizes, st)
+	if !ok {
+		return w
+	}
 
 	// Calculate optimal size by sorting fields by alignment (descending),
 	// then by size (descending) for fields with equal alignment.
@@ -115,9 +118,14 @@ func (w *lintFieldAlignment) Visit(node ast.Node) ast.Visitor {
 	for i := 0; i < numFields; i++ {
 		f := st.Field(i)
 		ft := f.Type()
+		a, aOk := safeAlignof(w.sizes, ft)
+		s, sOk := safeSizeof(w.sizes, ft)
+		if !aOk || !sOk {
+			return w
+		}
 		fields[i] = fieldInfo{
-			align: w.sizes.Alignof(ft),
-			size:  w.sizes.Sizeof(ft),
+			align: a,
+			size:  s,
 			name:  f.Name(),
 		}
 	}
@@ -131,7 +139,7 @@ func (w *lintFieldAlignment) Visit(node ast.Node) ast.Visitor {
 	})
 
 	// Calculate optimized size using the sorted field order.
-	optimalSize := calculateStructSize(fields, w.sizes)
+	optimalSize := calculateStructSize(fields)
 
 	if optimalSize < currentSize {
 		optimalOrder := make([]string, len(fields))
@@ -152,7 +160,7 @@ func (w *lintFieldAlignment) Visit(node ast.Node) ast.Visitor {
 }
 
 // calculateStructSize calculates the total size of a struct given ordered fields.
-func calculateStructSize(fields []fieldInfo, sizes types.Sizes) int64 {
+func calculateStructSize(fields []fieldInfo) int64 {
 	if len(fields) == 0 {
 		return 0
 	}
@@ -181,4 +189,25 @@ func calculateStructSize(fields []fieldInfo, sizes types.Sizes) int64 {
 // align rounds up n to the next multiple of a.
 func align(n, a int64) int64 {
 	return (n + a - 1) &^ (a - 1)
+}
+
+// safeSizeof wraps types.Sizes.Sizeof, recovering from panics caused by
+// types that cannot be sized (e.g. generic type parameters).
+func safeSizeof(sizes types.Sizes, t types.Type) (size int64, ok bool) {
+	defer func() {
+		if recover() != nil {
+			ok = false
+		}
+	}()
+	return sizes.Sizeof(t), true
+}
+
+// safeAlignof wraps types.Sizes.Alignof, recovering from panics.
+func safeAlignof(sizes types.Sizes, t types.Type) (size int64, ok bool) {
+	defer func() {
+		if recover() != nil {
+			ok = false
+		}
+	}()
+	return sizes.Alignof(t), true
 }
