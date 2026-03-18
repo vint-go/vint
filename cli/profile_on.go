@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"runtime/trace"
 )
 
 const profileEnabled = true
@@ -25,6 +26,21 @@ func startProfile() func() {
 		}
 		closers = append(closers, func() {
 			pprof.StopCPUProfile()
+			f.Close()
+		})
+	}
+
+	if traceFile := os.Getenv("VINT_TRACE"); traceFile != "" {
+		f, err := os.Create(traceFile)
+		if err != nil {
+			fail(fmt.Sprintf("could not create trace file: %v", err))
+		}
+		if err := trace.Start(f); err != nil {
+			f.Close()
+			fail(fmt.Sprintf("could not start trace: %v", err))
+		}
+		closers = append(closers, func() {
+			trace.Stop()
 			f.Close()
 		})
 	}
