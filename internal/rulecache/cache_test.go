@@ -260,6 +260,149 @@ func TestCacheFileHash_ReturnsCachedOnSubsequentCall(t *testing.T) {
 	}
 }
 
+func TestRuleCache_PackageLevelCache(t *testing.T) {
+	rc := New()
+
+	if err := rc.RegisterRule("rule-a", nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := rc.RegisterRule("rule-b", []any{"x"}); err != nil {
+		t.Fatal(err)
+	}
+
+	content1 := []byte("package p\nvar X = 1\n")
+	content2 := []byte("package p\nvar Y = 2\n")
+	rc.CacheFileHash("/tmp/a.go", content1)
+	rc.CacheFileHash("/tmp/b.go", content2)
+
+	configHash := [32]byte{1, 2, 3} // arbitrary fixed config hash
+
+	sortedFiles := []string{"/tmp/a.go", "/tmp/b.go"}
+	pkgKey := "/tmp"
+
+	pkgID, ok := rc.PackageActionID(sortedFiles, configHash)
+	if !ok {
+		t.Fatal("expected PackageActionID to succeed")
+	}
+
+	// Miss before Put.
+	_, hit := rc.GetPackage(pkgID, pkgKey)
+	if hit {
+		t.Fatal("expected package cache miss before PutPackage")
+	}
+
+	// Put and then Get.
+	failures := []CachedFailure{
+		{Message: "issue1", RuleName: "rule-a"},
+		{Message: "issue2", RuleName: "rule-b"},
+	}
+	rc.PutPackage(pkgID, pkgKey, failures)
+
+	got, hit := rc.GetPackage(pkgID, pkgKey)
+	if !hit {
+		t.Fatal("expected package cache hit after PutPackage")
+	}
+	if len(got) != 2 {
+		t.Fatalf("expected 2 failures, got %d", len(got))
+	}
+	if got[0].Message != "issue1" || got[1].Message != "issue2" {
+		t.Errorf("unexpected failures: %+v", got)
+	}
+}
+
+func TestRuleCache_PackageLevelCacheMissOnFileChange(t *testing.T) {
+	configHash := [32]byte{1, 2, 3}
+	sortedFiles := []string{"/tmp/a.go", "/tmp/b.go"}
+	pkgKey := "/tmp"
+
+	// First run.
+	rc1 := New()
+	_ = rc1.RegisterRule("rule", nil)
+	rc1.CacheFileHash("/tmp/a.go", []byte("package p\nvar X = 1\n"))
+	rc1.CacheFileHash("/tmp/b.go", []byte("package p\nvar Y = 2\n"))
+	pkgID1, _ := rc1.PackageActionID(sortedFiles, configHash)
+	rc1.PutPackage(pkgID1, pkgKey, []CachedFailure{{Message: "old"}})
+
+	// Second run with changed file content.
+	rc2 := New()
+	_ = rc2.RegisterRule("rule", nil)
+	rc2.CacheFileHash("/tmp/a.go", []byte("package p\nvar X = 1\n"))
+	rc2.CacheFileHash("/tmp/b.go", []byte("package p\nvar Y = 999\n")) // changed
+	pkgID2, _ := rc2.PackageActionID(sortedFiles, configHash)
+
+	if pkgID1 == pkgID2 {
+		t.Fatal("expected different package action IDs after file change")
+	}
+}
+
+func TestRuleCache_PackageLevelCacheMissOnConfigChange(t *testing.T) {
+	sortedFiles := []string{"/tmp/a.go"}
+	pkgKey := "/tmp"
+
+	rc := New()
+	_ = rc.RegisterRule("rule", nil)
+	rc.CacheFileHash("/tmp/a.go", []byte("package p\n"))
+
+	configA := [32]byte{1, 2, 3}
+	configB := [32]byte{4, 5, 6}
+
+	pkgIDA, _ := rc.PackageActionID(sortedFiles, configA)
+	pkgIDB, _ := rc.PackageActionID(sortedFiles, configB)
+
+	if pkgIDA == pkgIDB {
+		t.Fatal("expected different package action IDs for different configs")
+	}
+
+	rc.PutPackage(pkgIDA, pkgKey, []CachedFailure{{Message: "A"}})
+	_, hit := rc.GetPackage(pkgIDB, pkgKey)
+	if hit {
+		t.Fatal("expected miss for different config")
+	}
+}
+
+func TestRuleCache_PackageLevelDiskPersistence(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "cache")
+
+	configHash := [32]byte{9, 8, 7}
+	sortedFiles := []string{"/tmp/a.go"}
+	pkgKey := "/tmp"
+	content := []byte("package p\n")
+	failures := []CachedFailure{{Message: "pkg-disk", RuleName: "rule"}}
+
+	// Write via first instance.
+	rc1, err := NewWithDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = rc1.RegisterRule("rule", nil)
+	rc1.CacheFileHash("/tmp/a.go", content)
+	pkgID, _ := rc1.PackageActionID(sortedFiles, configHash)
+	rc1.PutPackage(pkgID, pkgKey, failures)
+	if err := rc1.FlushAll(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Read via second instance.
+	rc2, err := NewWithDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = rc2.RegisterRule("rule", nil)
+	rc2.CacheFileHash("/tmp/a.go", content)
+	pkgID2, _ := rc2.PackageActionID(sortedFiles, configHash)
+	if pkgID != pkgID2 {
+		t.Fatal("expected same package action ID for same inputs")
+	}
+
+	got, hit := rc2.GetPackage(pkgID2, pkgKey)
+	if !hit {
+		t.Fatal("expected disk cache hit for package-level entry")
+	}
+	if len(got) != 1 || got[0].Message != "pkg-disk" {
+		t.Errorf("unexpected result: %+v", got)
+	}
+}
+
 func TestCacheFileHash_DifferentInstancesCanDiffer(t *testing.T) {
 	// Separate cache instances (simulating separate lint runs) compute
 	// independent hashes, so changed file content is correctly detected.

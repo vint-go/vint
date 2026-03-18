@@ -3,12 +3,15 @@ package lint
 import (
 	"bufio"
 	"bytes"
+	"crypto/sha256"
+	"encoding/gob"
 	"fmt"
 	"go/token"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -68,6 +71,48 @@ func (l *Linter) readFile(path string) (result []byte, err error) {
 	return l.reader(path)
 }
 
+// fileData holds a file's name and content after reading from disk.
+type fileData struct {
+	filename string
+	content  []byte
+}
+
+// computeConfigHash produces a single hash covering all rule configurations
+// and global settings that affect lint output. Computed once per Lint() call.
+func computeConfigHash(ruleSet []Rule, config Config) [32]byte {
+	h := sha256.New()
+	names := make([]string, len(ruleSet))
+	for i, r := range ruleSet {
+		names[i] = r.Name()
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		rc := config.Rules[name]
+		fmt.Fprintf(h, "rule %s\n", name)
+		if len(rc.Arguments) > 0 {
+			var buf bytes.Buffer
+			_ = gob.NewEncoder(&buf).Encode(rc.Arguments)
+			h.Write(buf.Bytes())
+		}
+		for _, ex := range rc.Exclude {
+			fmt.Fprintf(h, "exclude %s\n", ex)
+		}
+	}
+	fmt.Fprintf(h, "confidence %g\n", config.Confidence)
+	// Sort directive keys for deterministic hashing.
+	dirKeys := make([]string, 0, len(config.Directives))
+	for k := range config.Directives {
+		dirKeys = append(dirKeys, k)
+	}
+	sort.Strings(dirKeys)
+	for _, k := range dirKeys {
+		fmt.Fprintf(h, "directive %s %s\n", k, config.Directives[k].Severity)
+	}
+	var id [32]byte
+	copy(id[:], h.Sum(nil))
+	return id
+}
+
 var (
 	generatedPrefix  = []byte("// Code generated ")
 	generatedSuffix  = []byte(" DO NOT EDIT.")
@@ -86,6 +131,12 @@ func (l *Linter) Lint(packages [][]string, ruleSet []Rule, config Config) (<-cha
 				return nil, fmt.Errorf("cache: register rule %q: %w", r.Name(), err)
 			}
 		}
+	}
+
+	// Compute config hash once for package-level caching.
+	var configHash [32]byte
+	if l.cache != nil {
+		configHash = computeConfigHash(ruleSet, config)
 	}
 
 	perModVersions := map[string]*goversion.Version{}
@@ -134,7 +185,7 @@ func (l *Linter) Lint(packages [][]string, ruleSet []Rule, config Config) (<-cha
 			wg.Go(func() error {
 				pkg := packages[n]
 				gover := perPkgVersions[n]
-				if err := l.lintPackage(pkg, gover, ruleSet, config, failures); err != nil {
+				if err := l.lintPackage(pkg, gover, ruleSet, config, configHash, failures); err != nil {
 					return fmt.Errorf("error during linting: %w", err)
 				}
 				return nil
@@ -156,11 +207,95 @@ func (l *Linter) Lint(packages [][]string, ruleSet []Rule, config Config) (<-cha
 	return failures, nil
 }
 
-func (l *Linter) lintPackage(filenames []string, gover *goversion.Version, ruleSet []Rule, config Config, failures chan Failure) error {
+func (l *Linter) lintPackage(filenames []string, gover *goversion.Version, ruleSet []Rule, config Config, configHash [32]byte, failures chan Failure) error {
 	if len(filenames) == 0 {
 		return nil
 	}
 
+	// Read all files, hash content, and filter generated files.
+	allFiles := make([]fileData, 0, len(filenames))
+	for _, filename := range filenames {
+		content, err := l.readFile(filename)
+		if err != nil {
+			return err
+		}
+		if !config.IgnoreGeneratedHeader && isGenerated(content) {
+			continue
+		}
+		if l.cache != nil {
+			l.cache.CacheFileHash(filename, content)
+		}
+		allFiles = append(allFiles, fileData{filename: filename, content: content})
+	}
+	if len(allFiles) == 0 {
+		return nil
+	}
+
+	// Check for uncacheable rules — if any exist, skip package-level cache.
+	hasUncacheable := false
+	for _, r := range ruleSet {
+		if ur, ok := r.(UncacheableRule); ok && ur.Uncacheable() {
+			hasUncacheable = true
+			break
+		}
+	}
+	usePkgCache := l.cache != nil && !hasUncacheable
+
+	if usePkgCache {
+		// Compute package-level action ID.
+		sortedNames := make([]string, len(allFiles))
+		for i, f := range allFiles {
+			sortedNames[i] = f.filename
+		}
+		sort.Strings(sortedNames)
+		pkgKey := filepath.Dir(allFiles[0].filename)
+		pkgActionID, ok := l.cache.PackageActionID(sortedNames, configHash)
+
+		if ok {
+			if cached, hit := l.cache.GetPackage(pkgActionID, pkgKey); hit {
+				for _, cf := range cached {
+					failures <- fromCachedFailure(cf)
+				}
+				return nil
+			}
+		}
+
+		// Package cache miss — run full analysis, collecting failures.
+		localCh := make(chan Failure, 64)
+		var collected []Failure
+		done := make(chan struct{})
+		go func() {
+			for f := range localCh {
+				collected = append(collected, f)
+			}
+			close(done)
+		}()
+
+		err := l.lintPackageCore(allFiles, gover, ruleSet, config, localCh)
+		close(localCh)
+		<-done
+
+		// Store in package cache.
+		if ok {
+			cachedFs := make([]rulecache.CachedFailure, len(collected))
+			for i, f := range collected {
+				cachedFs[i] = toCachedFailure(f)
+			}
+			l.cache.PutPackage(pkgActionID, pkgKey, cachedFs)
+		}
+
+		// Forward to real channel.
+		for _, f := range collected {
+			failures <- f
+		}
+		return err
+	}
+
+	return l.lintPackageCore(allFiles, gover, ruleSet, config, failures)
+}
+
+// lintPackageCore runs per-rule caching (Phase 1) and AST parsing + linting (Phase 2).
+func (l *Linter) lintPackageCore(files []fileData, gover *goversion.Version, ruleSet []Rule, config Config, failures chan Failure) error {
 	// Classify rules by tier once.
 	var fileOnlyRules, otherRules []Rule
 	for _, r := range ruleSet {
@@ -171,50 +306,32 @@ func (l *Linter) lintPackage(filenames []string, gover *goversion.Version, ruleS
 		}
 	}
 
-	// Phase 1: Read files, hash content, and check cache for TierFileOnly rules
-	// BEFORE parsing AST. This lets us skip parsing entirely when all rules hit cache.
+	// Phase 1: Check cache for TierFileOnly rules BEFORE parsing AST.
 	type fileInfo struct {
-		filename string
-		content  []byte
-		// fileOnlyCacheHits tracks which TierFileOnly rules had cache hits.
-		// If a rule name is present, its cached results have already been emitted.
+		filename          string
+		content           []byte
 		fileOnlyCacheHits map[string]bool
 	}
 	var filesToLint []fileInfo
 
-	for _, filename := range filenames {
-		content, err := l.readFile(filename)
-		if err != nil {
-			return err
-		}
-		if !config.IgnoreGeneratedHeader && isGenerated(content) {
-			continue
-		}
-
-		// Cache file content hash if cache is available.
-		if l.cache != nil {
-			l.cache.CacheFileHash(filename, content)
-		}
-
+	for _, fd := range files {
 		info := fileInfo{
-			filename:          filename,
-			content:           content,
+			filename:          fd.filename,
+			content:           fd.content,
 			fileOnlyCacheHits: make(map[string]bool, len(fileOnlyRules)),
 		}
 
-		// Pre-parse cache check for TierFileOnly rules.
-		// These only need (rule config hash + file content hash) — no AST required.
 		if l.cache != nil {
 			for _, r := range fileOnlyRules {
 				ruleConfig := config.Rules[r.Name()]
-				if ruleConfig.MustExclude(filename) {
+				if ruleConfig.MustExclude(fd.filename) {
 					info.fileOnlyCacheHits[r.Name()] = true
 					continue
 				}
 				if ur, ok := r.(UncacheableRule); ok && ur.Uncacheable() {
 					continue
 				}
-				if cached, hit := l.cache.Get(r.Name(), filename, rulecache.TierFileOnly, nil, nil); hit {
+				if cached, hit := l.cache.Get(r.Name(), fd.filename, rulecache.TierFileOnly, nil, nil); hit {
 					for _, cf := range cached {
 						failure := fromCachedFailure(cf)
 						if failure.Confidence >= config.Confidence {
@@ -226,7 +343,6 @@ func (l *Linter) lintPackage(filenames []string, gover *goversion.Version, ruleS
 			}
 		}
 
-		// If all rules hit cache for this file, skip it entirely — no AST parse needed.
 		allHit := len(info.fileOnlyCacheHits) == len(fileOnlyRules) && len(otherRules) == 0
 		if allHit {
 			continue

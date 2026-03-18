@@ -7,7 +7,9 @@ import (
 	"go/importer"
 	"go/token"
 	"go/types"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	goversion "github.com/hashicorp/go-version"
@@ -27,6 +29,7 @@ type sharedImporter struct {
 	cache sync.Map    // import path → *importResult (lock-free reads)
 	mu    sync.Mutex  // serializes actual import resolution (cache misses)
 	inner types.ImporterFrom
+	fset  *token.FileSet // fset used by gcimporter; positions of imported objects live here
 }
 
 type importResult struct {
@@ -35,8 +38,10 @@ type importResult struct {
 }
 
 func newSharedImporter() *sharedImporter {
-	imp := importer.ForCompiler(token.NewFileSet(), runtime.Compiler, nil)
+	fset := token.NewFileSet()
+	imp := importer.ForCompiler(fset, runtime.Compiler, nil)
 	return &sharedImporter{
+		fset:  fset,
 		inner: imp.(types.ImporterFrom),
 	}
 }
@@ -144,6 +149,51 @@ func (p *Package) TypesInfo() *types.Info {
 	return p.typesInfo
 }
 
+// ImportedPkgSourceDir resolves an import path to its source directory
+// using position data already loaded by the type checker's importer.
+// Returns ("", false) if the package wasn't imported or has no position info.
+func (p *Package) ImportedPkgSourceDir(importPath string) (string, bool) {
+	if p.importer == nil {
+		return "", false
+	}
+
+	v, ok := p.importer.cache.Load(importPath)
+	if !ok {
+		return "", false
+	}
+
+	r := v.(*importResult)
+	if r.err != nil || r.pkg == nil {
+		return "", false
+	}
+
+	// Find any exported object with a valid position — its filename
+	// reveals the source directory. The gcimporter uses "$GOROOT" as a
+	// placeholder in filenames, so we expand it to the real path.
+	goroot := runtime.GOROOT()
+	scope := r.pkg.Scope()
+	for _, name := range scope.Names() {
+		obj := scope.Lookup(name)
+		if obj == nil || !obj.Pos().IsValid() {
+			continue
+		}
+
+		pos := p.importer.fset.Position(obj.Pos())
+		if pos.Filename == "" {
+			continue
+		}
+
+		filename := pos.Filename
+		if strings.HasPrefix(filename, "$GOROOT") {
+			filename = goroot + filename[len("$GOROOT"):]
+		}
+
+		return filepath.Dir(filename), true
+	}
+
+	return "", false
+}
+
 // Sortable yields a map of sortable types in this package.
 func (p *Package) Sortable() map[string]bool {
 	p.mu.RLock()
@@ -174,10 +224,11 @@ func (p *Package) TypeCheck() error {
 		Importer: imp,
 	}
 	info := &types.Info{
-		Types:  map[ast.Expr]types.TypeAndValue{},
-		Defs:   map[*ast.Ident]types.Object{},
-		Uses:   map[*ast.Ident]types.Object{},
-		Scopes: map[ast.Node]*types.Scope{},
+		Types:      map[ast.Expr]types.TypeAndValue{},
+		Defs:       map[*ast.Ident]types.Object{},
+		Uses:       map[*ast.Ident]types.Object{},
+		Scopes:     map[ast.Node]*types.Scope{},
+		Selections: map[*ast.SelectorExpr]*types.Selection{},
 	}
 	var anyFile *File
 	var astFiles []*ast.File

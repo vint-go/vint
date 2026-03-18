@@ -228,6 +228,58 @@ func (rc *RuleCache) loadPkgFromDisk(pkgKey string) {
 	}
 }
 
+// PackageActionID computes a single cache key for an entire package.
+// sortedFilenames must already be sorted. configHash is an opaque hash of all
+// configuration that affects lint output (rule configs, confidence, etc.).
+// File content hashes are looked up from the internal fileHashes map (populated
+// by prior CacheFileHash calls).
+func (rc *RuleCache) PackageActionID(sortedFilenames []string, configHash [32]byte) ([32]byte, bool) {
+	h := sha256.New()
+	fmt.Fprintf(h, "pkg\n")
+	h.Write(configHash[:])
+	for _, f := range sortedFilenames {
+		fh, ok := rc.fileHashes.Load(f)
+		if !ok {
+			return [32]byte{}, false
+		}
+		fmt.Fprintf(h, "file %s %x\n", f, fh.([32]byte))
+	}
+	var id [32]byte
+	copy(id[:], h.Sum(nil))
+	return id, true
+}
+
+// GetPackage retrieves cached failures for an entire package.
+// pkgKey is the package directory (used to load from disk on first access).
+func (rc *RuleCache) GetPackage(actionID [32]byte, pkgKey string) ([]CachedFailure, bool) {
+	if v, ok := rc.results.Load(actionID); ok {
+		return v.([]CachedFailure), true
+	}
+	if rc.dir != "" {
+		if _, loaded := rc.loadedPkgs.Load(pkgKey); !loaded {
+			rc.loadPkgFromDisk(pkgKey)
+			if v, ok := rc.results.Load(actionID); ok {
+				return v.([]CachedFailure), true
+			}
+		}
+	}
+	return nil, false
+}
+
+// PutPackage stores failures for an entire package.
+// pkgKey is the package directory (used for disk persistence grouping).
+func (rc *RuleCache) PutPackage(actionID [32]byte, pkgKey string, failures []CachedFailure) {
+	rc.results.Store(actionID, failures)
+	if rc.dir != "" {
+		rc.pendingMu.Lock()
+		if rc.pendingPkg[pkgKey] == nil {
+			rc.pendingPkg[pkgKey] = map[[32]byte]bool{}
+		}
+		rc.pendingPkg[pkgKey][actionID] = true
+		rc.pendingMu.Unlock()
+	}
+}
+
 // SiblingDigest computes a single SHA-256 hash that represents all sibling
 // files (every file in siblingFiles except filePath itself). The result is
 // deterministic: sibling paths are sorted before hashing.
