@@ -26,8 +26,8 @@ import (
 // and is called even on map hits, so we cache results in a sync.Map keyed
 // by import path to bypass it entirely for known packages.
 type sharedImporter struct {
-	cache sync.Map    // import path → *importResult (lock-free reads)
-	mu    sync.Mutex  // serializes actual import resolution (cache misses)
+	cache sync.Map   // import path → *importResult (lock-free reads)
+	mu    sync.Mutex // serializes actual import resolution (cache misses)
 	inner types.ImporterFrom
 	fset  *token.FileSet // fset used by gcimporter; positions of imported objects live here
 }
@@ -114,6 +114,16 @@ func (p *Package) Files() map[string]*File {
 
 // IsMain returns if that's the main package.
 func (p *Package) IsMain() bool {
+	// Fast path: read lock only to avoid contention when
+	// multiple routines check IsMain on the same package.
+	p.mu.RLock()
+	cached := p.main
+	p.mu.RUnlock()
+	if cached != 0 {
+		return cached == trueValue
+	}
+
+	// Slow path: acquire write lock to compute and cache result.
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
