@@ -39,8 +39,8 @@ func fail(err string) {
 	os.Exit(1) //revive:disable-line:deep-exit
 }
 
-// RunRevive runs the CLI for revive.
-func RunRevive(extraRules ...revivelib.ExtraRule) {
+// RunVint runs the CLI for revive.
+func RunVint(extraRules ...revivelib.ExtraRule) {
 	// Move parsing flags outside of init(); otherwise, tests don't work properly.
 	// More info: https://github.com/golang/go/issues/46869#issuecomment-865695953
 	initConfig()

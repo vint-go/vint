@@ -327,7 +327,7 @@ func (l *Linter) processPackage(
 				if populatePackageCache {
 					defer pkgWg.Done()
 				}
-				return runRulesOnFile(file, l.index.ASTOnly, l.rules, l.config, targetCh)
+				return runRulesOnFile(file, l.index.ASTOnly, l.config, targetCh)
 			})
 		}
 	}
@@ -340,7 +340,7 @@ func (l *Linter) processPackage(
 			}
 			_ = pkg.TypeCheck()
 			for _, file := range lintFiles {
-				if err := runRulesOnFile(file, l.index.TypeCheck, l.rules, l.config, targetCh); err != nil {
+				if err := runRulesOnFile(file, l.index.TypeCheck, l.config, targetCh); err != nil {
 					return err
 				}
 			}

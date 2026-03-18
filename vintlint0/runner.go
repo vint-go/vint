@@ -9,12 +9,11 @@ import (
 // runRulesOnFile executes the given rules against a single file, sending
 // results to the failures channel. Respects disabled intervals and confidence
 // thresholds. Caching is handled at the package level by the caller.
-func runRulesOnFile(file *lint.File, rules []lint.Rule, allRules []lint.Rule, config lint.Config, failures chan<- lint.Failure) error {
+func runRulesOnFile(file *lint.File, rules []lint.Rule, config lint.Config, failures chan<- lint.Failure) error {
 	rulesConfig := config.Rules
-	_, mustSpecifyDisableReason := config.Directives["specify-disable-reason"]
 
-	// Compute disabled intervals from revive directives in comments.
-	disabledIntervals := lint.DisabledIntervalsForFile(file, allRules, mustSpecifyDisableReason, failures)
+	// Compute disabled intervals from vint-ignore directives in comments.
+	disabledIntervals := parseVintIgnoreSuppressions(file, failures)
 
 	for _, currentRule := range rules {
 		fullName := lint.FullRuleName(currentRule)
