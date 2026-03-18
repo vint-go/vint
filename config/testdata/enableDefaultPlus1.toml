@@ -3,4 +3,4 @@
 enableDefaultRules = true
 
 # Add a non-default rule
-[rule.cyclomatic]
+[rule.argument-limit]

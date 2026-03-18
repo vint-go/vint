@@ -1,5 +1,5 @@
 golinter
-revive
+vint
 vendor
 *.swp
 dist/

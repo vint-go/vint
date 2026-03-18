@@ -5,13 +5,10 @@ List of all available rules.
 <!-- toc -->
 
 - [Configuration options format](#configuration-options-format)
-- [add-constant](#add-constant)
 - [argument-limit](#argument-limit)
-- [atomic](#atomic)
 - [banned-characters](#banned-characters)
 - [bare-return](#bare-return)
 - [blank-imports](#blank-imports)
-- [bool-literal-in-expr](#bool-literal-in-expr)
 - [call-to-gc](#call-to-gc)
 - [cognitive-complexity](#cognitive-complexity)
 - [comment-spacings](#comment-spacings)
@@ -21,7 +18,6 @@ List of all available rules.
 - [constant-logical-expr](#constant-logical-expr)
 - [context-as-argument](#context-as-argument)
 - [context-keys-type](#context-keys-type)
-- [cyclomatic](#cyclomatic)
 - [datarace](#datarace)
 - [deep-exit](#deep-exit)
 - [defer](#defer)
@@ -29,7 +25,6 @@ List of all available rules.
 - [duplicated-imports](#duplicated-imports)
 - [early-return](#early-return)
 - [empty-block](#empty-block)
-- [empty-lines](#empty-lines)
 - [epoch-naming](#epoch-naming)
 - [enforce-map-style](#enforce-map-style)
 - [enforce-repeated-arg-type-style](#enforce-repeated-arg-type-style)
@@ -45,7 +40,6 @@ List of all available rules.
 - [filename-format](#filename-format)
 - [flag-parameter](#flag-parameter)
 - [forbidden-call-in-wg-go](#forbidden-call-in-wg-go)
-- [function-length](#function-length)
 - [function-result-limit](#function-result-limit)
 - [get-return](#get-return)
 - [identical-branches](#identical-branches)
@@ -56,11 +50,9 @@ List of all available rules.
 - [if-return](#if-return)
 - [import-alias-naming](#import-alias-naming)
 - [import-shadowing](#import-shadowing)
-- [imports-blocklist](#imports-blocklist)
 - [increment-decrement](#increment-decrement)
 - [indent-error-flow](#indent-error-flow)
 - [inefficient-map-lookup](#inefficient-map-lookup)
-- [line-length-limit](#line-length-limit)
 - [max-control-nesting](#max-control-nesting)
 - [max-public-structs](#max-public-structs)
 - [modifies-parameter](#modifies-parameter)
@@ -70,32 +62,24 @@ List of all available rules.
 - [package-comments](#package-comments)
 - [package-naming](#package-naming)
 - [package-directory-mismatch](#package-directory-mismatch)
-- [range-val-address](#range-val-address)
-- [range-val-in-closure](#range-val-in-closure)
 - [range](#range)
 - [receiver-naming](#receiver-naming)
-- [redefines-builtin-id](#redefines-builtin-id)
 - [redundant-build-tag](#redundant-build-tag)
 - [redundant-import-alias](#redundant-import-alias)
 - [redundant-test-main-exit](#redundant-test-main-exit)
 - [string-format](#string-format)
-- [string-of-int](#string-of-int)
 - [struct-tag](#struct-tag)
 - [superfluous-else](#superfluous-else)
 - [time-date](#time-date)
 - [time-equal](#time-equal)
 - [time-naming](#time-naming)
-- [unchecked-type-assertion](#unchecked-type-assertion)
 - [unconditional-recursion](#unconditional-recursion)
 - [unexported-naming](#unexported-naming)
 - [unexported-return](#unexported-return)
-- [unhandled-error](#unhandled-error)
 - [unnecessary-if](#unnecessary-if)
 - [unnecessary-format](#unnecessary-format)
 - [unnecessary-stmt](#unnecessary-stmt)
-- [unreachable-code](#unreachable-code)
 - [unsecure-url-scheme](#unsecure-url-scheme)
-- [unused-parameter](#unused-parameter)
 - [unused-receiver](#unused-receiver)
 - [use-any](#use-any)
 - [use-errors-new](#use-errors-new)
@@ -106,7 +90,6 @@ List of all available rules.
 - [useless-fallthrough](#useless-fallthrough)
 - [var-declaration](#var-declaration)
 - [var-naming](#var-naming)
-- [waitgroup-by-value](#waitgroup-by-value)
 
 <!-- tocstop -->
 
@@ -1255,25 +1238,6 @@ Include all directories (`testdata` also)
 arguments = [{ ignore-directories = [] }]
 ```
 
-## range-val-address
-
-_Description_: Range variables in a loop are reused at each iteration.
-This rule warns when assigning the address of the variable, passing the address to append() or using it in a map.
-
-_Configuration_: N/A
-
-_Note_: This rule is irrelevant for Go 1.22+.
-
-## range-val-in-closure
-
-_Description_: Range variables in a loop are reused at each iteration; therefore a goroutine created in a loop will point to the range variable
-with from the upper scope. This way, the goroutine could use the variable with an undesired value.
-This rule warns when a range value (or index) is used inside a closure.
-
-_Configuration_: N/A
-
-_Note_: This rule is irrelevant for Go 1.22+.
-
 ## range
 
 _Description_: This rule suggests a shorter way of writing ranges that do not use the second value.
@@ -1296,14 +1260,6 @@ Configuration example:
 [rule.receiver-naming]
 arguments = [{ max-length = 2 }]
 ```
-
-## redefines-builtin-id
-
-_Description_: Constant names like `false`, `true`, `nil`, function names like `append`, `make`,
-and basic type names like `bool`, and `byte` are not reserved words of the language; therefore the can be redefined.
-Even if possible, redefining these built in names can lead to bugs very difficult to detect.
-
-_Configuration_: N/A
 
 ## redundant-build-tag
 
@@ -1379,13 +1335,6 @@ arguments = [
   ],
 ]
 ```
-
-## string-of-int
-
-_Description_: Explicit type conversion `string(i)` where `i` has an integer type other than `rune` might behave not as expected by the developer
-(e.g. `string(42)` is not `"42"`). This rule spot that kind of suspicious conversions.
-
-_Configuration_: N/A
 
 ## struct-tag
 
@@ -1536,27 +1485,6 @@ this rule highlights those cases.
 
 _Configuration_: N/A
 
-## unchecked-type-assertion
-
-_Description_: This rule checks whether a type assertion result is checked (the `ok` value), preventing unexpected `panic`s.
-
-_Configuration_: list of key-value-pair-map (`[]map[string]any`).
-
-- `accept-ignored-assertion-result`: (bool) default `false`,
-set it to `true` to accept ignored type assertion results like this:
-
-```golang
-foo, _ := bar(.*Baz).
-//   ^
-```
-
-Configuration example:
-
-```toml
-[rule.unchecked-type-assertion]
-arguments = [{ accept-ignored-assertion-result = true }]
-```
-
 ## unconditional-recursion
 
 _Description_: Unconditional recursive calls will produce infinite recursion, thus program stack overflow.
@@ -1575,25 +1503,6 @@ _Configuration_: N/A
 _Description_: This rule warns when an exported function or method returns a value of an un-exported type.
 
 _Configuration_: N/A
-
-## unhandled-error
-
-_Description_: This rule warns when errors returned by a function are not explicitly handled on the caller side.
-
-_Configuration_: function names regexp patterns to ignore
-
-Configuration example:
-
-```toml
-[rule.unhandled-error]
-arguments = [
-  '^os\.(CreateTemp|WriteFile|Chmod)$',
-  '^fmt\.Print',
-  'myFunction',
-  '^net\.',
-  '^(bytes\.Buffer|string\.Writer)\.Write(Byte|Rune|String)?$',
-]
-```
 
 ## unnecessary-if
 
@@ -1641,12 +1550,6 @@ _Description_: This rule suggests to remove redundant statements like a `break` 
 
 _Configuration_: N/A
 
-## unreachable-code
-
-_Description_: This rule spots and proposes to remove [unreachable code](https://en.wikipedia.org/wiki/Unreachable_code).
-
-_Configuration_: N/A
-
 ## unsecure-url-scheme
 
 _Description_: Checks for usage of potentially unsecure URL schemes (`http`, `ws`) in string literals.
@@ -1657,26 +1560,6 @@ Secure alternatives like `https` should be preferred when possible.
 _Configuration_: N/A
 
 The rule will not warn on local URLs (`localhost`, `127.0.0.1`).
-
-## unused-parameter
-
-_Description_: This rule warns on unused parameters. Functions or methods with unused parameters can be a symptom of an unfinished refactoring or a bug.
-
-_Configuration_: Supports a single `map[string]any` argument with an `allow-regex` option to
-specify additional allowed patterns for unused parameter names beyond the default `_`.
-
-Configuration example:
-
-This allows any names starting with `_`, not just `_` itself:
-
-```go
-func SomeFunc(_someObj *MyStruct) {} // matches rule
-```
-
-```toml
-[rule.unused-parameter]
-arguments = [{ allow-regex = "^_" }]
-```
 
 ## unused-receiver
 
@@ -1849,14 +1732,6 @@ arguments = [[], [], [{ skip-initialism-name-checks = true }]]
 [rule.var-naming]
 arguments = [["ID"], ["VM"], [{ upper-case-const = true }]]
 ```
-
-## waitgroup-by-value
-
-_Description_: Function parameters that are passed by value, are in fact a copy of the original argument.
-Passing a copy of a `sync.WaitGroup` is usually not what the developer wants to do.
-This rule warns when a `sync.WaitGroup` expected as a by-value parameter in a function or method.
-
-_Configuration_: N/A
 
 ## noDuplicateCode
 

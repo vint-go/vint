@@ -6,5 +6,5 @@ warningCode = 0
 
 [rule.deep-exit]
 
-[rule.cyclomatic]
+[rule.argument-limit]
     severity="error"

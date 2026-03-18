@@ -2797,7 +2797,7 @@ func TestGetLintingRules(t *testing.T) {
 			},
 			wantDisabledRules: []string{
 				"exported",   // default rule
-				"cyclomatic", // non-default rule
+				"argument-limit", // non-default rule
 			},
 		},
 		"enableDefaultRules without disabled rules": {
@@ -2829,7 +2829,7 @@ func TestGetLintingRules(t *testing.T) {
 			wantEnabledRules: []string{
 				"var-declaration",  // default rule
 				"package-comments", // default rule
-				"cyclomatic",       // non-default rule
+				"argument-limit",       // non-default rule
 			},
 			wantDisabledRules: []string{
 				"deep-exit", // non-default rule
@@ -2854,7 +2854,7 @@ func TestGetLintingRules(t *testing.T) {
 				"var-declaration",  // default rule
 				"package-comments", // default rule
 				"deep-exit",        // non-default rule
-				"cyclomatic",       // non-default rule
+				"argument-limit",       // non-default rule
 			},
 		},
 		"enable 2 rules": {
@@ -2862,22 +2862,12 @@ func TestGetLintingRules(t *testing.T) {
 			wantRulesCount: 2,
 			wantEnabledRules: []string{
 				"exported",   // default rule
-				"cyclomatic", // non-default rule
+				"argument-limit", // non-default rule
 			},
 			wantDisabledRules: []string{
 				"var-declaration",  // default rule
 				"package-comments", // default rule
 				"deep-exit",        // non-default rule
-			},
-		},
-		"enable imports-blocklist rule": {
-			confPath:       "issue-969.toml",
-			wantRulesCount: 1,
-			wantEnabledRules: []string{
-				"imports-blocklist", // non-default renamed rule
-			},
-			wantDisabledRules: []string{
-				"imports-blacklist", // non-default deprecated rule name
 			},
 		},
 		"var-naming configure error": {
@@ -2937,7 +2927,7 @@ func TestGetGlobalSeverity(t *testing.T) {
 		"enable 2 rules with one specific severity": {
 			confPath:               "testdata/enable2OneSpecificSeverity.toml",
 			wantGlobalSeverity:     "warning",
-			particularRule:         &rule.CyclomaticRule{},
+			particularRule:         &rule.ArgumentsLimitRule{},
 			wantParticularSeverity: "error",
 		},
 		"enableAllRules with one specific severity": {

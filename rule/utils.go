@@ -1,6 +1,7 @@
 package rule
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"regexp"
@@ -9,6 +10,29 @@ import (
 	"github.com/strowk/vint/internal/astutils"
 	"github.com/strowk/vint/lint"
 )
+
+// allowBlankIdentifierRegex is the default regex for matching blank identifier parameters.
+var allowBlankIdentifierRegex = regexp.MustCompile("^_$")
+
+func funcName(fn *ast.FuncDecl) string {
+	declarationHasReceiver := fn.Recv != nil && fn.Recv.NumFields() > 0
+	if declarationHasReceiver {
+		typ := fn.Recv.List[0].Type
+		return fmt.Sprintf("(%s).%s", recvString(typ), fn.Name)
+	}
+
+	return fn.Name.Name
+}
+
+func recvString(recv ast.Expr) string {
+	switch t := recv.(type) {
+	case *ast.Ident:
+		return t.Name
+	case *ast.StarExpr:
+		return "*" + recvString(t.X)
+	}
+	return "BADRECV"
+}
 
 // exitFuncChecker is a function type that checks whether a function call is an exit function.
 type exitFuncChecker func(args []ast.Expr) bool

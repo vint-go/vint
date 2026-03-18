@@ -8,5 +8,5 @@ enableAllRules = false
 
 [rule.exported]
     severity="error"
-[rule.cyclomatic]
+[rule.argument-limit]
 

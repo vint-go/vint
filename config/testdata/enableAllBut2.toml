@@ -4,5 +4,5 @@ enableAllRules = true
 
 [rule.exported]
 Disabled = true
-[rule.cyclomatic]
+[rule.argument-limit]
 Disabled = true

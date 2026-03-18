@@ -445,9 +445,6 @@ var defaultRules = []lint.Rule{
 	&rule.ContextAsArgumentRule{},
 	&rule.EmptyBlockRule{},
 	&rule.SuperfluousElseRule{},
-	&rule.UnusedParamRule{},
-	&rule.UnreachableCodeRule{},
-	&rule.RedefinesBuiltinIDRule{},
 	&no_unclosed_bodies.NoUnclosedBodiesRule{},
 	// temporary disabled for performance research
 	&no_duplicate_code.NoDuplicateCodeRule{},
@@ -790,47 +787,33 @@ var defaultRules = []lint.Rule{
 
 var allRules = append([]lint.Rule{
 	&rule.ArgumentsLimitRule{},
-	&rule.CyclomaticRule{},
 	&rule.FileHeaderRule{},
 	&rule.ConfusingNamingRule{},
 	&rule.GetReturnRule{},
 	&rule.ModifiesParamRule{},
 	&rule.ConfusingResultsRule{},
 	&rule.DeepExitRule{},
-	&rule.AddConstantRule{},
 	&rule.FlagParamRule{},
 	&rule.UnnecessaryStmtRule{},
 	&rule.StructTagRule{},
 	&rule.ModifiesValRecRule{},
 	&rule.ConstantLogicalExprRule{},
-	&rule.BoolLiteralRule{},
-	&rule.ImportsBlocklistRule{},
 	&rule.FunctionResultsLimitRule{},
 	&rule.MaxPublicStructsRule{},
-	&rule.RangeValInClosureRule{},
-	&rule.RangeValAddress{},
-	&rule.WaitGroupByValueRule{},
-	&rule.AtomicRule{},
-	&rule.EmptyLinesRule{},
-	&rule.LineLengthLimitRule{},
 	&rule.CallToGCRule{},
 	&rule.DuplicatedImportsRule{},
 	&rule.ImportShadowingRule{},
 	&rule.BareReturnRule{},
 	&rule.UnusedReceiverRule{},
-	&rule.UnhandledErrorRule{},
 	&rule.CognitiveComplexityRule{},
-	&rule.StringOfIntRule{},
 	&rule.StringFormatRule{},
 	&rule.EarlyReturnRule{},
 	&rule.UnconditionalRecursionRule{},
 	&rule.IdenticalBranchesRule{},
 	&rule.DeferRule{},
 	&rule.UnexportedNamingRule{},
-	&rule.FunctionLength{},
 	&rule.NestedStructs{},
 	&rule.UselessBreak{},
-	&rule.UncheckedTypeAssertionRule{},
 	&rule.TimeEqualRule{},
 	&rule.TimeDateRule{},
 	&rule.BannedCharsRule{},
@@ -1014,12 +997,7 @@ func GetLintingRules(config *lint.Config, extraRules []lint.Rule) ([]lint.Rule, 
 }
 
 func actualRuleName(name string) string {
-	switch name {
-	case "imports-blacklist":
-		return "imports-blocklist"
-	default:
-		return name
-	}
+	return name
 }
 
 func parseConfig(data []byte, config *lint.Config) error {
