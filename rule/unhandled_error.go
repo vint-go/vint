@@ -66,6 +66,9 @@ func (*UnhandledErrorRule) Name() string {
 	return "unhandled-error"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*UnhandledErrorRule) RequiresTypecheck() bool { return true }
+
 type lintUnhandledErrors struct {
 	ignoreList []*regexp.Regexp
 	pkg        *lint.Package

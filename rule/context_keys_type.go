@@ -37,6 +37,9 @@ func (*ContextKeysType) Name() string {
 	return "context-keys-type"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*ContextKeysType) RequiresTypecheck() bool { return true }
+
 type lintContextKeyTypes struct {
 	file      *lint.File
 	fileAst   *ast.File

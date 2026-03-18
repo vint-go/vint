@@ -58,6 +58,9 @@ func (*ModifiesValRecRule) Name() string {
 	return "modifies-value-receiver"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*ModifiesValRecRule) RequiresTypecheck() bool { return true }
+
 func (*ModifiesValRecRule) skipType(t ast.Expr, pkg *lint.Package) bool {
 	rt := pkg.TypeOf(t)
 	if rt == nil {

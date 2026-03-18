@@ -75,6 +75,9 @@ func (*UnexportedReturnRule) Name() string {
 	return "unexported-return"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*UnexportedReturnRule) RequiresTypecheck() bool { return true }
+
 // exportedType reports whether typ is an exported type.
 // It is imprecise, and will err on the side of returning true,
 // such as for composite types.

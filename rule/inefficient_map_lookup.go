@@ -56,6 +56,9 @@ func (*InefficientMapLookupRule) Name() string {
 	return "inefficient-map-lookup"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*InefficientMapLookupRule) RequiresTypecheck() bool { return true }
+
 type lintInefficientMapLookup struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

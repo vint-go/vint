@@ -35,6 +35,9 @@ func (*TimeEqualRule) Name() string {
 	return "time-equal"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*TimeEqualRule) RequiresTypecheck() bool { return true }
+
 type lintTimeEqual struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

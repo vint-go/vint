@@ -38,6 +38,9 @@ func (*ErrorfRule) Name() string {
 	return "errorf"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*ErrorfRule) RequiresTypecheck() bool { return true }
+
 type lintErrorf struct {
 	file      *lint.File
 	fileAst   *ast.File

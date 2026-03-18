@@ -33,6 +33,9 @@ func (*StringOfIntRule) Name() string {
 	return "string-of-int"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*StringOfIntRule) RequiresTypecheck() bool { return true }
+
 type lintStringInt struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

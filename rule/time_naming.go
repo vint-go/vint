@@ -33,6 +33,9 @@ func (*TimeNamingRule) Name() string {
 	return "time-naming"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*TimeNamingRule) RequiresTypecheck() bool { return true }
+
 type lintTimeNames struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

@@ -39,6 +39,9 @@ func (*RangeValAddress) Name() string {
 	return "range-val-address"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*RangeValAddress) RequiresTypecheck() bool { return true }
+
 type rangeValAddress struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

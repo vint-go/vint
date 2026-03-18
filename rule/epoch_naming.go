@@ -40,6 +40,9 @@ func (*EpochNamingRule) Name() string {
 	return "epoch-naming"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*EpochNamingRule) RequiresTypecheck() bool { return true }
+
 type lintEpochNaming struct {
 	file      *lint.File
 	onFailure func(lint.Failure)

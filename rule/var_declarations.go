@@ -54,6 +54,9 @@ func (*VarDeclarationsRule) Name() string {
 	return "var-declaration"
 }
 
+// RequiresTypecheck returns true because this rule uses type information.
+func (*VarDeclarationsRule) RequiresTypecheck() bool { return true }
+
 type lintVarDeclarations struct {
 	fileAst   *ast.File
 	file      *lint.File
