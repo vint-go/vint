@@ -99,28 +99,6 @@ By convention, rule configuration options are documented using the `kebab-case` 
 For backward compatibility, `camelCase` (e.g., `maxLitCount`, `allowStrs`, `skipComments`)
 and `lowercase` (e.g., `maxlitcount`, `allowstrs`, `skipcomments`) formats are still supported but are deprecated.
 
-## add-constant
-
-_Description_: Suggests using constant for [magic numbers](https://en.wikipedia.org/wiki/Magic_number_(programming)#Unnamed_numerical_constants)
-and string literals.
-
-_Configuration_:
-
-- `max-lit-count`: (string) maximum number of instances of a string literal that are tolerated before a warning is emitted.
-- `allow-strs`: (string) comma-separated list of allowed string literals
-- `allow-ints`: (string) comma-separated list of allowed integers
-- `allow-floats`: (string) comma-separated list of allowed floats
-- `ignore-funcs`: (string) comma-separated list of function names regexp patterns to exclude
-
-Configuration example:
-
-```toml
-[rule.add-constant]
-arguments = [
-  { max-lit-count = "3", allow-strs = "\"\"", allow-ints = "0,1,2", allow-floats = "0.0,0.,1.0,1.,2.0,2.", ignore-funcs = "os\\.*,fmt\\.Println,make" },
-]
-```
-
 ## argument-limit
 
 _Description_: Warns when a function receives more parameters than the maximum set by the rule's configuration.
@@ -134,12 +112,6 @@ Configuration example:
 [rule.argument-limit]
 arguments = [4]
 ```
-
-## atomic
-
-_Description_: Check for commonly mistaken usages of the `sync/atomic` package
-
-_Configuration_: N/A
 
 ## banned-characters
 
@@ -163,39 +135,6 @@ _Configuration_: N/A
 ## blank-imports
 
 _Description_: Blank import should be only in a main or test package, or have a comment justifying it.
-
-_Configuration_: N/A
-
-## bool-literal-in-expr
-
-_Description_: Using Boolean literals (`true`, `false`) in logic expressions may make the code less readable.
-This rule suggests removing Boolean literals from logic expressions.
-
-### Examples (bool-literal-in-expr)
-
-Before (violation):
-
-```go
-if attachRequired == true {
-  // do something
-}
-
-if mustReply == false {
-  // do something
-}
-```
-
-After (fixed):
-
-```go
-if attachRequired {
-  // do something
-}
-
-if !mustReply {
-  // do something
-}
-```
 
 _Configuration_: N/A
 
@@ -318,20 +257,6 @@ arguments = [
 _Description_: Basic types should not be used as a key in `context.WithValue`.
 
 _Configuration_: N/A
-
-## cyclomatic
-
-_Description_: [Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) is a measure of code complexity.
-Enforcing a maximum complexity per function helps to keep code readable and maintainable.
-
-_Configuration_: (int) the maximum function complexity
-
-Configuration example:
-
-```toml
-[rule.cyclomatic]
-arguments = [3]
-```
 
 ## datarace
 
@@ -500,13 +425,6 @@ For more details, see:
 
 - <https://github.com/strowk/vint/issues/1622>
 - <https://github.com/strowk/vint/issues/386>
-
-## empty-lines
-
-_Description_: Sometimes `gofmt` is not enough to enforce a common formatting of a code-base;
-this rule warns when there are heading or trailing newlines in code blocks.
-
-_Configuration_: N/A
 
 ## epoch-naming
 
@@ -833,21 +751,6 @@ wg.Wait
 
 _Configuration_: N/A
 
-## function-length
-
-_Description_: Functions too long (with many statements and/or lines) can be hard to understand.
-
-_Configuration_: (int,int) the maximum allowed statements and lines. Must be non-negative integers. Set to 0 to disable the check
-
-Configuration example:
-
-```toml
-[rule.function-length]
-arguments = [10, 0]
-```
-
-Will check for functions exceeding 10 statements and will not check the number of lines of functions
-
 ## function-result-limit
 
 _Description_: Functions returning too many results can be hard to understand/use.
@@ -949,19 +852,6 @@ which allows identifiers like `v1`. This is a deliberate trade-off to keep the r
 
 _Configuration_: N/A
 
-## imports-blocklist
-
-_Description_: Warns when importing block-listed packages.
-
-_Configuration_: block-list of package names (or regular expression package names).
-
-Configuration example:
-
-```toml
-[rule.imports-blocklist]
-arguments = ["crypto/md5", "crypto/sha1", "crypto/**/pkix"]
-```
-
 ## increment-decrement
 
 _Description_: By convention, for better readability, incrementing an integer variable by 1 is recommended to be done using the `++` operator.
@@ -1030,19 +920,6 @@ if _, ok := aMap[aValue]; ok {
 ```
 
 _Configuration_: N/A
-
-## line-length-limit
-
-_Description_: Warns in the presence of code lines longer than a configured maximum.
-
-_Configuration_: (int) maximum line length in characters.
-
-Configuration example:
-
-```toml
-[rule.line-length-limit]
-arguments = [80]
-```
 
 ## max-control-nesting
 
