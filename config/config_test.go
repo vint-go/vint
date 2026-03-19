@@ -1062,9 +1062,6 @@ func TestGetConfig(t *testing.T) {
 						"receiver-naming": {
 							Severity: lint.SeverityWarning,
 						},
-						"redefines-builtin-id": {
-							Severity: lint.SeverityWarning,
-						},
 						"superfluous-else": {
 							Severity: lint.SeverityWarning,
 						},
@@ -1072,12 +1069,6 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityWarning,
 						},
 						"unexported-return": {
-							Severity: lint.SeverityWarning,
-						},
-						"unreachable-code": {
-							Severity: lint.SeverityWarning,
-						},
-						"unused-parameter": {
 							Severity: lint.SeverityWarning,
 						},
 						"var-declaration": {
@@ -1497,12 +1488,9 @@ func TestGetConfig(t *testing.T) {
 						"package-comments":                               {},
 						"range":                                          {},
 						"receiver-naming":                                {},
-						"redefines-builtin-id":                           {},
 						"superfluous-else":                               {},
 						"time-naming":                                    {},
 						"unexported-return":                              {},
-						"unreachable-code":                               {},
-						"unused-parameter":                               {},
 						"var-declaration":                                {},
 						"var-naming":                                     {},
 						"lint/performance/usePointerInSyncPool":          {},
@@ -2566,9 +2554,6 @@ func TestGetConfig(t *testing.T) {
 						"receiver-naming": {
 							Severity: lint.SeverityError,
 						},
-						"redefines-builtin-id": {
-							Severity: lint.SeverityError,
-						},
 						"superfluous-else": {
 							Severity: lint.SeverityError,
 						},
@@ -2576,12 +2561,6 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityError,
 						},
 						"unexported-return": {
-							Severity: lint.SeverityError,
-						},
-						"unreachable-code": {
-							Severity: lint.SeverityError,
-						},
-						"unused-parameter": {
 							Severity: lint.SeverityError,
 						},
 						"var-declaration": {
@@ -2757,9 +2736,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 354
+		defaultRulesCount = 351
 		// len of allRules: update this when adding new rules
-		allRulesCount = 512
+		allRulesCount = 495
 	)
 
 	tt := map[string]struct {
