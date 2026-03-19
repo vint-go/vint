@@ -23,10 +23,14 @@ import (
 	"github.com/strowk/vint/rules/no_benchmark_n_assignment"
 	"github.com/strowk/vint/rules/no_bad_regexp_pattern"
 	"github.com/strowk/vint/rules/no_bad_sort_usage"
+	"github.com/strowk/vint/rules/no_banned_characters"
+	"github.com/strowk/vint/rules/no_blank_import"
 	"github.com/strowk/vint/rules/no_bind_to_all_interfaces"
 	"github.com/strowk/vint/rules/no_blank_error_assignment"
 	"github.com/strowk/vint/rules/no_builtin_shadow"
 	"github.com/strowk/vint/rules/no_builtin_shadow_decl"
+	"github.com/strowk/vint/rules/no_call_to_gc"
+	"github.com/strowk/vint/rules/no_unconditional_recursion"
 	"github.com/strowk/vint/rules/no_import_shadow"
 	"github.com/strowk/vint/rules/no_infinite_recursion"
 	"github.com/strowk/vint/rules/no_inappropriate_context_key"
@@ -36,6 +40,9 @@ import (
 	"github.com/strowk/vint/rules/no_cgo_pointer_violation"
 	"github.com/strowk/vint/rules/no_command_injection_taint"
 	"github.com/strowk/vint/rules/no_commented_out_code"
+	"github.com/strowk/vint/rules/no_confusing_naming"
+	"github.com/strowk/vint/rules/no_confusing_results"
+	"github.com/strowk/vint/rules/no_context_keys_type"
 	"github.com/strowk/vint/rules/no_commented_out_import"
 	"github.com/strowk/vint/rules/no_conflicting_http_mux_patterns"
 	"github.com/strowk/vint/rules/no_constant_parameter"
@@ -44,6 +51,8 @@ import (
 	"github.com/strowk/vint/rules/no_control_char_in_string"
 	"github.com/strowk/vint/rules/no_copied_lock"
 	"github.com/strowk/vint/rules/no_deep_equal_errors"
+	"github.com/strowk/vint/rules/no_defer_gotcha"
+	"github.com/strowk/vint/rules/no_deep_exit"
 	"github.com/strowk/vint/rules/no_default_slice_index"
 	"github.com/strowk/vint/rules/no_defer_close_before_err_check"
 	"github.com/strowk/vint/rules/no_defer_in_infinite_loop"
@@ -61,12 +70,15 @@ import (
 	"github.com/strowk/vint/rules/no_duplicate_build_constraint"
 	"github.com/strowk/vint/rules/no_duplicate_case"
 	"github.com/strowk/vint/rules/no_duplicate_code"
+	"github.com/strowk/vint/rules/no_duplicated_imports"
 	"github.com/strowk/vint/rules/no_duplicate_constants"
 	"github.com/strowk/vint/rules/no_duplicate_cutset_chars"
 	"github.com/strowk/vint/rules/no_duplicate_if_condition"
 	"github.com/strowk/vint/rules/no_duplicate_import"
 	"github.com/strowk/vint/rules/no_duplicate_sub_expression"
 	"github.com/strowk/vint/rules/no_dynamic_errors"
+	"github.com/strowk/vint/rules/no_error_strings"
+	"github.com/strowk/vint/rules/use_errorf"
 	"github.com/strowk/vint/rules/no_dynamic_format_string"
 	"github.com/strowk/vint/rules/no_empty_branch"
 	"github.com/strowk/vint/rules/no_empty_critical_section"
@@ -74,6 +86,9 @@ import (
 	"github.com/strowk/vint/rules/no_empty_fallthrough"
 	"github.com/strowk/vint/rules/no_empty_for_loop"
 	"github.com/strowk/vint/rules/no_eval_order_dependency"
+	"github.com/strowk/vint/rules/no_excessive_arguments"
+	"github.com/strowk/vint/rules/no_excessive_control_nesting"
+	"github.com/strowk/vint/rules/no_excessive_file_length"
 	"github.com/strowk/vint/rules/no_exit_after_defer"
 	"github.com/strowk/vint/rules/no_exposed_sync_mutex"
 	"github.com/strowk/vint/rules/no_flag_deref_before_parse"
@@ -86,6 +101,8 @@ import (
 	"github.com/strowk/vint/rules/no_invalid_url_parse"
 	"github.com/strowk/vint/rules/no_external_error_reassign"
 	"github.com/strowk/vint/rules/no_excessive_blank_identifiers"
+	"github.com/strowk/vint/rules/no_excessive_function_results"
+	"github.com/strowk/vint/rules/no_excessive_public_structs"
 	"github.com/strowk/vint/rules/no_excessive_results"
 	"github.com/strowk/vint/rules/no_excessive_shift"
 	"github.com/strowk/vint/rules/no_excessive_statements"
@@ -100,11 +117,17 @@ import (
 	"github.com/strowk/vint/rules/no_exposed_pprof"
 	"github.com/strowk/vint/rules/no_file_inclusion_via_variable"
 	"github.com/strowk/vint/rules/no_file_scoped_denied_import"
+	"github.com/strowk/vint/rules/no_flag_parameter"
+	"github.com/strowk/vint/rules/no_forbidden_call_in_wg_go"
+	"github.com/strowk/vint/rules/use_file_header"
+	"github.com/strowk/vint/rules/use_getter_return"
+	"github.com/strowk/vint/rules/use_filename_format"
 	"github.com/strowk/vint/rules/no_filesystem_root_serving"
 	"github.com/strowk/vint/rules/no_filesystem_toctou"
 	"github.com/strowk/vint/rules/no_frame_pointer_clobber"
 	"github.com/strowk/vint/rules/no_hardcoded_credentials"
 	"github.com/strowk/vint/rules/no_hardcoded_iv"
+	"github.com/strowk/vint/rules/no_high_cognitive_complexity"
 	"github.com/strowk/vint/rules/no_high_cyclomatic_complexity"
 	"github.com/strowk/vint/rules/no_http_client_get"
 	"github.com/strowk/vint/rules/no_http_client_head"
@@ -123,6 +146,13 @@ import (
 	"github.com/strowk/vint/rules/no_http_post_form"
 	"github.com/strowk/vint/rules/no_http_request_smuggling"
 	"github.com/strowk/vint/rules/no_http_response_misuse"
+	"github.com/strowk/vint/rules/no_identical_branches"
+	"github.com/strowk/vint/rules/no_identical_if_else_if_branches"
+	"github.com/strowk/vint/rules/no_identical_if_else_if_conditions"
+	"github.com/strowk/vint/rules/no_identical_switch_branches"
+	"github.com/strowk/vint/rules/no_identical_switch_conditions"
+	"github.com/strowk/vint/rules/no_inefficient_map_lookup"
+	"github.com/strowk/vint/rules/no_package_directory_mismatch"
 	"github.com/strowk/vint/rules/no_httptest_new_request"
 	"github.com/strowk/vint/rules/no_impossible_builtin_result"
 	"github.com/strowk/vint/rules/no_impossible_condition"
@@ -170,6 +200,8 @@ import (
 	"github.com/strowk/vint/rules/no_missing_read_header_timeout"
 	"github.com/strowk/vint/rules/no_missing_return_after_http_error"
 	"github.com/strowk/vint/rules/no_misspelled_words"
+	"github.com/strowk/vint/rules/no_modified_parameter"
+	"github.com/strowk/vint/rules/no_modified_value_receiver"
 	"github.com/strowk/vint/rules/no_multi_line_func_break"
 	"github.com/strowk/vint/rules/no_multi_line_if_break"
 	"github.com/strowk/vint/rules/no_naked_return"
@@ -188,6 +220,7 @@ import (
 	"github.com/strowk/vint/rules/no_net_lookup_ns"
 	"github.com/strowk/vint/rules/no_net_lookup_port"
 	"github.com/strowk/vint/rules/no_net_lookup_srv"
+	"github.com/strowk/vint/rules/no_nested_structs"
 	"github.com/strowk/vint/rules/no_net_lookup_txt"
 	"github.com/strowk/vint/rules/no_nil_context"
 	"github.com/strowk/vint/rules/no_nil_dereference"
@@ -200,7 +233,10 @@ import (
 	"github.com/strowk/vint/rules/no_nolint_without_explanation"
 	"github.com/strowk/vint/rules/no_nolint_without_specific_linter"
 	"github.com/strowk/vint/rules/no_non_canonical_header_key"
+	"github.com/strowk/vint/rules/no_redundant_build_tag"
 	"github.com/strowk/vint/rules/no_redundant_canonical_header_key"
+	"github.com/strowk/vint/rules/no_redundant_import_alias"
+	"github.com/strowk/vint/rules/no_redundant_test_main_exit"
 	"github.com/strowk/vint/rules/no_non_pointer_unmarshal"
 	"github.com/strowk/vint/rules/no_noop_function_call"
 	"github.com/strowk/vint/rules/no_odd_size_slice_arg"
@@ -212,6 +248,7 @@ import (
 	"github.com/strowk/vint/rules/no_permissive_write_file_permissions"
 	"github.com/strowk/vint/rules/no_pointer_to_ref_param"
 	"github.com/strowk/vint/rules/no_range_append_all"
+	"github.com/strowk/vint/rules/no_redundant_range_val"
 	"github.com/strowk/vint/rules/no_range_expr_copy"
 	"github.com/strowk/vint/rules/no_range_val_copy"
 	"github.com/strowk/vint/rules/no_redundant_make_args"
@@ -278,6 +315,7 @@ import (
 	"github.com/strowk/vint/rules/no_std_method_signature_mismatch"
 	"github.com/strowk/vint/rules/no_stdlib_version_mismatch"
 	"github.com/strowk/vint/rules/no_string_index_allocation"
+	"github.com/strowk/vint/rules/use_string_format"
 	"github.com/strowk/vint/rules/use_string_map_key"
 	"github.com/strowk/vint/rules/no_string_int_conversion"
 	"github.com/strowk/vint/rules/no_swapped_arguments"
@@ -312,9 +350,12 @@ import (
 	"github.com/strowk/vint/rules/no_unnecessary_deref"
 	"github.com/strowk/vint/rules/no_unnecessary_defer_lambda"
 	"github.com/strowk/vint/rules/no_unnecessary_block"
+	"github.com/strowk/vint/rules/no_unnecessary_if"
 	"github.com/strowk/vint/rules/no_unnecessary_lambda"
+	"github.com/strowk/vint/rules/no_unnecessary_stmt"
 	"github.com/strowk/vint/rules/no_unnecessary_type_parens"
 	"github.com/strowk/vint/rules/no_unnecessary_blank_identifier"
+	"github.com/strowk/vint/rules/no_unnecessary_format"
 	"github.com/strowk/vint/rules/no_unnecessary_loop_var_copy"
 	"github.com/strowk/vint/rules/no_unreachable_code"
 	"github.com/strowk/vint/rules/no_unreachable_type_case"
@@ -323,7 +364,12 @@ import (
 	"github.com/strowk/vint/rules/no_unsafe_deserialization"
 	"github.com/strowk/vint/rules/no_unsafe_package"
 	"github.com/strowk/vint/rules/no_unsafe_redirect_policy"
+	"github.com/strowk/vint/rules/no_unsecure_url_scheme"
+	"github.com/strowk/vint/rules/no_useless_break"
+	"github.com/strowk/vint/rules/no_useless_fallthrough"
 	"github.com/strowk/vint/rules/no_unused_constant"
+	"github.com/strowk/vint/rules/no_var_declaration"
+	"github.com/strowk/vint/rules/no_unused_receiver"
 	"github.com/strowk/vint/rules/no_unused_field"
 	"github.com/strowk/vint/rules/no_unused_function"
 	"github.com/strowk/vint/rules/no_unused_function_result"
@@ -341,6 +387,7 @@ import (
 	"github.com/strowk/vint/rules/no_writer_buffer_modification"
 	"github.com/strowk/vint/rules/no_xss_taint"
 	"github.com/strowk/vint/rules/no_zip_slip"
+	"github.com/strowk/vint/rules/use_any"
 	"github.com/strowk/vint/rules/use_assignment_operator"
 	"github.com/strowk/vint/rules/use_parallel_assign_swap"
 	"github.com/strowk/vint/rules/use_combined_append"
@@ -352,16 +399,20 @@ import (
 	"github.com/strowk/vint/rules/use_copy_builtin"
 	"github.com/strowk/vint/rules/use_copy_for_slide"
 	"github.com/strowk/vint/rules/use_comment_spacing"
+	"github.com/strowk/vint/rules/use_comment_spacings"
+	"github.com/strowk/vint/rules/use_direct_return"
 	"github.com/strowk/vint/rules/use_decode_rune"
 	"github.com/strowk/vint/rules/use_direct_method_call"
 	"github.com/strowk/vint/rules/use_direct_string_comparison"
 	"github.com/strowk/vint/rules/use_direct_string_range"
 	"github.com/strowk/vint/rules/use_early_continue"
+	"github.com/strowk/vint/rules/use_early_return"
 	"github.com/strowk/vint/rules/use_loop_condition"
 	"github.com/strowk/vint/rules/use_else_if"
 	"github.com/strowk/vint/rules/use_equal_fold"
 	"github.com/strowk/vint/rules/use_error_last_return"
 	"github.com/strowk/vint/rules/use_error_method"
+	"github.com/strowk/vint/rules/use_error_naming"
 	"github.com/strowk/vint/rules/use_infinite_for"
 	"github.com/strowk/vint/rules/use_filepath_join"
 	"github.com/strowk/vint/rules/use_fprint"
@@ -372,6 +423,7 @@ import (
 	"github.com/strowk/vint/rules/use_join_host_port"
 	"github.com/strowk/vint/rules/use_matching_constant"
 	"github.com/strowk/vint/rules/use_optimal_field_alignment"
+	"github.com/strowk/vint/rules/use_optimal_operands_order"
 	"github.com/strowk/vint/rules/use_optimized_slice_clear"
 	"github.com/strowk/vint/rules/use_printf_suffix"
 	"github.com/strowk/vint/rules/use_simplified_bool_expr"
@@ -380,10 +432,12 @@ import (
 	"github.com/strowk/vint/rules/use_standard_codegen_comment"
 	"github.com/strowk/vint/rules/use_standard_deprecation_comment"
 	"github.com/strowk/vint/rules/use_switch"
+	"github.com/strowk/vint/rules/use_switch_default_style"
 	"github.com/strowk/vint/rules/use_tagged_switch"
 	"github.com/strowk/vint/rules/use_type_assert_result"
 	"github.com/strowk/vint/rules/use_type_conversion"
 	"github.com/strowk/vint/rules/use_type_def_first"
+	"github.com/strowk/vint/rules/use_comments_density"
 	"github.com/strowk/vint/rules/use_type_switch_chain"
 	"github.com/strowk/vint/rules/use_type_switch_guard"
 	"github.com/strowk/vint/rules/use_modern_octal_literal"
@@ -406,45 +460,64 @@ import (
 	"github.com/strowk/vint/rules/no_unchecked_inline_error"
 	"github.com/strowk/vint/rules/no_yoda_condition"
 	"github.com/strowk/vint/rules/no_zero_bytes_repeat"
+	"github.com/strowk/vint/rules/use_time_date"
 	"github.com/strowk/vint/rules/use_time_equal"
 	"github.com/strowk/vint/rules/use_time_method"
+	"github.com/strowk/vint/rules/use_time_naming"
 	"github.com/strowk/vint/rules/use_time_since"
 	"github.com/strowk/vint/rules/use_time_sleep"
 	"github.com/strowk/vint/rules/use_time_until"
 	"github.com/strowk/vint/rules/use_package_comment"
+	"github.com/strowk/vint/rules/use_package_comments"
 	"github.com/strowk/vint/rules/use_idiomatic_duration_name"
 	"github.com/strowk/vint/rules/use_idiomatic_error_name"
 	"github.com/strowk/vint/rules/use_idiomatic_naming"
 	"github.com/strowk/vint/rules/use_consistent_receiver_name"
+	"github.com/strowk/vint/rules/use_receiver_naming"
 	"github.com/strowk/vint/rules/use_idiomatic_receiver_name"
+	"github.com/strowk/vint/rules/use_import_alias_naming"
+	"github.com/strowk/vint/rules/no_superfluous_else"
+	"github.com/strowk/vint/rules/no_unexported_naming"
+	"github.com/strowk/vint/rules/no_unexported_return"
+	"github.com/strowk/vint/rules/use_indent_error_flow"
 	"github.com/strowk/vint/rules/use_func_doc_prefix"
 	"github.com/strowk/vint/rules/use_type_doc_prefix"
 	"github.com/strowk/vint/rules/use_inline_math_pow"
+	"github.com/strowk/vint/rules/use_epoch_naming"
+	"github.com/strowk/vint/rules/use_errors_new"
+	"github.com/strowk/vint/rules/use_fmt_print"
 	"github.com/strowk/vint/rules/use_trim_function"
+	"github.com/strowk/vint/rules/use_context_as_first_param"
+	"github.com/strowk/vint/rules/use_map_style"
+	"github.com/strowk/vint/rules/use_repeated_arg_type_style"
+	"github.com/strowk/vint/rules/use_slice_style"
 	"github.com/strowk/vint/rules/use_var_const_doc_prefix"
+	"github.com/strowk/vint/rules/use_var_naming"
+	"github.com/strowk/vint/rules/use_exported_comment"
+	"github.com/strowk/vint/rules/use_package_naming"
+	"github.com/strowk/vint/rules/use_slices_sort"
+	"github.com/strowk/vint/rules/use_waitgroup_go"
 )
 
 var defaultRules = []lint.Rule{
-	&rule.VarDeclarationsRule{},
-	&rule.PackageCommentsRule{},
-	&rule.DotImportsRule{},
-	&rule.BlankImportsRule{},
-	&rule.ExportedRule{},
-	&rule.VarNamingRule{},
-	&rule.IndentErrorFlowRule{},
-	&rule.RangeRule{},
-	&rule.ErrorfRule{},
-	&rule.ErrorNamingRule{},
-	&rule.ErrorStringsRule{},
-	&rule.ReceiverNamingRule{},
+	&no_var_declaration.VarDeclarationsRule{},
+	&use_package_comments.PackageCommentsRule{},
+	&no_blank_import.NoBlankImportRule{},
+	&use_exported_comment.ExportedRule{},
+	&use_var_naming.VarNamingRule{},
+	&use_indent_error_flow.IndentErrorFlowRule{},
+	&no_redundant_range_val.RangeRule{},
+	&use_errorf.ErrorfRule{},
+	&use_error_naming.ErrorNamingRule{},
+	&no_error_strings.ErrorStringsRule{},
+	&use_receiver_naming.ReceiverNamingRule{},
 	&rule.IncrementDecrementRule{},
-	&rule.ErrorReturnRule{},
-	&rule.UnexportedReturnRule{},
-	&rule.TimeNamingRule{},
-	&rule.ContextKeysType{},
-	&rule.ContextAsArgumentRule{},
+	&no_unexported_return.UnexportedReturnRule{},
+	&use_time_naming.TimeNamingRule{},
+	&no_context_keys_type.ContextKeysType{},
+	&use_context_as_first_param.ContextAsArgumentRule{},
 	&rule.EmptyBlockRule{},
-	&rule.SuperfluousElseRule{},
+	&no_superfluous_else.SuperfluousElseRule{},
 	&no_unclosed_bodies.NoUnclosedBodiesRule{},
 	// temporary disabled for performance research
 	&no_duplicate_code.NoDuplicateCodeRule{},
@@ -786,71 +859,70 @@ var defaultRules = []lint.Rule{
 }
 
 var allRules = append([]lint.Rule{
-	&rule.ArgumentsLimitRule{},
-	&rule.FileHeaderRule{},
-	&rule.ConfusingNamingRule{},
-	&rule.GetReturnRule{},
-	&rule.ModifiesParamRule{},
-	&rule.ConfusingResultsRule{},
-	&rule.DeepExitRule{},
-	&rule.FlagParamRule{},
-	&rule.UnnecessaryStmtRule{},
+	&no_excessive_arguments.NoExcessiveArgumentsRule{},
+	&use_file_header.FileHeaderRule{},
+	&no_confusing_naming.ConfusingNamingRule{},
+	&use_getter_return.GetReturnRule{},
+	&no_modified_parameter.ModifiesParamRule{},
+	&no_confusing_results.ConfusingResultsRule{},
+	&no_deep_exit.DeepExitRule{},
+	&no_flag_parameter.FlagParamRule{},
+	&no_unnecessary_stmt.UnnecessaryStmtRule{},
 	&rule.StructTagRule{},
-	&rule.ModifiesValRecRule{},
+	&no_modified_value_receiver.ModifiesValRecRule{},
 	&rule.ConstantLogicalExprRule{},
-	&rule.FunctionResultsLimitRule{},
-	&rule.MaxPublicStructsRule{},
-	&rule.CallToGCRule{},
-	&rule.DuplicatedImportsRule{},
+	&no_excessive_function_results.FunctionResultsLimitRule{},
+	&no_excessive_public_structs.NoExcessivePublicStructsRule{},
+	&no_call_to_gc.CallToGCRule{},
+	&no_duplicated_imports.DuplicatedImportsRule{},
 	&rule.ImportShadowingRule{},
 	&rule.BareReturnRule{},
-	&rule.UnusedReceiverRule{},
-	&rule.CognitiveComplexityRule{},
-	&rule.StringFormatRule{},
-	&rule.EarlyReturnRule{},
-	&rule.UnconditionalRecursionRule{},
-	&rule.IdenticalBranchesRule{},
-	&rule.DeferRule{},
-	&rule.UnexportedNamingRule{},
-	&rule.NestedStructs{},
-	&rule.UselessBreak{},
-	&rule.TimeEqualRule{},
-	&rule.TimeDateRule{},
-	&rule.BannedCharsRule{},
-	&rule.OptimizeOperandsOrderRule{},
-	&rule.UseAnyRule{},
+	&no_unused_receiver.UnusedReceiverRule{},
+	&no_high_cognitive_complexity.NoHighCognitiveComplexityRule{},
+	&use_string_format.StringFormatRule{},
+	&use_early_return.EarlyReturnRule{},
+	&no_unconditional_recursion.UnconditionalRecursionRule{},
+	&no_identical_branches.IdenticalBranchesRule{},
+	&no_defer_gotcha.DeferRule{},
+	&no_unexported_naming.UnexportedNamingRule{},
+	&no_nested_structs.NestedStructs{},
+	&no_useless_break.UselessBreak{},
+	&use_time_date.TimeDateRule{},
+	&no_banned_characters.NoBannedCharactersRule{},
+	&use_optimal_operands_order.OptimizeOperandsOrderRule{},
+	&use_any.UseAnyRule{},
 	&rule.DataRaceRule{},
-	&rule.CommentSpacingsRule{},
-	&rule.IfReturnRule{},
-	&rule.RedundantImportAlias{},
-	&rule.ImportAliasNamingRule{},
-	&rule.EnforceMapStyleRule{},
-	&rule.EnforceRepeatedArgTypeStyleRule{},
-	&rule.EnforceSliceStyleRule{},
-	&rule.MaxControlNestingRule{},
-	&rule.CommentsDensityRule{},
-	&rule.FileLengthLimitRule{},
-	&rule.FilenameFormatRule{},
-	&rule.RedundantBuildTagRule{},
-	&rule.UseErrorsNewRule{},
-	&rule.RedundantTestMainExitRule{},
-	&rule.UnnecessaryFormatRule{},
-	&rule.UseFmtPrintRule{},
-	&rule.EnforceSwitchStyleRule{},
-	&rule.IdenticalSwitchConditionsRule{},
-	&rule.IdenticalIfElseIfConditionsRule{},
-	&rule.IdenticalIfElseIfBranchesRule{},
-	&rule.IdenticalSwitchBranchesRule{},
-	&rule.UselessFallthroughRule{},
-	&rule.PackageDirectoryMismatchRule{},
-	&rule.UseWaitGroupGoRule{},
-	&rule.UnsecureURLSchemeRule{},
-	&rule.InefficientMapLookupRule{},
-	&rule.ForbiddenCallInWgGoRule{},
-	&rule.UnnecessaryIfRule{},
-	&rule.EpochNamingRule{},
-	&rule.UseSlicesSort{},
-	&rule.PackageNamingRule{},
+	&use_comment_spacings.CommentSpacingsRule{},
+	&use_direct_return.IfReturnRule{},
+	&no_redundant_import_alias.NoRedundantImportAliasRule{},
+	&use_import_alias_naming.ImportAliasNamingRule{},
+	&use_map_style.EnforceMapStyleRule{},
+	&use_repeated_arg_type_style.EnforceRepeatedArgTypeStyleRule{},
+	&use_slice_style.EnforceSliceStyleRule{},
+	&no_excessive_control_nesting.MaxControlNestingRule{},
+	&use_comments_density.CommentsDensityRule{},
+	&no_excessive_file_length.NoExcessiveFileLengthRule{},
+	&use_filename_format.FilenameFormatRule{},
+	&no_redundant_build_tag.RedundantBuildTagRule{},
+	&use_errors_new.UseErrorsNewRule{},
+	&no_redundant_test_main_exit.RedundantTestMainExitRule{},
+	&no_unnecessary_format.UnnecessaryFormatRule{},
+	&use_fmt_print.UseFmtPrintRule{},
+	&use_switch_default_style.EnforceSwitchStyleRule{},
+	&no_identical_switch_conditions.IdenticalSwitchConditionsRule{},
+	&no_identical_if_else_if_conditions.IdenticalIfElseIfConditionsRule{},
+	&no_identical_if_else_if_branches.IdenticalIfElseIfBranchesRule{},
+	&no_identical_switch_branches.IdenticalSwitchBranchesRule{},
+	&no_useless_fallthrough.UselessFallthroughRule{},
+	&no_package_directory_mismatch.PackageDirectoryMismatchRule{},
+	&use_waitgroup_go.UseWaitGroupGoRule{},
+	&no_unsecure_url_scheme.UnsecureURLSchemeRule{},
+	&no_inefficient_map_lookup.InefficientMapLookupRule{},
+	&no_forbidden_call_in_wg_go.ForbiddenCallInWgGoRule{},
+	&no_unnecessary_if.UnnecessaryIfRule{},
+	&use_epoch_naming.EpochNamingRule{},
+	&use_slices_sort.UseSlicesSort{},
+	&use_package_naming.PackageNamingRule{},
 	&no_atomic_alignment_issue.NoAtomicAlignmentIssueRule{},
 	&no_blank_error_assignment.NoBlankErrorAssignmentRule{},
 	&no_specific_function_call.NoSpecificFunctionCallRule{},

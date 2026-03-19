@@ -1,4 +1,4 @@
 enableAllRules = false
 
-[rule.var-naming]
+[rule."lint/style/useVarNaming"]
   arguments = ["ID", "VM"]

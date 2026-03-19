@@ -2,7 +2,7 @@
 
 enableAllRules = true
 
-[rule.exported]
+[rule."lint/style/useExportedComment"]
 Disabled = true
-[rule.argument-limit]
+[rule."lint/complexity/noExcessiveArguments"]
 Disabled = true

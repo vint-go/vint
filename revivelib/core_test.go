@@ -7,7 +7,7 @@ import (
 	"github.com/strowk/vint/config"
 	"github.com/strowk/vint/lint"
 	"github.com/strowk/vint/revivelib"
-	"github.com/strowk/vint/rule"
+	"github.com/strowk/vint/rules/use_direct_return"
 )
 
 func TestReviveLint(t *testing.T) {
@@ -15,7 +15,7 @@ func TestReviveLint(t *testing.T) {
 	revive := getMockRevive(t)
 
 	// ACT
-	failures, err := revive.Lint(revivelib.Include("../testdata/if_return.go"))
+	failures, err := revive.Lint(revivelib.Include("../rules/use_direct_return/testdata/use_direct_return.go"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestReviveFormat(t *testing.T) {
 	// ARRANGE
 	revive := getMockRevive(t)
 
-	failuresChan, err := revive.Lint(revivelib.Include("../testdata/if_return.go"))
+	failuresChan, err := revive.Lint(revivelib.Include("../rules/use_direct_return/testdata/use_direct_return.go"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,9 +53,9 @@ func TestReviveFormat(t *testing.T) {
 	}
 
 	errorMsgs := []string{
-		"(15, 2)  https://revive.run/r#if-return  redundant if ...; err != nil check, just return error instead.",
-		"(88, 3)  https://revive.run/r#if-return  redundant if ...; err != nil check, just return error instead.",
-		"(95, 3)  https://revive.run/r#if-return  redundant if ...; err != nil check, just return error instead.",
+		"(15, 2)  https://revive.run/r#lint/style/useDirectReturn  redundant if ...; err != nil check, just return error instead.",
+		"(88, 3)  https://revive.run/r#lint/style/useDirectReturn  redundant if ...; err != nil check, just return error instead.",
+		"(95, 3)  https://revive.run/r#lint/style/useDirectReturn  redundant if ...; err != nil check, just return error instead.",
 	}
 	for _, errorMsg := range errorMsgs {
 		if !strings.Contains(failures, errorMsg) {
@@ -91,7 +91,7 @@ func getMockRevive(t *testing.T) *revivelib.Revive {
 		conf,
 		true,
 		2048,
-		revivelib.NewExtraRule(&rule.IfReturnRule{}, lint.RuleConfig{}),
+		revivelib.NewExtraRule(&use_direct_return.IfReturnRule{}, lint.RuleConfig{}),
 		revivelib.NewExtraRule(&mockRule{}, lint.RuleConfig{}),
 	)
 	if err != nil {

@@ -22,7 +22,7 @@ func TestFormatter(t *testing.T) {
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -79,7 +79,7 @@ func TestFormatter(t *testing.T) {
       <error line="38" column="4" message="replace fmt.Errorf by errors.New (confidence 0)" severity="error" source="revive/use-errors-new"/>
     </file>
     <file name="file.go">
-      <error line="2" column="5" message="error var Exp should have name of the form ErrFoo (confidence 0)" severity="warning" source="revive/error-naming"/>
+      <error line="2" column="5" message="error var Exp should have name of the form ErrFoo (confidence 0)" severity="warning" source="revive/lint/style/useErrorNaming"/>
     </file>
 </checkstyle>`,
 		},
@@ -88,7 +88,7 @@ func TestFormatter(t *testing.T) {
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -147,7 +147,7 @@ err.go:38:4: replace fmt.Errorf by errors.New`,
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -231,7 +231,7 @@ err.go:38:4: replace fmt.Errorf by errors.New`,
 					},
 				},
 			},
-			want: `  ⚠  https://revive.run/r#error-naming  error var Exp should have name of the form ErrFoo
+			want: `  ⚠  https://revive.run/r#lint/style/useErrorNaming  error var Exp should have name of the form ErrFoo
   file.go:2:5
 
   ⚠  https://revive.run/r#use-any  since Go 1.18 'interface{}' can be replaced by 'any'
@@ -253,7 +253,7 @@ Errors:
 
 Warnings:
   2  use-any
-  1  error-naming
+  1  lint/style/useErrorNaming
 
 `,
 		},
@@ -298,7 +298,7 @@ Errors:
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -314,13 +314,13 @@ Errors:
 					},
 				},
 			},
-			want: `  ⚠  https://revive.run/r#error-naming  error var Exp should have name of the form ErrFoo
+			want: `  ⚠  https://revive.run/r#lint/style/useErrorNaming  error var Exp should have name of the form ErrFoo
   file.go:2:5
 
 ⚠ 1 problem (0 errors, 1 warning)
 
 Warnings:
-  1  error-naming
+  1  lint/style/useErrorNaming
 
 `,
 		},
@@ -329,7 +329,7 @@ Warnings:
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -380,7 +380,7 @@ Warnings:
 				},
 			},
 			want: "[" +
-				`{"Severity":"warning","Failure":"error var Exp should have name of the form ErrFoo","RuleName":"error-naming","Category":"naming","Position":{"Start":{"Filename":"file.go","Offset":0,"Line":2,"Column":5},"End":{"Filename":"file.go","Offset":0,"Line":2,"Column":10}},"Confidence":0,"ReplacementLine":""}` +
+				`{"Severity":"warning","Failure":"error var Exp should have name of the form ErrFoo","RuleName":"lint/style/useErrorNaming","Category":"naming","Position":{"Start":{"Filename":"file.go","Offset":0,"Line":2,"Column":5},"End":{"Filename":"file.go","Offset":0,"Line":2,"Column":10}},"Confidence":0,"ReplacementLine":""}` +
 				"," +
 				`{"Severity":"error","Failure":"replace fmt.Errorf by errors.New","RuleName":"use-errors-new","Category":"errors","Position":{"Start":{"Filename":"err.go","Offset":0,"Line":33,"Column":4},"End":{"Filename":"err.go","Offset":0,"Line":33,"Column":8}},"Confidence":0,"ReplacementLine":""}` +
 				"," +
@@ -392,7 +392,7 @@ Warnings:
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -442,7 +442,7 @@ Warnings:
 					},
 				},
 			},
-			want: `{"Severity":"warning","Failure":"error var Exp should have name of the form ErrFoo","RuleName":"error-naming","Category":"naming","Position":{"Start":{"Filename":"file.go","Offset":0,"Line":2,"Column":5},"End":{"Filename":"file.go","Offset":0,"Line":2,"Column":10}},"Confidence":0,"ReplacementLine":""}` +
+			want: `{"Severity":"warning","Failure":"error var Exp should have name of the form ErrFoo","RuleName":"lint/style/useErrorNaming","Category":"naming","Position":{"Start":{"Filename":"file.go","Offset":0,"Line":2,"Column":5},"End":{"Filename":"file.go","Offset":0,"Line":2,"Column":10}},"Confidence":0,"ReplacementLine":""}` +
 				"\n" +
 				`{"Severity":"error","Failure":"replace fmt.Errorf by errors.New","RuleName":"use-errors-new","Category":"errors","Position":{"Start":{"Filename":"err.go","Offset":0,"Line":33,"Column":4},"End":{"Filename":"err.go","Offset":0,"Line":33,"Column":8}},"Confidence":0,"ReplacementLine":""}` +
 				"\n" +
@@ -454,7 +454,7 @@ Warnings:
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -504,7 +504,7 @@ Warnings:
 					},
 				},
 			},
-			want: `file.go:2:5: error var Exp should have name of the form ErrFoo https://revive.run/r#error-naming` +
+			want: `file.go:2:5: error var Exp should have name of the form ErrFoo https://revive.run/r#lint/style/useErrorNaming` +
 				"\n" +
 				`err.go:33:4: replace fmt.Errorf by errors.New https://revive.run/r#use-errors-new` +
 				"\n" +
@@ -516,7 +516,7 @@ Warnings:
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -587,7 +587,7 @@ Warnings:
           "message": {
             "text": "error var Exp should have name of the form ErrFoo"
           },
-          "ruleId": "error-naming"
+          "ruleId": "lint/style/useErrorNaming"
         },
         {
           "level": "error",
@@ -655,7 +655,7 @@ Warnings:
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -710,7 +710,7 @@ Warnings:
   (38, 4)  https://revive.run/r#use-errors-new  replace fmt.Errorf by errors.New
 
 file.go
-  (2, 5)  https://revive.run/r#error-naming  error var Exp should have name of the form ErrFoo
+  (2, 5)  https://revive.run/r#lint/style/useErrorNaming  error var Exp should have name of the form ErrFoo
 
 
  ✖ 3 problems (2 errors) (1 warning)`,
@@ -752,7 +752,7 @@ file.go
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -769,7 +769,7 @@ file.go
 				},
 			},
 			want: `file.go
-  (2, 5)  https://revive.run/r#error-naming  error var Exp should have name of the form ErrFoo
+  (2, 5)  https://revive.run/r#lint/style/useErrorNaming  error var Exp should have name of the form ErrFoo
 
 
  ✖ 1 problem (0 errors) (1 warning)`,
@@ -779,7 +779,7 @@ file.go
 			failures: []lint.Failure{
 				{
 					Failure:  "error var Exp should have name of the form ErrFoo",
-					RuleName: "error-naming",
+					RuleName: "lint/style/useErrorNaming",
 					Category: lint.FailureCategoryNaming,
 					Position: lint.FailurePosition{
 						Start: token.Position{
@@ -829,7 +829,7 @@ file.go
 					},
 				},
 			},
-			want: "file.go:2:5: [error-naming] error var Exp should have name of the form ErrFoo" +
+			want: "file.go:2:5: [lint/style/useErrorNaming] error var Exp should have name of the form ErrFoo" +
 				"\n" +
 				"err.go:33:4: [use-errors-new] replace fmt.Errorf by errors.New" +
 				"\n" +

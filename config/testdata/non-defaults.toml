@@ -7,15 +7,15 @@ warningCode = 1
 enableAllRules = false
 enableDefaultRules = true
 
-[rule.argument-limit]
+[rule."lint/complexity/noExcessiveArguments"]
     severity="warning"
     exclude=["excluded/file.go"]
     arguments=[4]
 
-[rule.blank-imports]
+[rule."lint/style/noBlankImport"]
     disabled=true
 
-[rule.exported]
+[rule."lint/style/useExportedComment"]
     severity="error"
     exclude=["excluded/file-exported.go"]
     arguments=["check-private-receivers", "disable-stuttering-check"]

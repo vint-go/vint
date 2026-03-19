@@ -9,11 +9,11 @@ func Public1() {
 func Public2() { // MATCH /exported function Public2 should have comment or be unexported/
 }
 
-//revive:disable:exported
+//revive:disable:lint/style/useExportedComment
 func Public3() {
 }
 
-//revive:enable:exported
+//revive:enable:lint/style/useExportedComment
 
 //revive:disable:random
 

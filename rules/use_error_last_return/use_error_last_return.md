@@ -23,7 +23,7 @@ A function's error value should be its last return value.
 
 By Go convention, functions that return an error should return it as the last value. This is a widely followed convention that makes error handling patterns consistent.
 
-Source: https://staticcheck.dev/docs/checks/#ST1008
+Source: https://github.com/mgechev/revive
 
 ## Examples
 

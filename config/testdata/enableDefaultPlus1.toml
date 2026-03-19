@@ -3,4 +3,4 @@
 enableDefaultRules = true
 
 # Add a non-default rule
-[rule.argument-limit]
+[rule."lint/complexity/noExcessiveArguments"]

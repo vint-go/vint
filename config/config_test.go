@@ -10,7 +10,8 @@ import (
 
 	"github.com/strowk/vint/config"
 	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rule"
+	"github.com/strowk/vint/rules/no_deep_exit"
+	"github.com/strowk/vint/rules/no_excessive_arguments"
 )
 
 func TestGetConfig(t *testing.T) {
@@ -27,40 +28,34 @@ func TestGetConfig(t *testing.T) {
 					EnableAllRules:        false,
 					EnableDefaultRules:    false,
 					Rules: lint.RulesConfig{
-						"blank-imports": {
+						"lint/style/noBlankImport": {
 							Severity: lint.SeverityWarning,
 						},
-						"context-as-argument": {
+						"lint/style/useContextAsFirstParam": {
 							Severity: lint.SeverityWarning,
 						},
-						"context-keys-type": {
-							Severity: lint.SeverityWarning,
-						},
-						"dot-imports": {
+						"lint/correctness/noContextKeysType": {
 							Severity: lint.SeverityWarning,
 						},
 						"empty-block": {
 							Severity: lint.SeverityWarning,
 						},
-						"error-naming": {
+						"lint/style/useErrorNaming": {
 							Severity: lint.SeverityWarning,
 						},
-						"error-return": {
+						"lint/style/noErrorStrings": {
 							Severity: lint.SeverityWarning,
 						},
-						"error-strings": {
+						"lint/style/useErrorf": {
 							Severity: lint.SeverityWarning,
 						},
-						"errorf": {
-							Severity: lint.SeverityWarning,
-						},
-						"exported": {
+						"lint/style/useExportedComment": {
 							Severity: lint.SeverityWarning,
 						},
 						"increment-decrement": {
 							Severity: lint.SeverityWarning,
 						},
-						"indent-error-flow": {
+						"lint/style/useIndentErrorFlow": {
 							Severity: lint.SeverityWarning,
 						},
 						"lint/correctness/noUnclosedBodies": {
@@ -1053,28 +1048,28 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/useSimplifiedSelector": {
 							Severity: lint.SeverityWarning,
 						},
-						"package-comments": {
+						"lint/style/usePackageComments": {
 							Severity: lint.SeverityWarning,
 						},
-						"range": {
+						"lint/style/noRedundantRangeVal": {
 							Severity: lint.SeverityWarning,
 						},
-						"receiver-naming": {
+						"lint/style/useReceiverNaming": {
 							Severity: lint.SeverityWarning,
 						},
-						"superfluous-else": {
+						"lint/style/noSuperfluousElse": {
 							Severity: lint.SeverityWarning,
 						},
-						"time-naming": {
+						"lint/style/useTimeNaming": {
 							Severity: lint.SeverityWarning,
 						},
-						"unexported-return": {
+						"lint/style/noUnexportedReturn": {
 							Severity: lint.SeverityWarning,
 						},
-						"var-declaration": {
+						"lint/style/noVarDeclaration": {
 							Severity: lint.SeverityWarning,
 						},
-						"var-naming": {
+						"lint/style/useVarNaming": {
 							Severity: lint.SeverityWarning,
 						},
 						"lint/performance/usePointerInSyncPool": {
@@ -1143,18 +1138,16 @@ func TestGetConfig(t *testing.T) {
 					IgnoreGeneratedHeader: false,
 					EnableDefaultRules:    true,
 					Rules: lint.RulesConfig{
-						"blank-imports":                         {},
-						"context-as-argument":                   {},
-						"context-keys-type":                     {},
-						"dot-imports":                           {},
+						"lint/style/noBlankImport":              {},
+						"lint/style/useContextAsFirstParam":                   {},
+						"lint/correctness/noContextKeysType":                     {},
 						"empty-block":                           {},
-						"error-naming":                          {},
-						"error-return":                          {},
-						"error-strings":                         {},
-						"errorf":                                {},
-						"exported":                              {},
+						"lint/style/useErrorNaming":                          {},
+						"lint/style/noErrorStrings":                         {},
+						"lint/style/useErrorf":                                {},
+						"lint/style/useExportedComment":                              {},
 						"increment-decrement":                   {},
-						"indent-error-flow":                     {},
+						"lint/style/useIndentErrorFlow":                     {},
 						"lint/correctness/noUnclosedBodies":     {},
 						"lint/complexity/noDuplicateCode":       {},
 						"lint/complexity/noExcessiveStatements": {},
@@ -1485,14 +1478,14 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/noRedundantVarType":                  {},
 						"lint/complexity/useLoopCondition":                {},
 						"lint/style/useSimplifiedSelector":                {},
-						"package-comments":                               {},
-						"range":                                          {},
-						"receiver-naming":                                {},
-						"superfluous-else":                               {},
-						"time-naming":                                    {},
-						"unexported-return":                              {},
-						"var-declaration":                                {},
-						"var-naming":                                     {},
+						"lint/style/usePackageComments":                               {},
+						"lint/style/noRedundantRangeVal":                  {},
+						"lint/style/useReceiverNaming":                                {},
+						"lint/style/noSuperfluousElse":                               {},
+						"lint/style/useTimeNaming":                       {},
+						"lint/style/noUnexportedReturn":                  {},
+						"lint/style/noVarDeclaration":                    {},
+						"lint/style/useVarNaming":                                     {},
 						"lint/performance/usePointerInSyncPool":          {},
 					},
 				},
@@ -1507,42 +1500,36 @@ func TestGetConfig(t *testing.T) {
 					ErrorCode:             2,
 					WarningCode:           1,
 					Rules: lint.RulesConfig{
-						"argument-limit": {
+						"lint/complexity/noExcessiveArguments": {
 							Severity: lint.SeverityWarning,
 							Exclude:  []string{"excluded/file.go"},
 							Arguments: lint.Arguments{
 								[]any{4},
 							},
 						},
-						"blank-imports": {
+						"lint/style/noBlankImport": {
 							Disabled: true,
 							Severity: lint.SeverityError,
 						},
-						"context-as-argument": {
+						"lint/style/useContextAsFirstParam": {
 							Severity: lint.SeverityError,
 						},
-						"context-keys-type": {
-							Severity: lint.SeverityError,
-						},
-						"dot-imports": {
+						"lint/correctness/noContextKeysType": {
 							Severity: lint.SeverityError,
 						},
 						"empty-block": {
 							Severity: lint.SeverityError,
 						},
-						"error-naming": {
+						"lint/style/useErrorNaming": {
 							Severity: lint.SeverityError,
 						},
-						"error-return": {
+						"lint/style/noErrorStrings": {
 							Severity: lint.SeverityError,
 						},
-						"error-strings": {
+						"lint/style/useErrorf": {
 							Severity: lint.SeverityError,
 						},
-						"errorf": {
-							Severity: lint.SeverityError,
-						},
-						"exported": {
+						"lint/style/useExportedComment": {
 							Severity: lint.SeverityError,
 							Arguments: lint.Arguments{
 								"check-private-receivers", "disable-stuttering-check",
@@ -1552,7 +1539,7 @@ func TestGetConfig(t *testing.T) {
 						"increment-decrement": {
 							Severity: lint.SeverityError,
 						},
-						"indent-error-flow": {
+						"lint/style/useIndentErrorFlow": {
 							Severity: lint.SeverityError,
 						},
 						"lint/correctness/noUnclosedBodies": {
@@ -2545,28 +2532,28 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/useSimplifiedSelector": {
 							Severity: lint.SeverityError,
 						},
-						"package-comments": {
+						"lint/style/usePackageComments": {
 							Severity: lint.SeverityError,
 						},
-						"range": {
+						"lint/style/noRedundantRangeVal": {
 							Severity: lint.SeverityError,
 						},
-						"receiver-naming": {
+						"lint/style/useReceiverNaming": {
 							Severity: lint.SeverityError,
 						},
-						"superfluous-else": {
+						"lint/style/noSuperfluousElse": {
 							Severity: lint.SeverityError,
 						},
-						"time-naming": {
+						"lint/style/useTimeNaming": {
 							Severity: lint.SeverityError,
 						},
-						"unexported-return": {
+						"lint/style/noUnexportedReturn": {
 							Severity: lint.SeverityError,
 						},
-						"var-declaration": {
+						"lint/style/noVarDeclaration": {
 							Severity: lint.SeverityError,
 						},
-						"var-naming": {
+						"lint/style/useVarNaming": {
 							Severity: lint.SeverityError,
 						},
 						"lint/performance/usePointerInSyncPool": {
@@ -2715,7 +2702,7 @@ func TestGetConfig(t *testing.T) {
 			},
 			"invalid exclude pattern": {
 				confPath:  "invalidExcludePattern.toml",
-				wantError: "error in config of rule [var-naming]",
+				wantError: "error in config of rule [lint/style/useVarNaming]",
 			},
 			"enableAllRules and enableDefaultRules both set": {
 				confPath:  "enableAllAndDefault.toml",
@@ -2736,9 +2723,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 351
+		defaultRulesCount = 349
 		// len of allRules: update this when adding new rules
-		allRulesCount = 495
+		allRulesCount = 492
 	)
 
 	tt := map[string]struct {
@@ -2752,106 +2739,106 @@ func TestGetLintingRules(t *testing.T) {
 			confPath:       "noRules.toml",
 			wantRulesCount: 0,
 			wantDisabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"deep-exit",        // non-default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"noDeepExit",        // non-default rule
 			},
 		},
 		"enableAllRules without disabled rules": {
 			confPath:       "enableAll.toml",
 			wantRulesCount: allRulesCount,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"deep-exit",        // non-default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"noDeepExit",        // non-default rule
 			},
 		},
 		"enableAllRules with 2 disabled rules": {
 			confPath:       "enableAllBut2.toml",
 			wantRulesCount: allRulesCount - 2,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"deep-exit",        // non-default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"noDeepExit",        // non-default rule
 			},
 			wantDisabledRules: []string{
-				"exported",   // default rule
-				"argument-limit", // non-default rule
+				"useExportedComment",   // default rule
+				"noExcessiveArguments", // non-default rule
 			},
 		},
 		"enableDefaultRules without disabled rules": {
 			confPath:       "enableDefault.toml",
 			wantRulesCount: defaultRulesCount,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
 			},
 			wantDisabledRules: []string{
-				"deep-exit", // non-default rule
+				"noDeepExit", // non-default rule
 			},
 		},
 		"enableDefaultRules with 2 disabled rules": {
 			confPath:       "enableDefaultBut2.toml",
 			wantRulesCount: defaultRulesCount - 2,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
 			},
 			wantDisabledRules: []string{
-				"exported",          // default rule
-				"indent-error-flow", // default rule
+				"useExportedComment",          // default rule
+				"lint/style/useIndentErrorFlow", // default rule
 			},
 		},
 		"enableDefaultRules plus 1 non-default rule": {
 			confPath:       "enableDefaultPlus1.toml",
 			wantRulesCount: defaultRulesCount + 1,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"argument-limit",       // non-default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"noExcessiveArguments", // non-default rule
 			},
 			wantDisabledRules: []string{
-				"deep-exit", // non-default rule
+				"noDeepExit", // non-default rule
 			},
 		},
 		"enableDefaultRules plus rule already in defaults": {
 			confPath:       "enableDefaultPlusDefaultRule.toml",
 			wantRulesCount: defaultRulesCount,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"exported",         // default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"useExportedComment",         // default rule
 			},
 			wantDisabledRules: []string{
-				"deep-exit", // non-default rule
+				"noDeepExit", // non-default rule
 			},
 		},
 		"enableAllRules plus rule already in all": {
 			confPath:       "enableAllWithRule.toml",
 			wantRulesCount: allRulesCount,
 			wantEnabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"deep-exit",        // non-default rule
-				"argument-limit",       // non-default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"noDeepExit",        // non-default rule
+				"noExcessiveArguments", // non-default rule
 			},
 		},
 		"enable 2 rules": {
 			confPath:       "enable2.toml",
 			wantRulesCount: 2,
 			wantEnabledRules: []string{
-				"exported",   // default rule
-				"argument-limit", // non-default rule
+				"useExportedComment",   // default rule
+				"noExcessiveArguments", // non-default rule
 			},
 			wantDisabledRules: []string{
-				"var-declaration",  // default rule
-				"package-comments", // default rule
-				"deep-exit",        // non-default rule
+				"noVarDeclaration",  // default rule
+				"usePackageComments", // default rule
+				"noDeepExit",        // non-default rule
 			},
 		},
 		"var-naming configure error": {
 			confPath: "varNamingConfigureError.toml",
-			wantErr:  `cannot configure rule: "var-naming": invalid argument to the var-naming rule. Expecting a allowlist of type slice with initialisms, got string`,
+			wantErr:  `cannot configure rule: "lint/style/useVarNaming": invalid argument to the var-naming rule. Expecting a allowlist of type slice with initialisms, got string`,
 		},
 	}
 
@@ -2906,13 +2893,13 @@ func TestGetGlobalSeverity(t *testing.T) {
 		"enable 2 rules with one specific severity": {
 			confPath:               "testdata/enable2OneSpecificSeverity.toml",
 			wantGlobalSeverity:     "warning",
-			particularRule:         &rule.ArgumentsLimitRule{},
+			particularRule:         &no_excessive_arguments.NoExcessiveArgumentsRule{},
 			wantParticularSeverity: "error",
 		},
 		"enableAllRules with one specific severity": {
 			confPath:               "testdata/enableAllOneSpecificSeverity.toml",
 			wantGlobalSeverity:     "error",
-			particularRule:         &rule.DeepExitRule{},
+			particularRule:         &no_deep_exit.DeepExitRule{},
 			wantParticularSeverity: "warning",
 		},
 	}

@@ -14,16 +14,21 @@ title: noDotImport
 ```yaml title="vint.yaml"
 settings:
   lint/style/noDotImport:
-    # rule options here
+    arguments:
+      - allowedPackages:
+          - "github.com/onsi/ginkgo/v2"
+          - "github.com/onsi/gomega"
 ```
 
 ## Details
 
-Dot imports are discouraged.
+Importing with `.` makes the programs much harder to understand because it is unclear whether names belong to the current package or to an imported package.
 
-Dot imports (`import . "pkg"`) make code harder to read because it becomes unclear which package a name belongs to. Use regular imports instead.
+More information: https://go.dev/wiki/CodeReviewComments#import-dot
 
-Source: https://staticcheck.dev/docs/checks/#ST1001
+The `allowedPackages` option lets you whitelist specific packages that are permitted to use dot imports (e.g. testing DSL packages like Ginkgo/Gomega).
+
+Source: https://github.com/mgechev/revive
 
 ## Examples
 

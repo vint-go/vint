@@ -3,7 +3,7 @@
 enableDefaultRules = true
 
 # Disable a few default rules
-[rule.exported]
+[rule."lint/style/useExportedComment"]
 Disabled = true
-[rule.indent-error-flow]
+[rule."lint/style/useIndentErrorFlow"]
 Disabled = true

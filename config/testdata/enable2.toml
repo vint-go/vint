@@ -6,7 +6,7 @@ warningCode = 0
 
 enableAllRules = false
 
-[rule.exported]
+[rule."lint/style/useExportedComment"]
     severity="error"
-[rule.argument-limit]
+[rule."lint/complexity/noExcessiveArguments"]
 

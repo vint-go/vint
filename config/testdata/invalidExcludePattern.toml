@@ -1,2 +1,2 @@
-[rule.var-naming]
+[rule."lint/style/useVarNaming"]
   exclude = ["~[invalid(regex"]

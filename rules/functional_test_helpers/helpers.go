@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -183,8 +184,18 @@ func parseInstructions(tb testing.TB, filename string, src []byte) []instruction
 			if err != nil {
 				tb.Fatalf("At %v:%d: %v", filename, ln, err)
 			}
+			matchLine := ln
+			if i := strings.Index(line, "MATCH:"); i >= 0 {
+				// This is a match for a different line.
+				lns := strings.TrimPrefix(line[i:], "MATCH:")
+				lns = lns[:strings.Index(lns, " ")]
+				matchLine, err = strconv.Atoi(lns)
+				if err != nil {
+					tb.Fatalf("Bad match line number %q at %v:%d: %v", lns, filename, ln, err)
+				}
+			}
 			ins = append(ins, instruction{
-				Line:  ln,
+				Line:  matchLine,
 				Match: match,
 			})
 		}

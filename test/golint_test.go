@@ -9,28 +9,44 @@ import (
 
 	"github.com/strowk/vint/lint"
 	"github.com/strowk/vint/rule"
+	"github.com/strowk/vint/rules/no_blank_import"
+	"github.com/strowk/vint/rules/use_var_naming"
+	"github.com/strowk/vint/rules/no_var_declaration"
+	"github.com/strowk/vint/rules/no_context_keys_type"
+	"github.com/strowk/vint/rules/no_dot_import"
+	"github.com/strowk/vint/rules/use_error_last_return"
+	"github.com/strowk/vint/rules/no_error_strings"
+	"github.com/strowk/vint/rules/use_errorf"
+	"github.com/strowk/vint/rules/use_error_naming"
+	"github.com/strowk/vint/rules/use_exported_comment"
+	"github.com/strowk/vint/rules/use_indent_error_flow"
+	"github.com/strowk/vint/rules/use_package_comments"
+	"github.com/strowk/vint/rules/no_redundant_range_val"
+	"github.com/strowk/vint/rules/use_receiver_naming"
+	"github.com/strowk/vint/rules/no_unexported_return"
+	"github.com/strowk/vint/rules/use_time_naming"
 )
 
 var lintMatch = flag.String("lint.match", "", "restrict fixtures matches to this pattern")
 
 var rules = []lint.Rule{
-	&rule.VarDeclarationsRule{},
-	&rule.PackageCommentsRule{},
-	&rule.DotImportsRule{},
-	&rule.BlankImportsRule{},
-	&rule.ExportedRule{},
-	&rule.VarNamingRule{},
-	&rule.IndentErrorFlowRule{},
-	&rule.RangeRule{},
-	&rule.ErrorfRule{},
-	&rule.ErrorNamingRule{},
-	&rule.ErrorStringsRule{},
-	&rule.ReceiverNamingRule{},
+	&no_var_declaration.VarDeclarationsRule{},
+	&use_package_comments.PackageCommentsRule{},
+	&no_dot_import.NoDotImportRule{},
+	&no_blank_import.NoBlankImportRule{},
+	&use_exported_comment.ExportedRule{},
+	&use_var_naming.VarNamingRule{},
+	&use_indent_error_flow.IndentErrorFlowRule{},
+	&no_redundant_range_val.RangeRule{},
+	&use_errorf.ErrorfRule{},
+	&use_error_naming.ErrorNamingRule{},
+	&no_error_strings.ErrorStringsRule{},
+	&use_receiver_naming.ReceiverNamingRule{},
 	&rule.IncrementDecrementRule{},
-	&rule.ErrorReturnRule{},
-	&rule.UnexportedReturnRule{},
-	&rule.TimeNamingRule{},
-	&rule.ContextKeysType{},
+	&use_error_last_return.UseErrorLastReturnRule{},
+	&no_unexported_return.UnexportedReturnRule{},
+	&use_time_naming.TimeNamingRule{},
+	&no_context_keys_type.ContextKeysType{},
 }
 
 func TestAll(t *testing.T) {
