@@ -8,7 +8,7 @@ Very fast linter for Golang. Designed to be MUCH FASTER replacement of golangci-
 
 Here's how `vint` is different from `golangci-lint`:
 
-- More than 2x faster running the same rules as golangci-lint
+- More than 7x faster running the same rules as golangci-lint.
 - Clear centralized unified configuration.
 
 ## Installation
@@ -46,7 +46,6 @@ List of all available rules. The rules ported from `golint` are left unchanged a
 | Name                  | Config | Description                                                      | `golint` | Typed |
 | --------------------- | :----: | :--------------------------------------------------------------- | :------: | :---: |
 | [`add-constant`](./RULES_DESCRIPTIONS.md#add-constant)        |  map   | Suggests using constant for magic numbers and string literals    |    no    |  no   |
-| [`argument-limit`](./RULES_DESCRIPTIONS.md#argument-limit)      |  int (defaults to 8)  | Specifies the maximum number of arguments a function can receive |    no    |  no   |
 | [`atomic`](./RULES_DESCRIPTIONS.md#atomic)              |  n/a   | Check for common mistaken usages of the `sync/atomic` package    |    no    |  no   |
 | [`banned-characters`](./RULES_DESCRIPTIONS.md#banned-characters)          |  []string (defaults to []string{})   |  Checks banned characters in identifiers |    no    |  no   |
 | [`bare-return`](./RULES_DESCRIPTIONS.md#bare-return) | n/a  | Warns on bare returns   |    no    |  no   |
@@ -60,7 +59,6 @@ List of all available rules. The rules ported from `golint` are left unchanged a
 | [`confusing-results`](./RULES_DESCRIPTIONS.md#confusing-results)   |  n/a   | Suggests to name potentially confusing function results          |    no    |  no   |
 | [`constant-logical-expr`](./RULES_DESCRIPTIONS.md#constant-logical-expr)   |  n/a   | Warns on constant logical expressions                        |    no    |  no   |
 | [`context-as-argument`](./RULES_DESCRIPTIONS.md#context-as-argument) |  n/a   | `context.Context` should be the first argument of a function.    |   yes    |  no   |
-| [`context-keys-type`](./RULES_DESCRIPTIONS.md#context-keys-type)   |  n/a   | Disallows the usage of basic types in `context.WithValue`.       |   yes    |  yes  |
 | [`cyclomatic`](./RULES_DESCRIPTIONS.md#cyclomatic)          |  int (defaults to 10)   | Sets restriction for maximum Cyclomatic complexity.              |    no    |  no   |
 | [`datarace`](./RULES_DESCRIPTIONS.md#datarace)          |  n/a   |  Spots potential dataraces |    no    |  no   |
 | [`deep-exit`](./RULES_DESCRIPTIONS.md#deep-exit)           |  n/a   | Looks for program exits in funcs other than `main()` or `init()` |    no    |  no   |
@@ -75,7 +73,7 @@ List of all available rules. The rules ported from `golint` are left unchanged a
 | [`enforce-repeated-arg-type-style`](./RULES_DESCRIPTIONS.md#enforce-repeated-arg-type-style) |  string (defaults to "any")  |  Enforces consistent style for repeated argument and/or return value types. |    no    |  no   |
 | [`enforce-slice-style`](./RULES_DESCRIPTIONS.md#enforce-slice-style) |  string (defaults to "any")  |  Enforces consistent usage of `make([]type, 0)` or `[]type{}` for slice initialization. Does not affect `make(map[type]type, non_zero_len, or_non_zero_cap)` constructions. |    no    |  no   |
 | [`enforce-switch-style`](./RULES_DESCRIPTIONS.md#enforce-switch-style) |  []string (defaults to enforce occurrence and position) |  Enforces consistent usage of `default` on `switch` statements. |    no    |  no   |
-| [`error-naming`](./RULES_DESCRIPTIONS.md#error-naming)        |  n/a   | Naming of error variables.                                       |   yes    |  no   |
+| [`lint/style/useErrorNaming`](./rules/use_error_naming/use_error_naming.md)        |  n/a   | Naming of error variables.                                       |   yes    |  no   |
 | [`error-return`](./RULES_DESCRIPTIONS.md#error-return)        |  n/a   | The error return parameter should be last.                       |   yes    |  no   |
 | [`error-strings`](./RULES_DESCRIPTIONS.md#error-strings)       |  []string   | Conventions around error strings.                                |   yes    |  no   |
 | [`errorf`](./RULES_DESCRIPTIONS.md#errorf)              |  n/a   | Should replace `errors.New(fmt.Sprintf())` with `fmt.Errorf()`   |   yes    |  yes  |
@@ -107,7 +105,7 @@ List of all available rules. The rules ported from `golint` are left unchanged a
 | [`modifies-value-receiver`](./RULES_DESCRIPTIONS.md#modifies-value-receiver) |  n/a   | Warns on assignments to value-passed method receivers        |    no    |  yes  |
 | [`nested-structs`](./RULES_DESCRIPTIONS.md#nested-structs)          |  n/a   |  Warns on structs within structs |    no    |  no   |
 | [`optimize-operands-order`](./RULES_DESCRIPTIONS.md#optimize-operands-order)          |  n/a   |  Checks inefficient conditional expressions |    no    |  no   |
-| [`package-comments`](./RULES_DESCRIPTIONS.md#package-comments)    |  n/a   | Package commenting conventions.                                  |   yes    |  no   |
+| [`usePackageComments`](./rules/use_package_comments/use_package_comments.md)    |  n/a   | Package commenting conventions.                                  |   yes    |  no   |
 | [`package-naming`](./RULES_DESCRIPTIONS.md#package-naming)    |  map   | Checks that package names follow Go conventions and best practices |   no    |  no   |
 | [`package-directory-mismatch`](./RULES_DESCRIPTIONS.md#package-directory-mismatch)    | string | Checks that package name matches containing directory name     |   no    |  no   |
 | [`range-val-address`](./RULES_DESCRIPTIONS.md#range-val-address)|  n/a   | Warns if address of range value is used dangerously |    no    |  yes   |
@@ -139,7 +137,7 @@ List of all available rules. The rules ported from `golint` are left unchanged a
 | [`unused-receiver`](./RULES_DESCRIPTIONS.md#unused-receiver)   | n/a    | Suggests to rename or remove unused method receivers    |    no    |  no   |
 | [`use-any`](./RULES_DESCRIPTIONS.md#use-any)          |  n/a   |  Proposes to replace `interface{}` with its alias `any` |    no    |  no   |
 | [`use-errors-new`](./RULES_DESCRIPTIONS.md#use-errors-new) | n/a   | Spots calls to `fmt.Errorf` that can be replaced by `errors.New` |   no    |  no   |
-| [`use-fmt-print`](./RULES_DESCRIPTIONS.md#use-fmt-print) | n/a   | Proposes to replace calls to built-in `print` and `println` with their equivalents from `fmt`. |   no    |  no   |
+| [`useFmtPrint`](./rules/use_fmt_print/use_fmt_print.md) | n/a   | Proposes to replace calls to built-in `print` and `println` with their equivalents from `fmt`. |   no    |  no   |
 | [`use-slices-sort`](./RULES_DESCRIPTIONS.md#use-slices-sort) | n/a   | Proposes to replace calls to `sort.Ints`, `sort.Strings` and the like with their equivalents from `slices` package. |   no    |  no   |
 | [`use-waitgroup-go`](./RULES_DESCRIPTIONS.md#use-waitgroup-go)          |  n/a   |  Proposes to replace `wg.Add ... go {... wg.Done ...}` idiom with `wg.Go` |    no    |  no   |
 | [`useless-break`](./RULES_DESCRIPTIONS.md#useless-break)          |  n/a   |  Warns on useless `break` statements in case clauses |    no    |  no   |
@@ -390,11 +388,27 @@ _Open a PR to add your project_.
 
 ### Credits
 
-This project is a fork of [revive](https://github.com/mgechev/revive) and contains all its original code and rules, with the addition of rules from these repositories:
+This project is a fork of [revive](https://github.com/mgechev/revive) and contains all its original code and rules, with the addition of rules reproducing the behavior of these linters:
 
-| | | |
-|-|-|-|
-| [bodyclose](https://github.com/timakin/bodyclose) | | |
+| | | | | |
+| --- | --- | --- | --- | --- |
+| [asasalint](https://github.com/alingse/asasalint) | [asciicheck](https://github.com/golangci/asciicheck) | [bidichk](https://github.com/breml/bidichk) | [canonicalheader](https://github.com/lasiar/canonicalheader) | [containedctx](https://github.com/sivchari/containedctx) |
+| [contextcheck](https://github.com/kkHAIKE/contextcheck) | [cyclop](https://github.com/bkielbasa/cyclop) | [decorder](https://gitlab.com/bosi/decorder) | [dupword](https://github.com/Abirdcfly/dupword) | [durationcheck](https://github.com/charithe/durationcheck) |
+| [errchkjson](https://github.com/breml/errchkjson) | [errname](https://github.com/Antonboom/errname) | [exhaustive](https://github.com/nishanths/exhaustive) | [exptostd](https://github.com/ldez/exptostd) | [fatcontext](https://github.com/Crocmagnon/fatcontext) |
+| [forbidigo](https://github.com/ashanbrown/forbidigo) | [forcetypeassert](https://github.com/gostaticanalysis/forcetypeassert) | [gci](https://github.com/daixiang0/gci) | [ginkgolinter](https://github.com/nunnatsa/ginkgolinter) | [gochecknoglobals](https://github.com/leighmcculloch/gochecknoglobals) |
+| [gochecksumtype](https://github.com/alecthomas/go-check-sumtype) | [gocognit](https://github.com/uudashr/gocognit) | [godot](https://github.com/tetafro/godot) | [gofmt](https://github.com/golangci/gofmt) | [gofumpt](https://github.com/mvdan/gofumpt) |
+| [goheader](https://github.com/denis-tingaikin/go-header) | [goimports](https://github.com/golang/tools) | [golint](https://github.com/golang/lint) | [gomoddirectives](https://github.com/ldez/gomoddirectives) | [gomodguard](https://github.com/ryancurrah/gomodguard) |
+| [gosimple](https://github.com/dominikh/go-tools) | [gosmopolitan](https://github.com/xen0n/gosmopolitan) | [grouper](https://github.com/leonklingele/grouper) | [iface](https://github.com/uudashr/iface) | [importas](https://github.com/julz/importas) |
+| [inamedparam](https://github.com/macabu/inamedparam) | [interfacebloat](https://github.com/sashamelentyev/interfacebloat) | [kubeapilinter](https://github.com/kubernetes-sigs/kube-api-linter) | [logcheck](https://github.com/timonwong/loggercheck) | [makezero](https://github.com/ashanbrown/makezero) |
+| [mirror](https://github.com/butuzov/mirror) | [modernize](https://github.com/golang/tools) | [musttag](https://github.com/go-simpler/musttag) | [nestif](https://github.com/nakabonne/nestif) | [nilerr](https://github.com/gostaticanalysis/nilerr) |
+| [nilnesserr](https://github.com/alingse/nilnesserr) | [nilnil](https://github.com/Antonboom/nilnil) | [nonamedreturns](https://github.com/firefart/nonamedreturns) | [nosprintfhostport](https://github.com/stbenjam/no-sprintf-host-port) | [paralleltest](https://github.com/kunwardeep/paralleltest) |
+| [perfsprint](https://github.com/catenacyber/perfsprint) | [prealloc](https://github.com/alexkohler/prealloc) | [predeclared](https://github.com/nishanths/predeclared) | [promlinter](https://github.com/yeya24/promlinter) | [protogetter](https://github.com/ghostiam/protogetter) |
+| [reassign](https://github.com/curioswitch/go-reassign) | [recvcheck](https://github.com/raeperd/recvcheck) | [rowserrcheck](https://github.com/jingyugao/rowserrcheck) | [scopelint](https://github.com/kyoh86/scopelint) | [sorted](https://github.com/ravsii/sorted) |
+| [spancheck](https://github.com/jjti/go-spancheck) | [sqlclosecheck](https://github.com/ryanrolds/sqlclosecheck) | [structcheck](https://github.com/golangci/check) | [stylecheck](https://github.com/dominikh/go-tools) | [tagliatelle](https://github.com/ldez/tagliatelle) |
+| [testableexamples](https://github.com/maratori/testableexamples) | [thelper](https://github.com/kulti/thelper) | [tparallel](https://github.com/moricho/tparallel) | [typecheck](https://github.com/golangci/golangci-lint) | [usestdlibvars](https://github.com/sashamelentyev/usestdlibvars) |
+| [usetesting](https://github.com/ldez/usetesting) | [varcheck](https://github.com/golangci/check) | [wastedassign](https://github.com/sanposhiho/wastedassign) | [wrapcheck](https://github.com/tomarrell/wrapcheck) | [wsl_v5](https://github.com/bombsimon/wsl) |
+| [zerologlint](https://github.com/ykadowak/zerologlint) | | | | |
+
 
 ## License
 
