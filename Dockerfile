@@ -18,6 +18,6 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
 
 FROM scratch
 
-COPY --from=build /src/revive /revive
+COPY --from=build /src/vint /vint
 
-ENTRYPOINT ["/revive"]
+ENTRYPOINT ["/vint"]
