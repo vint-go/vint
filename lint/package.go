@@ -14,6 +14,7 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/singleflight"
 
 	"github.com/strowk/vint/internal/astutils"
 	"github.com/strowk/vint/internal/rulecache"
@@ -26,8 +27,8 @@ import (
 // and is called even on map hits, so we cache results in a sync.Map keyed
 // by import path to bypass it entirely for known packages.
 type sharedImporter struct {
-	cache sync.Map   // import path → *importResult (lock-free reads)
-	mu    sync.Mutex // serializes actual import resolution (cache misses)
+	cache sync.Map           // import path → *importResult (lock-free reads)
+	sf    singleflight.Group // deduplicates concurrent resolution of the same import path
 	inner types.ImporterFrom
 	fset  *token.FileSet // fset used by gcimporter; positions of imported objects live here
 }
@@ -57,19 +58,27 @@ func (s *sharedImporter) ImportFrom(path, srcDir string, mode types.ImportMode) 
 		return r.pkg, r.err
 	}
 
-	// Slow path: resolve under lock (first time only per import path).
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	// Slow path: use singleflight so different import paths resolve
+	// concurrently while duplicate requests for the same path are coalesced.
+	v, err, _ := s.sf.Do(path, func() (interface{}, error) {
+		// Double-check cache; another goroutine in the same flight may
+		// have populated it just before we entered.
+		if v, ok := s.cache.Load(path); ok {
+			r := v.(*importResult)
+			return r, nil
+		}
 
-	// Double-check after acquiring lock.
-	if v, ok := s.cache.Load(path); ok {
-		r := v.(*importResult)
-		return r.pkg, r.err
+		pkg, err := s.inner.ImportFrom(path, srcDir, mode)
+		r := &importResult{pkg: pkg, err: err}
+		s.cache.Store(path, r)
+		return r, nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	pkg, err := s.inner.ImportFrom(path, srcDir, mode)
-	s.cache.Store(path, &importResult{pkg: pkg, err: err})
-	return pkg, err
+	r := v.(*importResult)
+	return r.pkg, r.err
 }
 
 // Package represents a package in the project.
