@@ -58,6 +58,17 @@ type UncacheableRule interface {
 	Uncacheable() bool
 }
 
+// AggregatingRule is a rule that collects data across all files
+// before producing failures. Used for cross-file analysis like
+// duplicate code detection. Collect is called per-file during
+// parallel processing and must be goroutine-safe. Finalize is
+// called once after all files have been collected.
+type AggregatingRule interface {
+	Rule
+	Collect(file *File, args Arguments)
+	Finalize() []Failure
+}
+
 // ToFailurePosition returns the failure position.
 func ToFailurePosition(start, end token.Pos, file *File) FailurePosition {
 	return FailurePosition{

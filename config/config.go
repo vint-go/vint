@@ -70,6 +70,7 @@ import (
 	"github.com/strowk/vint/rules/no_duplicate_build_constraint"
 	"github.com/strowk/vint/rules/no_duplicate_case"
 	"github.com/strowk/vint/rules/no_duplicate_code"
+	"github.com/strowk/vint/rules/no_duplicate_code_v2"
 	"github.com/strowk/vint/rules/no_duplicated_imports"
 	"github.com/strowk/vint/rules/no_duplicate_constants"
 	"github.com/strowk/vint/rules/no_duplicate_cutset_chars"
@@ -521,6 +522,7 @@ var defaultRules = []lint.Rule{
 	&no_unclosed_bodies.NoUnclosedBodiesRule{},
 	// temporary disabled for performance research
 	&no_duplicate_code.NoDuplicateCodeRule{},
+	&no_duplicate_code_v2.NoDuplicateCodeV2Rule{},
 	&no_excessive_statements.NoExcessiveStatementsRule{},
 	&no_high_cyclomatic_complexity.NoHighCyclomaticComplexityRule{},
 	&no_long_functions.NoLongFunctionsRule{},

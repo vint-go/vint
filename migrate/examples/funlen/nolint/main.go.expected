@@ -1,0 +1,13 @@
+package example
+
+// vint-ignore lint/complexity/noExcessiveStatements: migrated from nolint:funlen
+// vint-ignore lint/complexity/noLongFunctions: migrated from nolint:funlen
+func longFunction() {
+	a := 1
+	b := 2
+	c := 3
+	d := 4
+	e := 5
+	f := 6
+	_ = a + b + c + d + e + f
+}

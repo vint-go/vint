@@ -1,0 +1,10 @@
+package example
+
+import "fmt"
+
+func loopExample() {
+	// NOTE: nolint removed — no vint rules fired (was: //nolint:intrange)
+	for i := 0; i < 10; i++ {
+		fmt.Println(i)
+	}
+}

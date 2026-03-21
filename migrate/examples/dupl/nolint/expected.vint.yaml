@@ -1,0 +1,3 @@
+settings:
+    lint/complexity/noDuplicateCode:
+        threshold: 15

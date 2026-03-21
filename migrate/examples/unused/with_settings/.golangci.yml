@@ -1,0 +1,12 @@
+version: "2"
+
+linters:
+  enable:
+    - unused
+  settings:
+    unused:
+      field-writes-are-uses: false
+      post-statements-are-reads: true
+      exported-fields-are-used: false
+      local-variables-are-used: false
+      generated-is-used: false

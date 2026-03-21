@@ -1,0 +1,7 @@
+package example
+
+// vint-ignore lint/correctness/noMisspelledWords: migrated from nolint:misspell
+// Definately check this function.
+func Check() bool {
+	return true
+}

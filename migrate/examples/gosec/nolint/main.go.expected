@@ -1,0 +1,4 @@
+package example
+
+// vint-ignore lint/security/noHardcodedCredentials: migrated from nolint:gosec
+var password = "supersecretpassword123"

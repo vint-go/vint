@@ -1,0 +1,12 @@
+version: "2"
+
+linters:
+  enable:
+    - nolintlint
+  settings:
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-no-explanation:
+        - errcheck
+        - gosec

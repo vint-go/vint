@@ -1,0 +1,3 @@
+settings:
+    lint/complexity/noHighCyclomaticComplexity:
+        min-complexity: 15

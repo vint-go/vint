@@ -1,0 +1,9 @@
+package example
+
+import "log"
+
+// vint-ignore lint/style/usePrintfSuffix: migrated from nolint:goprintffuncname
+func myLog(format string, args ...interface{}) {
+	const prefix = "[my] "
+	log.Printf(prefix+format, args...)
+}

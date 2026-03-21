@@ -1,0 +1,7 @@
+settings:
+    lint/style/noLeadingBlankLine: {}
+    lint/style/noMultiLineFuncBreak:
+        multi-func: true
+    lint/style/noMultiLineIfBreak:
+        multi-if: true
+    lint/style/noTrailingBlankLine: {}

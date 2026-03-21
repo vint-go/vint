@@ -1,0 +1,11 @@
+package example
+
+// vint-ignore lint/suspicious/noConstantParameter: migrated from nolint:unparam
+// vint-ignore lint/suspicious/noUnusedParameter: migrated from nolint:unparam
+func greet(name string) string {
+	return "hello"
+}
+
+func use() {
+	_ = greet("world")
+}

@@ -1,0 +1,21 @@
+version: "2"
+
+linters:
+  enable:
+    - sloglint
+  settings:
+    sloglint:
+      no-mixed-args: true
+      kv-only: true
+      no-global: "all"
+      context: "scope"
+      static-msg: true
+      msg-style: "lowercased"
+      no-raw-keys: true
+      key-naming-case: "snake"
+      forbidden-keys:
+        - time
+        - level
+        - msg
+        - source
+      args-on-sep-lines: true

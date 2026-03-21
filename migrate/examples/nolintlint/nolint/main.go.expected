@@ -1,0 +1,5 @@
+package example
+
+// vint-ignore lint/style/noNolintNonMachineReadable: migrated from nolint:nolintlint
+// nolint:errcheck
+func foo() {}

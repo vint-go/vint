@@ -1,0 +1,34 @@
+package example
+
+func compute(x int) (result int, ok bool) {
+	if x < 0 {
+		ok = false
+		result = 0
+	}
+	result = x * 2
+	result = result + 1
+	result = result - 1
+	result = result + 2
+	result = result - 2
+	result = result + 3
+	result = result - 3
+	result = result + 4
+	result = result - 4
+	result = result + 5
+	result = result - 5
+	result = result + 6
+	result = result - 6
+	result = result + 7
+	result = result - 7
+	result = result + 8
+	result = result - 8
+	result = result + 9
+	result = result - 9
+	result = result + 10
+	result = result - 10
+	result = result + 11
+	result = result - 11
+	ok = true
+	// vint-ignore lint/style/noNakedReturn: migrated from nolint:nakedret
+	return
+}

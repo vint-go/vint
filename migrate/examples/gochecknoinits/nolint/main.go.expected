@@ -1,0 +1,8 @@
+package example
+
+// vint-ignore lint/style/noInitFunction: migrated from nolint:gochecknoinits
+func init() {
+	setup()
+}
+
+func setup() {}

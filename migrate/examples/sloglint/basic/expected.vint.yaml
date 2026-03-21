@@ -1,0 +1,2 @@
+settings:
+    lint/sloglint/no-mixed-args: {}

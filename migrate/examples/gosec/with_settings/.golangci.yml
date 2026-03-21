@@ -1,0 +1,15 @@
+version: "2"
+
+linters:
+  enable:
+    - gosec
+  settings:
+    gosec:
+      includes:
+        - G101
+        - G102
+        - G103
+        - G107
+        - G304
+      excludes:
+        - G103

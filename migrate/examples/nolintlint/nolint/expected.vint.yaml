@@ -1,0 +1,4 @@
+settings:
+    lint/correctness/noNolintParseError: {}
+    lint/style/noNolintNonMachineReadable: {}
+    lint/suspicious/noUnusedNolint: {}

@@ -1,0 +1,11 @@
+package example
+
+import "errors"
+
+func validate(name string) error {
+	if name == "" {
+		// vint-ignore lint/correctness/noDynamicErrors: migrated from nolint:err113
+		return errors.New("name is required")
+	}
+	return nil
+}

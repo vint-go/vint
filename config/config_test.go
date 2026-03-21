@@ -64,6 +64,9 @@ func TestGetConfig(t *testing.T) {
 						"lint/complexity/noDuplicateCode": {
 							Severity: lint.SeverityWarning,
 						},
+						"lint/complexity/noDuplicateCodeV2": {
+							Severity: lint.SeverityWarning,
+						},
 						"lint/complexity/noExcessiveStatements": {
 							Severity: lint.SeverityWarning,
 						},
@@ -1150,6 +1153,7 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/useIndentErrorFlow":                     {},
 						"lint/correctness/noUnclosedBodies":     {},
 						"lint/complexity/noDuplicateCode":       {},
+						"lint/complexity/noDuplicateCodeV2":     {},
 						"lint/complexity/noExcessiveStatements": {},
 						"lint/complexity/noHighCyclomaticComplexity":     {},
 						"lint/complexity/noLongFunctions":                {},
@@ -1546,6 +1550,9 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityError,
 						},
 						"lint/complexity/noDuplicateCode": {
+							Severity: lint.SeverityError,
+						},
+						"lint/complexity/noDuplicateCodeV2": {
 							Severity: lint.SeverityError,
 						},
 						"lint/complexity/noExcessiveStatements": {
@@ -2723,9 +2730,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 349
+		defaultRulesCount = 350
 		// len of allRules: update this when adding new rules
-		allRulesCount = 492
+		allRulesCount = 493
 	)
 
 	tt := map[string]struct {

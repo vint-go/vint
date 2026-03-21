@@ -1,0 +1,3 @@
+settings:
+    lint/style/noLeadingBlankLine: {}
+    lint/style/noTrailingBlankLine: {}

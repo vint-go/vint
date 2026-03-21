@@ -1,0 +1,11 @@
+settings:
+    lint/style/noMagicNumberInArgument:
+        ignored-files: generated.go
+        ignored-functions: mypackage.NewThing
+        ignored-numbers: 2,100
+    lint/style/noMagicNumberInCase:
+        ignored-files: generated.go
+        ignored-numbers: 2,100
+    lint/style/noMagicNumberInReturn:
+        ignored-files: generated.go
+        ignored-numbers: 2,100

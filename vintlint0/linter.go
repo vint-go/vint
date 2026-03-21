@@ -190,6 +190,22 @@ func (l *Linter) run(packages [][]string, goVersions []*goversion.Version, failu
 	// Wait for all package cache collectors to finish storing results.
 	collectorWg.Wait()
 
+	// Finalize aggregating rules — all files have been collected.
+	for _, ar := range l.index.Aggregating {
+		fullName := lint.FullRuleName(ar)
+		for _, f := range ar.Finalize() {
+			if f.RuleName == "" {
+				f.RuleName = fullName
+			}
+			if f.Confidence == 0 {
+				f.Confidence = 1
+			}
+			if f.Confidence >= l.config.Confidence {
+				failures <- f
+			}
+		}
+	}
+
 	// Flush cache to disk after all packages are linted.
 	if l.cache != nil {
 		if err := l.cache.FlushAll(); err != nil {
@@ -328,6 +344,24 @@ func (l *Linter) processPackage(
 					defer pkgWg.Done()
 				}
 				return runRulesOnFile(file, l.index.ASTOnly, l.config, targetCh)
+			})
+		}
+	}
+
+	// Dispatch aggregating rule collection — one task per file.
+	// Collect calls go through the AST pool for parallelism but
+	// bypass the per-package cache (results come from Finalize later).
+	if len(l.index.Aggregating) > 0 {
+		for _, file := range lintFiles {
+			astPool.Go(func() error {
+				for _, ar := range l.index.Aggregating {
+					ruleConfig := l.config.Rules[lint.FullRuleName(ar)]
+					if ruleConfig.MustExclude(file.Name) {
+						continue
+					}
+					ar.Collect(file, ruleConfig.Arguments)
+				}
+				return nil
 			})
 		}
 	}

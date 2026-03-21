@@ -1,0 +1,9 @@
+settings:
+    lint/correctness/noMisspelledWords:
+        extra-words:
+            - correction: if
+              typo: iff
+        ignore-rules:
+            - importas
+        locale: US
+        mode: restricted

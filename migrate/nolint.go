@@ -265,11 +265,15 @@ func runRulesOnSource(filePath string, source []byte, rules []lint.Rule, ruleCon
 	}
 
 	// Configure rules with migrated settings before running them.
+	// Always call Configure() for configurable rules, even with empty options,
+	// so they can perform initialization (e.g., building internal data structures).
 	for _, rule := range rules {
-		fullName := lint.FullRuleName(rule)
-		if cfg, ok := ruleConfigs[fullName]; ok && len(cfg.Options) > 0 {
-			if cr, ok := rule.(lint.ConfigurableRule); ok {
+		if cr, ok := rule.(lint.ConfigurableRule); ok {
+			fullName := lint.FullRuleName(rule)
+			if cfg, ok := ruleConfigs[fullName]; ok && len(cfg.Options) > 0 {
 				_ = cr.Configure(lint.Arguments{cfg.Options})
+			} else {
+				_ = cr.Configure(nil)
 			}
 		}
 	}

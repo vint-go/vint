@@ -1,0 +1,16 @@
+package example
+
+import "errors"
+
+var ErrNotFound = errors.New("not found")
+
+func lookup(key string) error {
+	err := find(key)
+	// vint-ignore lint/correctness/noDirectErrorComparison: migrated from nolint:errorlint
+	if err == ErrNotFound {
+		return nil
+	}
+	return err
+}
+
+func find(key string) error { return nil }

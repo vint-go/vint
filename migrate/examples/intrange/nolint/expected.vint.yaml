@@ -1,0 +1,3 @@
+settings:
+    lint/style/noRedundantRangeLen: {}
+    lint/style/useIntegerRange: {}

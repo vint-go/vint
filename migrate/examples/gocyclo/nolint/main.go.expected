@@ -1,0 +1,9 @@
+package example
+
+// vint-ignore lint/complexity/noHighCyclomaticComplexity: migrated from nolint:gocyclo
+func process(x int) int {
+	if x > 0 {
+		return x
+	}
+	return -x
+}

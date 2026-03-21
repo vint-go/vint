@@ -49,6 +49,11 @@ func (p *Package) AddFile(name string, content []byte) (*File, error) {
 	return file, nil
 }
 
+// FileSet returns the package's token.FileSet.
+func (p *Package) FileSet() *token.FileSet {
+	return p.fset
+}
+
 // ExportedScanSortable exposes scanSortable for external orchestrators.
 func (p *Package) ExportedScanSortable() {
 	p.scanSortable()

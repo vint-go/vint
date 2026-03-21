@@ -1,0 +1,4 @@
+settings:
+    lint/suspicious/noConstantParameter: {}
+    lint/suspicious/noConstantResult: {}
+    lint/suspicious/noUnusedParameter: {}

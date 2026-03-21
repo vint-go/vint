@@ -1,0 +1,7 @@
+package example
+
+func convert() int {
+	var x int = 42
+	// vint-ignore lint/style/noUnnecessaryConversion: migrated from nolint:unconvert
+	return int(x)
+}

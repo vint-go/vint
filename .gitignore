@@ -7,3 +7,7 @@ dist/
 
 architecture/
 solution-deliverable/
+
+*.prof
+*trace.out
+profile-*.sh

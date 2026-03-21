@@ -1,0 +1,8 @@
+package example
+
+func doSomething() {
+	x := 1
+	// vint-ignore lint/correctness/noSelfAssignment: migrated from nolint:govet
+	x = x
+	_ = x
+}

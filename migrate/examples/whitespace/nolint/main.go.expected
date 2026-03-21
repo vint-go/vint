@@ -1,0 +1,15 @@
+package example
+
+// vint-ignore lint/style/noLeadingBlankLine: migrated from nolint:whitespace
+func leadingBlank() {
+
+	x := 1
+	_ = x
+}
+
+// vint-ignore lint/style/noTrailingBlankLine: migrated from nolint:whitespace
+func trailingBlank() {
+	x := 1
+	_ = x
+
+}

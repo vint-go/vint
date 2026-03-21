@@ -57,8 +57,8 @@ func LoadRegistry() (*RuleRegistry, error) {
 		byLinter: make(map[string][]MappedRule),
 	}
 
+	// First pass: register non-subsumed rules.
 	for archName, entry := range rf.Rules {
-		// Skip subsumed rules — they're duplicates handled by another rule.
 		if entry.SubsumedBy != "" {
 			continue
 		}
@@ -76,6 +76,45 @@ func LoadRegistry() (*RuleRegistry, error) {
 			ExtractorRule: entry.ExtractorRule,
 			Rule:          ruleInstance,
 		})
+	}
+
+	// Second pass: register subsumed rules under their linter, resolved to
+	// the subsumer's rule instance. This ensures that nolint conversion for
+	// a linter whose rules are subsumed by another linter's rules still
+	// works correctly.
+	for _, entry := range rf.Rules {
+		if entry.SubsumedBy == "" {
+			continue
+		}
+
+		subsumerName := entry.SubsumedBy
+		var fullPath string
+		var ruleInstance lint.Rule
+		if r, ok := ruleByName[subsumerName]; ok {
+			fullPath = lint.FullRuleName(r)
+			ruleInstance = r
+		}
+
+		// Only add if the subsumer resolves to an actual rule and isn't
+		// already registered for this linter.
+		if fullPath == "" {
+			continue
+		}
+		alreadyRegistered := false
+		for _, existing := range reg.byLinter[entry.Linter] {
+			if existing.FullVintPath == fullPath {
+				alreadyRegistered = true
+				break
+			}
+		}
+		if !alreadyRegistered {
+			reg.byLinter[entry.Linter] = append(reg.byLinter[entry.Linter], MappedRule{
+				ArchName:      subsumerName,
+				FullVintPath:  fullPath,
+				ExtractorRule: entry.ExtractorRule,
+				Rule:          ruleInstance,
+			})
+		}
 	}
 
 	// Sort rules within each linter for deterministic output.

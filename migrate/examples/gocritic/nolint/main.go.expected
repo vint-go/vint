@@ -1,0 +1,11 @@
+package example
+
+func example() {
+	x := 1
+	// vint-ignore lint/style/noRedundantSwitchTrue: migrated from nolint:gocritic
+	// vint-ignore lint/style/noSingleCaseSwitch: migrated from nolint:gocritic
+	switch true {
+	case x == 1:
+		_ = x
+	}
+}

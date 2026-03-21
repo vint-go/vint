@@ -1,0 +1,8 @@
+package example
+
+import "log/slog"
+
+func logUser() {
+	// NOTE: nolint removed — no vint rules fired (was: //nolint:sloglint)
+	slog.Info("a user has logged in", "user_id", 42, slog.String("ip_address", "192.0.2.0"))
+}

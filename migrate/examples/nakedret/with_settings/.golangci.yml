@@ -1,0 +1,8 @@
+version: "2"
+
+linters:
+  enable:
+    - nakedret
+  settings:
+    nakedret:
+      max-func-lines: 10

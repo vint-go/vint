@@ -1,0 +1,18 @@
+version: "2"
+
+linters:
+  enable:
+    - mnd
+  settings:
+    mnd:
+      checks:
+        - argument
+        - case
+        - return
+      ignored-numbers:
+        - "2"
+        - "100"
+      ignored-files:
+        - "generated.go"
+      ignored-functions:
+        - "mypackage.NewThing"

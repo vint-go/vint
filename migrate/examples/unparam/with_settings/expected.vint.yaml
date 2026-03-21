@@ -1,0 +1,7 @@
+settings:
+    lint/suspicious/noConstantParameter:
+        check-exported: true
+    lint/suspicious/noConstantResult:
+        check-exported: true
+    lint/suspicious/noUnusedParameter:
+        check-exported: true

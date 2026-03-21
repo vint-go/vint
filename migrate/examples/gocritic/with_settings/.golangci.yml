@@ -1,0 +1,13 @@
+version: "2"
+
+linters:
+  enable:
+    - gocritic
+  settings:
+    gocritic:
+      settings:
+        hugeParam:
+          sizeThreshold: 256
+        rangeValCopy:
+          sizeThreshold: 512
+          skipTestFuncs: false

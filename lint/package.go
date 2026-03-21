@@ -189,7 +189,7 @@ func (p *Package) ImportedPkgSourceDir(importPath string) (string, bool) {
 	// Find any exported object with a valid position — its filename
 	// reveals the source directory. The gcimporter uses "$GOROOT" as a
 	// placeholder in filenames, so we expand it to the real path.
-	goroot := runtime.GOROOT()
+	goroot := runtime.GOROOT() // todo: fix the deprecation
 	scope := r.pkg.Scope()
 	for _, name := range scope.Names() {
 		obj := scope.Lookup(name)

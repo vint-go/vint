@@ -1,0 +1,3 @@
+settings:
+    lint/correctness/noIneffectualAssignment:
+        check-escaping-errors: true

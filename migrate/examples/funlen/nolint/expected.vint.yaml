@@ -1,0 +1,6 @@
+settings:
+    lint/complexity/noExcessiveStatements:
+        statements: 5
+    lint/complexity/noLongFunctions:
+        ignoreComments: false
+        lines: 5

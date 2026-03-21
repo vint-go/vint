@@ -1,0 +1,16 @@
+version: "2"
+
+linters:
+  enable:
+    - goconst
+  settings:
+    goconst:
+      min-len: 5
+      min-occurrences: 2
+      match-constant: true
+      numbers: true
+      min: 2
+      max: 100
+      ignore-strings: "^(test|debug)$"
+      find-duplicates: true
+      ignore-tests: true

@@ -1,0 +1,6 @@
+package example
+
+func process() int {
+	// vint-ignore lint/style/noMagicNumberInReturn: migrated from nolint:mnd
+	return 42
+}

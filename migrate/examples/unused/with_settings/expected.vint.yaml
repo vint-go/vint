@@ -1,0 +1,14 @@
+settings:
+    lint/correctness/noUnusedConstant:
+        generated-is-used: false
+    lint/correctness/noUnusedField:
+        exported-fields-are-used: false
+        field-writes-are-uses: false
+        generated-is-used: false
+    lint/correctness/noUnusedFunction: {}
+    lint/correctness/noUnusedType:
+        generated-is-used: false
+    lint/correctness/noUnusedVariable:
+        generated-is-used: false
+        local-variables-are-used: false
+        post-statements-are-reads: true

@@ -1,0 +1,5 @@
+settings:
+    lint/security/noBindToAllInterfaces: {}
+    lint/security/noFileInclusionViaVariable: {}
+    lint/security/noHardcodedCredentials: {}
+    lint/security/noSsrfViaVariable: {}

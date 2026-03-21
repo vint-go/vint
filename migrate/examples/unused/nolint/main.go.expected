@@ -1,0 +1,4 @@
+package example
+
+// vint-ignore lint/correctness/noUnusedConstant: migrated from nolint:unused
+const maxRetries = 5

@@ -1,0 +1,10 @@
+package example
+
+func check(b bool) bool {
+	// vint-ignore lint/style/noExplicitBoolComparison: migrated from nolint:staticcheck
+	// vint-ignore lint/style/useSimplifiedBoolReturn: migrated from nolint:staticcheck
+	if b == true {
+		return false
+	}
+	return true
+}

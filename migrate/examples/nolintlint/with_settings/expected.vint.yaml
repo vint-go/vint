@@ -1,0 +1,9 @@
+settings:
+    lint/correctness/noNolintParseError: {}
+    lint/style/noNolintNonMachineReadable: {}
+    lint/style/noNolintWithoutExplanation:
+        exclude:
+            - errcheck
+            - gosec
+    lint/style/noNolintWithoutSpecificLinter: {}
+    lint/suspicious/noUnusedNolint: {}

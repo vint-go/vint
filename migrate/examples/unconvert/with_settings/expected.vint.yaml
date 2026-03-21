@@ -1,0 +1,4 @@
+settings:
+    lint/style/noUnnecessaryConversion:
+        fast-math: true
+        safe: true

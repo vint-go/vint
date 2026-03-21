@@ -1,0 +1,14 @@
+version: "2"
+
+linters:
+  enable:
+    - misspell
+  settings:
+    misspell:
+      locale: US
+      mode: restricted
+      extra-words:
+        - typo: "iff"
+          correction: "if"
+      ignore-rules:
+        - importas

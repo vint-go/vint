@@ -1,0 +1,15 @@
+package example
+
+import "net/http"
+
+func doGet() {
+	// vint-ignore lint/correctness/noHttpGet: migrated from nolint:noctx
+	resp, _ := http.Get("https://example.com")
+	_ = resp
+}
+
+func doRequest() {
+	// vint-ignore lint/correctness/noHttpNewRequest: migrated from nolint:noctx
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	_ = req
+}

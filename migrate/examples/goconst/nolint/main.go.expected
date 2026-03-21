@@ -1,0 +1,14 @@
+package example
+
+func getStatus() string {
+	// vint-ignore lint/style/noRepeatedStrings: migrated from nolint:goconst
+	return "active"
+}
+
+func checkStatus(s string) bool {
+	return s == "active"
+}
+
+func defaultStatus() string {
+	return "active"
+}

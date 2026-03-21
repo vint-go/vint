@@ -1,0 +1,7 @@
+settings:
+    lint/style/noMagicNumberInArgument: {}
+    lint/style/noMagicNumberInAssignment: {}
+    lint/style/noMagicNumberInCase: {}
+    lint/style/noMagicNumberInCondition: {}
+    lint/style/noMagicNumberInOperation: {}
+    lint/style/noMagicNumberInReturn: {}

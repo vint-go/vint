@@ -1,0 +1,20 @@
+settings:
+    lint/sloglint/args-on-sep-lines: {}
+    lint/sloglint/context-only:
+        mode: scope
+    lint/sloglint/forbidden-keys:
+        keys:
+            - time
+            - level
+            - msg
+            - source
+    lint/sloglint/key-naming-case:
+        case: snake
+    lint/sloglint/kv-only: {}
+    lint/sloglint/msg-style:
+        style: lowercased
+    lint/sloglint/no-global:
+        mode: all
+    lint/sloglint/no-mixed-args: {}
+    lint/sloglint/no-raw-keys: {}
+    lint/sloglint/static-msg: {}
