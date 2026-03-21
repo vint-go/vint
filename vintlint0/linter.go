@@ -289,6 +289,7 @@ func (l *Linter) processPackage(
 	}
 
 	pkg.ExportedScanSortable()
+	pkg.Freeze() // all pre-computed fields are now lock-free
 
 	// Step 4: Dispatch to pools.
 	//

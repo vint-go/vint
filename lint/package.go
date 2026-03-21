@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	goversion "github.com/hashicorp/go-version"
 	"golang.org/x/sync/errgroup"
@@ -111,6 +112,12 @@ type Package struct {
 	fset     *token.FileSet
 	importer packageImporter
 
+	// frozen is set to true by Freeze() after all pre-computation is done.
+	// When true, hot getters bypass the RWMutex entirely since the fields
+	// are immutable. This eliminates cache-line bouncing from RLock's
+	// atomic increment on high-core-count machines.
+	frozen atomic.Bool
+
 	mu        sync.RWMutex
 	files     map[string]*File
 	goVersion *goversion.Version
@@ -138,8 +145,22 @@ var (
 	Go125 = goversion.Must(goversion.NewVersion("1.25"))
 )
 
+// Freeze marks the package as immutable. After Freeze returns, hot getters
+// (Files, IsMain, Sortable, IsAtLeastGoVersion, GoVersionString) bypass the
+// RWMutex entirely, eliminating cache-line bouncing from RLock's atomic
+// increment on high-core-count machines.
+//
+// Call Freeze after ExportedScanSortable() but before dispatching to pools.
+func (p *Package) Freeze() {
+	p.IsMain()          // pre-compute and cache
+	p.frozen.Store(true)
+}
+
 // Files return package's files.
 func (p *Package) Files() map[string]*File {
+	if p.frozen.Load() {
+		return p.files
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -148,6 +169,10 @@ func (p *Package) Files() map[string]*File {
 
 // IsMain returns if that's the main package.
 func (p *Package) IsMain() bool {
+	if p.frozen.Load() {
+		return p.main == trueValue
+	}
+
 	// Fast path: read lock only to avoid contention when
 	// multiple routines check IsMain on the same package.
 	p.mu.RLock()
@@ -179,6 +204,9 @@ func (p *Package) IsMain() bool {
 
 // TypesPkg yields information on this package.
 func (p *Package) TypesPkg() *types.Package {
+	if p.frozen.Load() {
+		return p.typesPkg
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -187,6 +215,9 @@ func (p *Package) TypesPkg() *types.Package {
 
 // TypesInfo yields type information of this package identifiers.
 func (p *Package) TypesInfo() *types.Info {
+	if p.frozen.Load() {
+		return p.typesInfo
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -240,6 +271,9 @@ func (p *Package) ImportedPkgSourceDir(importPath string) (string, bool) {
 
 // Sortable yields a map of sortable types in this package.
 func (p *Package) Sortable() map[string]bool {
+	if p.frozen.Load() {
+		return p.sortable
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -373,6 +407,9 @@ func (p *Package) lint(rules []Rule, config Config, failures chan Failure, rc *r
 
 // IsAtLeastGoVersion returns true if the Go version for this package is v or higher, false otherwise.
 func (p *Package) IsAtLeastGoVersion(v *goversion.Version) bool {
+	if p.frozen.Load() {
+		return p.goVersion.GreaterThanOrEqual(v)
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -382,6 +419,16 @@ func (p *Package) IsAtLeastGoVersion(v *goversion.Version) bool {
 // GoVersionString returns the Go version for this package as a "go1.X" string
 // suitable for use with golang.org/x/tools/internal/versions.
 func (p *Package) GoVersionString() string {
+	if p.frozen.Load() {
+		if p.goVersion == nil {
+			return ""
+		}
+		segments := p.goVersion.Segments()
+		if len(segments) < 2 {
+			return "go" + p.goVersion.String()
+		}
+		return fmt.Sprintf("go%d.%d", segments[0], segments[1])
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
