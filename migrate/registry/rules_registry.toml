@@ -1,0 +1,2913 @@
+[rules.noAddressNilComparison]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4022"
+extractor_rule = "SA4022"
+
+[rules.noAddressOfDereference]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4001"
+extractor_rule = "SA4001"
+
+[rules.noAlwaysTrueLenCheck]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sloppyLen"
+
+[rules.noAppendToNonZeroSlice]
+linter = "makezero"
+source = "https://github.com/ashanbrown/makezero"
+extractor_rule = "append-to-non-zero-length-slice"
+
+[rules.noAsmDeclMismatch]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/asmdecl"
+extractor_rule = "asmdecl"
+
+[rules.noAtoiOverflow]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G109"
+
+[rules.noAtomicAlignment]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1027"
+extractor_rule = "SA1027"
+subsumed_by = "noAtomicAlignmentIssue"
+
+[rules.noAtomicAlignmentIssue]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/atomicalign"
+extractor_rule = "atomicalign"
+
+[rules.noAtomicAssignMisuse]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/atomic"
+extractor_rule = "atomic"
+
+[rules.noBadLockPattern]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "badLock"
+
+[rules.noBadRegexpPattern]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "badRegexp"
+
+[rules.noBadSortUsage]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "badSorting"
+
+[rules.noBenchmarkNAssignment]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA3001"
+extractor_rule = "SA3001"
+
+[rules.noBidiFirstStrongIsolate]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "first-strong-isolate"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiLeftToRightEmbedding]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "left-to-right-embedding"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiLeftToRightIsolate]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "left-to-right-isolate"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiLeftToRightOverride]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "left-to-right-override"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiPopDirectionalFormatting]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "pop-directional-formatting"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiPopDirectionalIsolate]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "pop-directional-isolate"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiRightToLeftEmbedding]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "right-to-left-embedding"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiRightToLeftIsolate]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "right-to-left-isolate"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBidiRightToLeftOverride]
+linter = "bidichk"
+source = "https://github.com/breml/bidichk"
+extractor_rule = "right-to-left-override"
+subsumed_by = "noTrojanSourceBidi"
+
+[rules.noBindToAllInterfaces]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G102"
+
+[rules.noBlankErrorAssignment]
+linter = "errcheck"
+source = "https://github.com/kisielk/errcheck"
+extractor_rule = "blank-assignment"
+
+[rules.noBugComment]
+linter = "godox"
+source = "https://github.com/matoous/godox"
+extractor_rule = "bug-comment"
+
+[rules.noBuiltinShadow]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "builtinShadow"
+
+[rules.noBuiltinShadowDecl]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "builtinShadowDecl"
+
+[rules.noCapitalizedErrorString]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1005"
+extractor_rule = "ST1005"
+
+[rules.noCapitalizedLocal]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "captLocal"
+
+[rules.noCgiImport]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G504"
+
+[rules.noCgoPointerViolation]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/cgocall"
+extractor_rule = "cgocall"
+
+[rules.noCommandInjectionTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G702"
+
+[rules.noCommentedOutCode]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "commentedOutCode"
+
+[rules.noCommentedOutImport]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "commentedOutImport"
+
+[rules.noConflictingHttpMuxPatterns]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/httpmux"
+extractor_rule = "httpmux"
+
+[rules.noConstantParameter]
+linter = "unparam"
+source = "https://github.com/mvdan/unparam"
+extractor_rule = "always-receives-same-value"
+
+[rules.noConstantResult]
+linter = "unparam"
+source = "https://github.com/mvdan/unparam"
+extractor_rule = "result-always-same-value"
+
+[rules.noContextPropagationFailure]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G118"
+
+[rules.noControlCharInString]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1018"
+extractor_rule = "ST1018"
+
+[rules.noCopiedLock]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/copylock"
+extractor_rule = "copylock"
+
+[rules.noCurrentTypeAssert]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1040"
+extractor_rule = "S1040"
+subsumed_by = "noRedundantTypeAssertion"
+
+[rules.noDeadStore]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4006"
+extractor_rule = "SA4006"
+subsumed_by = "noIneffectualAssignment"
+
+[rules.noDeepEqualErrors]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/deepequalerrors"
+extractor_rule = "deepequalerrors"
+
+[rules.noDefaultSliceIndex]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1010"
+extractor_rule = "S1010"
+
+[rules.noDeferCloseBeforeErrCheck]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5001"
+extractor_rule = "SA5001"
+
+[rules.noDeferInInfiniteLoop]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5003"
+extractor_rule = "SA5003"
+
+[rules.noDeferInLoop]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "deferInLoop"
+
+[rules.noDeferInRangeLoop]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9001"
+extractor_rule = "SA9001"
+subsumed_by = "noDeferInLoop"
+
+[rules.noDeferTimeMisuse]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/defers"
+extractor_rule = "defers"
+
+[rules.noDeferredLock]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA2003"
+extractor_rule = "SA2003"
+subsumed_by = "noBadLockPattern"
+
+[rules.noDeniedImport]
+linter = "depguard"
+source = "https://github.com/OpenPeeDeeP/depguard"
+extractor_rule = "denied-package"
+
+[rules.noDeprecatedHashFunction]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G406"
+
+[rules.noDeprecatedUsage]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1019"
+extractor_rule = "SA1019"
+
+[rules.noDesImport]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G502"
+subsumed_by = "noWeakEncryptionAlgorithm"
+
+[rules.noDirectErrorComparison]
+linter = "err113"
+source = "https://github.com/Djarvur/go-err113"
+extractor_rule = "do-not-compare-errors-directly"
+
+[rules.noDirectErrorComparisonErrorlint]
+linter = "errorlint"
+source = "https://github.com/polyfloyd/go-errorlint"
+extractor_rule = "comparison"
+subsumed_by = "noDirectErrorComparison"
+
+[rules.noDiscardedAppend]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4010"
+extractor_rule = "SA4010"
+
+[rules.noDiscardedPureResult]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4017"
+extractor_rule = "SA4017"
+subsumed_by = "noUnusedFunctionResult"
+
+[rules.noDocCommentStub]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "docStub"
+
+[rules.noDotImport]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1001"
+extractor_rule = "ST1001"
+
+[rules.noDoubleNegation]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4013"
+extractor_rule = "SA4013"
+subsumed_by = "useSimplifiedBoolExpr"
+
+[rules.noDubiousBitShift]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9006"
+extractor_rule = "SA9006"
+
+[rules.noDuplicateArgument]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dupArg"
+
+[rules.noDuplicateBranchBody]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dupBranchBody"
+
+[rules.noDuplicateBuildConstraint]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4019"
+extractor_rule = "SA4019"
+
+[rules.noDuplicateCase]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dupCase"
+
+[rules.noDuplicateCode]
+linter = "dupl"
+source = "https://github.com/mibk/dupl"
+extractor_rule = "duplicate-code"
+
+[rules.noDuplicateConstants]
+linter = "goconst"
+source = "https://github.com/jgautheron/goconst"
+extractor_rule = "duplicate-constants"
+
+[rules.noDuplicateCutsetChars]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1024"
+extractor_rule = "SA1024"
+
+[rules.noDuplicateIfCondition]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4014"
+extractor_rule = "SA4014"
+
+[rules.noDuplicateImport]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dupImport"
+
+[rules.noDuplicateOption]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dupOption"
+
+[rules.noDuplicateSubExpression]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dupSubExpr"
+
+[rules.noDurationMultiplication]
+linter = "durationcheck"
+source = "https://github.com/charithe/durationcheck"
+extractor_rule = "multiplication-of-durations"
+
+[rules.noDynamicErrors]
+linter = "err113"
+source = "https://github.com/Djarvur/go-err113"
+extractor_rule = "do-not-define-dynamic-errors"
+
+[rules.noDynamicFormatString]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "dynamicFmtString"
+
+[rules.noEmptyBranch]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9003"
+extractor_rule = "SA9003"
+
+[rules.noEmptyCriticalSection]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA2001"
+extractor_rule = "SA2001"
+
+[rules.noEmptyDeclaration]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "emptyDecl"
+
+[rules.noEmptyFallthrough]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "emptyFallthrough"
+
+[rules.noEmptyForLoop]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5002"
+extractor_rule = "SA5002"
+
+[rules.noEvalOrderDependency]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "evalOrder"
+
+[rules.noExcessiveBlankIdentifiers]
+linter = "dogsled"
+source = "https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/dogsled/dogsled.go"
+extractor_rule = "too-many-blank-identifiers"
+
+[rules.noExcessiveResults]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "tooManyResults"
+
+[rules.noExcessiveShift]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/shift"
+extractor_rule = "shift"
+
+[rules.noExcessiveStatements]
+linter = "funlen"
+source = "https://github.com/ultraware/funlen"
+extractor_rule = "too-many-statements"
+
+[rules.noExecCommand]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "exec-command"
+
+[rules.noExitAfterDefer]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "exitAfterDefer"
+
+[rules.noExplicitBoolComparison]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1002"
+extractor_rule = "S1002"
+
+[rules.noExposedPprof]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G108"
+
+[rules.noExposedSyncMutex]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "exposedSyncMutex"
+
+[rules.noExternalErrorReassign]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "externalErrorReassign"
+
+[rules.noFailNowInGoroutine]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA2002"
+extractor_rule = "SA2002"
+subsumed_by = "noTestFatalInGoroutine"
+
+[rules.noFileInclusionViaVariable]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G304"
+
+[rules.noFileScopedDeniedImport]
+linter = "depguard"
+source = "https://github.com/OpenPeeDeeP/depguard"
+extractor_rule = "file-scoped-deny"
+
+[rules.noFilesystemRootServing]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G111"
+
+[rules.noFilesystemToctou]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G122"
+
+[rules.noFindAllZero]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1010"
+extractor_rule = "SA1010"
+subsumed_by = "noNoopFunctionCall"
+
+[rules.noFixmeComment]
+linter = "godox"
+source = "https://github.com/matoous/godox"
+extractor_rule = "fixme-comment"
+
+[rules.noFlagDerefBeforeParse]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "flagDeref"
+
+[rules.noForbiddenIdentifier]
+linter = "forbidigo"
+source = "https://github.com/ashanbrown/forbidigo"
+extractor_rule = "forbidden-identifier"
+
+[rules.noFramePointerClobber]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/framepointer"
+extractor_rule = "framepointer"
+
+[rules.noGuardAroundDelete]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1033"
+extractor_rule = "S1033"
+
+[rules.noGuardAroundMapAccess]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1036"
+extractor_rule = "S1036"
+
+[rules.noHardcodedCredentials]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G101"
+
+[rules.noHardcodedIv]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G407"
+
+[rules.noHighCyclomaticComplexity]
+linter = "gocyclo"
+source = "https://github.com/fzipp/gocyclo"
+extractor_rule = "high-cyclomatic-complexity"
+
+[rules.noHttpClientGet]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-client-get"
+
+[rules.noHttpClientHead]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-client-head"
+
+[rules.noHttpClientPost]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-client-post"
+
+[rules.noHttpClientPostForm]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-client-post-form"
+
+[rules.noHttpGet]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-get"
+
+[rules.noHttpHead]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-head"
+
+[rules.noHttpNewRequest]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-new-request"
+
+[rules.noHttpPost]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-post"
+
+[rules.noHttpPostForm]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "http-post-form"
+
+[rules.noHttpRequestSmuggling]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G113"
+
+[rules.noHttpResponseMisuse]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/httpresponse"
+extractor_rule = "httpresponse"
+
+[rules.noHttptestNewRequest]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "httptest-new-request"
+
+[rules.noHugeParam]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "hugeParam"
+
+[rules.noIdenticalOperands]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4000"
+extractor_rule = "SA4000"
+subsumed_by = "noDuplicateSubExpression"
+
+[rules.noIgnoredQueryModification]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4027"
+extractor_rule = "SA4027"
+
+[rules.noIgnoredQueryResult]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sqlQuery"
+
+[rules.noImmediateNewDeref]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "newDeref"
+
+[rules.noImplicitConstValue]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9004"
+extractor_rule = "SA9004"
+
+[rules.noImportShadow]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "importShadow"
+
+[rules.noImpossibleBuiltinResult]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4024"
+extractor_rule = "SA4024"
+
+[rules.noImpossibleCondition]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "badCond"
+
+[rules.noImpossibleInterfaceAssert]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/ifaceassert"
+extractor_rule = "ifaceassert"
+
+[rules.noImpossibleNilComparison]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4023"
+extractor_rule = "SA4023"
+
+[rules.noImpossibleTypeAssert]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5010"
+extractor_rule = "SA5010"
+subsumed_by = "noImpossibleInterfaceAssert"
+
+[rules.noImpreciseConstant]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4026"
+extractor_rule = "SA4026"
+
+[rules.noInappropriateContextKey]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1029"
+extractor_rule = "SA1029"
+
+[rules.noIncorrectTimeFormat]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/timeformat"
+extractor_rule = "timeformat"
+
+[rules.noIneffectiveBitwiseOp]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4016"
+extractor_rule = "SA4016"
+
+[rules.noIneffectiveBreak]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4011"
+extractor_rule = "SA4011"
+
+[rules.noIneffectiveRandCall]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4030"
+extractor_rule = "SA4030"
+
+[rules.noIneffectiveSort]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4029"
+extractor_rule = "SA4029"
+subsumed_by = "noBadSortUsage"
+
+[rules.noIneffectualAssignment]
+linter = "ineffassign"
+source = "https://github.com/gordonklaus/ineffassign"
+extractor_rule = "ineffectual-assignment"
+
+[rules.noInefficientStringCompare]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA6005"
+extractor_rule = "SA6005"
+subsumed_by = "useEqualFold"
+
+[rules.noInfiniteRecursion]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5007"
+extractor_rule = "SA5007"
+
+[rules.noInitFunction]
+linter = "gochecknoinits"
+source = "https://github.com/leighmcculloch/gochecknoinits"
+extractor_rule = "no-init-function"
+
+[rules.noInlineSyncOnceFunc]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "badSyncOnceFunc"
+
+[rules.noInsecureCookie]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G124"
+
+[rules.noInsecureHostKeyCallback]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G106"
+
+[rules.noInsecureRandom]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G404"
+
+[rules.noInsecureTlsConfig]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G402"
+
+[rules.noIntegerDivisionTruncation]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4025"
+extractor_rule = "SA4025"
+
+[rules.noIntegerOverflowConversion]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G115"
+
+[rules.noInvalidBinaryArg]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1003"
+extractor_rule = "SA1003"
+
+[rules.noInvalidErrorsAs]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/errorsas"
+extractor_rule = "errorsas"
+
+[rules.noInvalidExecCommandArg]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1005"
+extractor_rule = "SA1005"
+
+[rules.noInvalidFlagName]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "flagName"
+
+[rules.noInvalidHostPort]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1020"
+extractor_rule = "SA1020"
+
+[rules.noInvalidPrintfCall]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5009"
+extractor_rule = "SA5009"
+subsumed_by = "noPrintfFormatMismatch"
+
+[rules.noInvalidRegexp]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1000"
+extractor_rule = "SA1000"
+
+[rules.noInvalidSortSliceArg]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/sortslice"
+extractor_rule = "sortslice"
+
+[rules.noInvalidStrconvArg]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1030"
+extractor_rule = "SA1030"
+
+[rules.noInvalidStructTag]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5008"
+extractor_rule = "SA5008"
+subsumed_by = "noMalformedStructTag"
+
+[rules.noInvalidTemplate]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1001"
+extractor_rule = "SA1001"
+
+[rules.noInvalidTimeFormat]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1002"
+extractor_rule = "SA1002"
+subsumed_by = "noIncorrectTimeFormat"
+
+[rules.noInvalidUnsafePointer]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/unsafeptr"
+extractor_rule = "unsafeptr"
+
+[rules.noInvalidUrlParse]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1007"
+extractor_rule = "SA1007"
+
+[rules.noInvalidUtf8StringArg]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1011"
+extractor_rule = "SA1011"
+
+[rules.noInvariantLoopCondition]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4008"
+extractor_rule = "SA4008"
+
+[rules.noLeadingBlankLine]
+linter = "whitespace"
+source = "https://github.com/ultraware/whitespace"
+extractor_rule = "leading-whitespace"
+
+[rules.noLineTooLong]
+linter = "lll"
+source = "https://github.com/walle/lll"
+extractor_rule = "line-too-long"
+
+[rules.noLogInjectionTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G706"
+
+[rules.noLongFunctions]
+linter = "funlen"
+source = "https://github.com/ultraware/funlen"
+extractor_rule = "function-too-long"
+
+[rules.noLoopClosureCapture]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/loopclosure"
+extractor_rule = "loopclosure"
+
+[rules.noLostCancel]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/lostcancel"
+extractor_rule = "lostcancel"
+
+[rules.noMagicNumberInArgument]
+linter = "mnd"
+source = "https://github.com/tommy-muehle/go-mnd"
+extractor_rule = "argument"
+
+[rules.noMagicNumberInAssignment]
+linter = "mnd"
+source = "https://github.com/tommy-muehle/go-mnd"
+extractor_rule = "assign"
+
+[rules.noMagicNumberInCase]
+linter = "mnd"
+source = "https://github.com/tommy-muehle/go-mnd"
+extractor_rule = "case"
+
+[rules.noMagicNumberInCondition]
+linter = "mnd"
+source = "https://github.com/tommy-muehle/go-mnd"
+extractor_rule = "condition"
+
+[rules.noMagicNumberInOperation]
+linter = "mnd"
+source = "https://github.com/tommy-muehle/go-mnd"
+extractor_rule = "operation"
+
+[rules.noMagicNumberInReturn]
+linter = "mnd"
+source = "https://github.com/tommy-muehle/go-mnd"
+extractor_rule = "return"
+
+[rules.noMalformedBuildTag]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/buildtag"
+extractor_rule = "buildtag"
+
+[rules.noMalformedDirective]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/directive"
+extractor_rule = "directive"
+
+[rules.noMalformedStructTag]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/structtag"
+extractor_rule = "structtag"
+
+[rules.noMalformedTestFunction]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/tests"
+extractor_rule = "tests"
+
+[rules.noMd4Import]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G506"
+subsumed_by = "noDeprecatedHashFunction"
+
+[rules.noMd5Import]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G501"
+subsumed_by = "noWeakCryptoHash"
+
+[rules.noMismatchedAppendAssign]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "appendAssign"
+
+[rules.noMisplacedDefaultCase]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "defaultCaseOrder"
+
+[rules.noMissingReadHeaderTimeout]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G112"
+
+[rules.noMissingReturnAfterHttpError]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "returnAfterHttpError"
+
+[rules.noMisspelledWords]
+linter = "misspell"
+source = "https://github.com/golangci/misspell"
+extractor_rule = "misspell"
+
+[rules.noMixedCaseHexLiteral]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "hexLiteral"
+
+[rules.noModuloOne]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4028"
+extractor_rule = "SA4028"
+
+[rules.noMultiLineFuncBreak]
+linter = "whitespace"
+source = "https://github.com/ultraware/whitespace"
+extractor_rule = "multi-func"
+
+[rules.noMultiLineIfBreak]
+linter = "whitespace"
+source = "https://github.com/ultraware/whitespace"
+extractor_rule = "multi-if"
+
+[rules.noNakedReturn]
+linter = "nakedret"
+source = "https://github.com/alexkohler/nakedret"
+extractor_rule = "naked-return"
+
+[rules.noNanComparison]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4012"
+extractor_rule = "SA4012"
+
+[rules.noNetDial]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-dial"
+
+[rules.noNetDialTimeout]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-dial-timeout"
+
+[rules.noNetIpBytesEqual]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1021"
+extractor_rule = "SA1021"
+
+[rules.noNetListen]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-listen"
+
+[rules.noNetListenPacket]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-listen-packet"
+
+[rules.noNetLookupAddr]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-addr"
+
+[rules.noNetLookupCname]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-cname"
+
+[rules.noNetLookupHost]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-host"
+
+[rules.noNetLookupIp]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-ip"
+
+[rules.noNetLookupMx]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-mx"
+
+[rules.noNetLookupNs]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-ns"
+
+[rules.noNetLookupPort]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-port"
+
+[rules.noNetLookupSrv]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-srv"
+
+[rules.noNetLookupTxt]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "net-lookup-txt"
+
+[rules.noNeverNilCheck]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4031"
+extractor_rule = "SA4031"
+
+[rules.noNeverUsedAssignment]
+linter = "wastedassign"
+source = "https://github.com/sanposhiho/wastedassign"
+extractor_rule = "never-used-afterwards"
+subsumed_by = "noIneffectualAssignment"
+
+[rules.noNilContext]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1012"
+extractor_rule = "SA1012"
+
+[rules.noNilDereference]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/nilness"
+extractor_rule = "nilness"
+
+[rules.noNilFuncComparison]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/nilfunc"
+extractor_rule = "nilfunc"
+
+[rules.noNilMapAssignment]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5000"
+extractor_rule = "SA5000"
+
+[rules.noNilVariableReturn]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "nilValReturn"
+
+[rules.noNolintExtraSpace]
+linter = "nolintlint"
+source = "https://github.com/golangci/golangci-lint/blob/b345eab149baac70a9613e6c7b893c5fde7c3e54/pkg/golinters/nolintlint/internal/nolintlint.go"
+extractor_rule = "extra-leading-space"
+subsumed_by = "noNolintNonMachineReadable"
+
+[rules.noNolintNonMachineReadable]
+linter = "nolintlint"
+source = "https://github.com/golangci/golangci-lint/blob/b345eab149baac70a9613e6c7b893c5fde7c3e54/pkg/golinters/nolintlint/internal/nolintlint.go"
+extractor_rule = "not-machine-readable"
+
+[rules.noNolintParseError]
+linter = "nolintlint"
+source = "https://github.com/golangci/golangci-lint/blob/b345eab149baac70a9613e6c7b893c5fde7c3e54/pkg/golinters/nolintlint/internal/nolintlint.go"
+extractor_rule = "parse-error"
+
+[rules.noNolintWithoutExplanation]
+linter = "nolintlint"
+source = "https://github.com/golangci/golangci-lint/blob/b345eab149baac70a9613e6c7b893c5fde7c3e54/pkg/golinters/nolintlint/internal/nolintlint.go"
+extractor_rule = "require-explanation"
+
+[rules.noNolintWithoutExplanationGocritic]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "whyNoLint"
+subsumed_by = "noNolintWithoutExplanation"
+
+[rules.noNolintWithoutSpecificLinter]
+linter = "nolintlint"
+source = "https://github.com/golangci/golangci-lint/blob/b345eab149baac70a9613e6c7b893c5fde7c3e54/pkg/golinters/nolintlint/internal/nolintlint.go"
+extractor_rule = "not-specific"
+
+[rules.noNonAsciiIdentifier]
+linter = "asciicheck"
+source = "https://github.com/golangci/asciicheck"
+extractor_rule = "non-ascii-identifier"
+
+[rules.noNonCanonicalHeaderKey]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1008"
+extractor_rule = "SA1008"
+
+[rules.noNonOctalFileMode]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9002"
+extractor_rule = "SA9002"
+
+[rules.noNonPointerDecode]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1014"
+extractor_rule = "SA1014"
+subsumed_by = "noNonPointerUnmarshal"
+
+[rules.noNonPointerUnmarshal]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/unmarshal"
+extractor_rule = "unmarshal"
+
+[rules.noNonWrappingErrorf]
+linter = "errorlint"
+source = "https://github.com/polyfloyd/go-errorlint"
+extractor_rule = "errorf-wrap"
+
+[rules.noNonZeroMakeLength]
+linter = "makezero"
+source = "https://github.com/ashanbrown/makezero"
+extractor_rule = "non-zero-initial-length"
+
+[rules.noNoopFunctionCall]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "badCall"
+
+[rules.noObsoleteBuildConstraint]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "plusbuild"
+
+[rules.noOddSizeSliceArg]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5012"
+extractor_rule = "SA5012"
+
+[rules.noOffByOneError]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "offBy1"
+
+[rules.noOverlappingEncoderSlice]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1031"
+extractor_rule = "SA1031"
+
+[rules.noOverwrittenArgument]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4009"
+extractor_rule = "SA4009"
+
+[rules.noPathTraversalTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G703"
+
+[rules.noPermissiveDirectoryPermissions]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G301"
+
+[rules.noPermissiveFilePermissions]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G302"
+
+[rules.noPermissiveOsCreate]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G307"
+
+[rules.noPermissiveWriteFilePermissions]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G306"
+
+[rules.noPointerToRefParam]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "ptrToRefParam"
+
+[rules.noPossibleNilDeref]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5011"
+extractor_rule = "SA5011"
+subsumed_by = "noNilDereference"
+
+[rules.noPredictableTempFile]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G303"
+
+[rules.noPrintfDynamicFirstArg]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1006"
+extractor_rule = "SA1006"
+subsumed_by = "noDynamicFormatString"
+
+[rules.noPrintfFormatMismatch]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/printf"
+extractor_rule = "printf"
+
+[rules.noRangeAppendAll]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "rangeAppendAll"
+
+[rules.noRangeExprCopy]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "rangeExprCopy"
+
+[rules.noRangeValCopy]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "rangeValCopy"
+
+[rules.noRangeVariableAlias]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G601"
+
+[rules.noRc4Import]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G503"
+subsumed_by = "noWeakEncryptionAlgorithm"
+
+[rules.noReassignedWithoutUsing]
+linter = "wastedassign"
+source = "https://github.com/sanposhiho/wastedassign"
+extractor_rule = "reassigned-without-using"
+subsumed_by = "noIneffectualAssignment"
+
+[rules.noRedundantBoolCondition]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/bools"
+extractor_rule = "bools"
+subsumed_by = "noDuplicateSubExpression"
+
+[rules.noRedundantCanonicalHeaderKey]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1035"
+extractor_rule = "S1035"
+
+[rules.noRedundantControlFlow]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1023"
+extractor_rule = "S1023"
+
+[rules.noRedundantLabel]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "unlabelStmt"
+
+[rules.noRedundantLoopVarCopy]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "forvar"
+subsumed_by = "noUnnecessaryLoopVarCopy"
+
+[rules.noRedundantMakeArgs]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1019"
+extractor_rule = "S1019"
+
+[rules.noRedundantNilLoopCheck]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1031"
+extractor_rule = "S1031"
+
+[rules.noRedundantNilSliceCheck]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1009"
+extractor_rule = "S1009"
+
+[rules.noRedundantNilTypeCheck]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1020"
+extractor_rule = "S1020"
+
+[rules.noRedundantRangeLen]
+linter = "intrange"
+source = "https://github.com/ckaznocha/intrange"
+extractor_rule = "simplify-range-len"
+
+[rules.noRedundantRuneConversion]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA6003"
+extractor_rule = "SA6003"
+
+[rules.noRedundantSliceExpression]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "unslice"
+
+[rules.noRedundantSprint]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "redundantSprint"
+
+[rules.noRedundantStringByteConversion]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "stringXbytes"
+
+[rules.noRedundantStringConcat]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "stringConcatSimplify"
+
+[rules.noRedundantSwitchTrue]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "switchTrue"
+
+[rules.noRedundantTypeAssertion]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sloppyTypeAssert"
+
+[rules.noRedundantTypeInVarDecl]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1011"
+extractor_rule = "QF1011"
+subsumed_by = "noRedundantVarType"
+
+[rules.noRedundantVarType]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1023"
+extractor_rule = "ST1023"
+
+[rules.noReflectValueCompare]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/reflectvaluecompare"
+extractor_rule = "reflectvaluecompare"
+
+[rules.noRepeatedImport]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1019"
+extractor_rule = "ST1019"
+subsumed_by = "noDuplicateImport"
+
+[rules.noRepeatedNumbers]
+linter = "goconst"
+source = "https://github.com/jgautheron/goconst"
+extractor_rule = "repeated-numbers"
+
+[rules.noRepeatedStrings]
+linter = "goconst"
+source = "https://github.com/jgautheron/goconst"
+extractor_rule = "repeated-strings"
+
+[rules.noReplaceZero]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1018"
+extractor_rule = "SA1018"
+subsumed_by = "noNoopFunctionCall"
+
+[rules.noReturnErrorOnNil]
+linter = "nilerr"
+source = "https://github.com/gostaticanalysis/nilerr"
+extractor_rule = "return-error-on-nil"
+subsumed_by = "noNilVariableReturn"
+
+[rules.noRipemd160Import]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G507"
+subsumed_by = "noDeprecatedHashFunction"
+
+[rules.noSecretInSerialization]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G117"
+
+[rules.noSelectBreakConfusion]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5004"
+extractor_rule = "SA5004"
+
+[rules.noSelfAssign]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4018"
+extractor_rule = "SA4018"
+subsumed_by = "noSelfAssignment"
+
+[rules.noSelfAssignment]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/assign"
+extractor_rule = "assign"
+
+[rules.noSelfReferencingFinalizer]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA5005"
+extractor_rule = "SA5005"
+
+[rules.noSeparatorInFilepathJoin]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "filepathJoin"
+
+[rules.noServeWithoutTimeout]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G114"
+
+[rules.noSha1Import]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G505"
+subsumed_by = "noWeakCryptoHash"
+
+[rules.noShortRsaKey]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G403"
+
+[rules.noSideEffectInInitClause]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "initClause"
+
+[rules.noSingleArgAppend]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/appends"
+extractor_rule = "appends"
+
+[rules.noSingleArgAppendEquiv]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4021"
+extractor_rule = "SA4021"
+subsumed_by = "noSingleArgAppend"
+
+[rules.noSingleCaseSelect]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1000"
+extractor_rule = "S1000"
+
+[rules.noSingleCaseSwitch]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "singleCaseSwitch"
+
+[rules.noSingleIterationLoop]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4004"
+extractor_rule = "SA4004"
+
+[rules.noSliceBoundsOutOfRange]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G602"
+
+[rules.noSlogForbiddenKeys]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "forbidden-keys"
+
+[rules.noSlogGlobalLogger]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "no-global"
+
+[rules.noSlogKeyValueMismatch]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/slog"
+extractor_rule = "slog"
+
+[rules.noSlogMixedArgs]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "no-mixed-args"
+
+[rules.noSlogRawKeys]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "no-raw-keys"
+
+[rules.noSmtpInjectionTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G707"
+
+[rules.noSortSliceNonSlice]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1028"
+extractor_rule = "SA1028"
+subsumed_by = "noInvalidSortSliceArg"
+
+[rules.noSpaceInDirective]
+linter = "gocheckcompilerdirectives"
+source = "https://github.com/leighmcculloch/gocheckcompilerdirectives"
+extractor_rule = "directive-contains-space"
+subsumed_by = "noMalformedDirective"
+
+[rules.noSpecificFunctionCall]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/findcall"
+extractor_rule = "findcall"
+
+[rules.noSqlConcatenation]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G202"
+
+[rules.noSqlDbBegin]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-db-begin"
+
+[rules.noSqlDbExec]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-db-exec"
+
+[rules.noSqlDbPing]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-db-ping"
+
+[rules.noSqlDbPrepare]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-db-prepare"
+
+[rules.noSqlDbQuery]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-db-query"
+
+[rules.noSqlDbQueryRow]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-db-query-row"
+
+[rules.noSqlFormatString]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G201"
+
+[rules.noSqlInjectionTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G701"
+
+[rules.noSqlStmtExec]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-stmt-exec"
+
+[rules.noSqlStmtQuery]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-stmt-query"
+
+[rules.noSqlStmtQueryRow]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-stmt-query-row"
+
+[rules.noSqlTxExec]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-tx-exec"
+
+[rules.noSqlTxPrepare]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-tx-prepare"
+
+[rules.noSqlTxQuery]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-tx-query"
+
+[rules.noSqlTxQueryRow]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-tx-query-row"
+
+[rules.noSqlTxStmt]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "sql-tx-stmt"
+
+[rules.noSshAuthBypass]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G408"
+
+[rules.noSsrfTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G704"
+
+[rules.noSsrfViaVariable]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G107"
+
+[rules.noStdMethodSignatureMismatch]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/stdmethods"
+extractor_rule = "stdmethods"
+
+[rules.noStdlibVersionMismatch]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/stdversion"
+extractor_rule = "stdversion"
+
+[rules.noStringIndexAllocation]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "indexAlloc"
+
+[rules.noStringIntConversion]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/stringintconv"
+extractor_rule = "stringintconv"
+
+[rules.noStringsCompare]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "stringsCompare"
+
+[rules.noSuspiciousMapKey]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "mapKey"
+
+[rules.noSuspiciousSortSlice]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sortSlice"
+
+[rules.noSuspiciousTimeSleep]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1004"
+extractor_rule = "SA1004"
+
+[rules.noSwallowedError]
+linter = "nilerr"
+source = "https://github.com/gostaticanalysis/nilerr"
+extractor_rule = "return-nil-on-error"
+
+[rules.noSwappedArguments]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "argOrder"
+
+[rules.noSwappedErrorsIsArgs]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1032"
+extractor_rule = "SA1032"
+subsumed_by = "noSwappedArguments"
+
+[rules.noSwappedSeekArgs]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1013"
+extractor_rule = "SA1013"
+subsumed_by = "noSwappedArguments"
+
+[rules.noTempDirDeletion]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9007"
+extractor_rule = "SA9007"
+
+[rules.noTemplateInjection]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G708"
+
+[rules.noTestFatalInGoroutine]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/testinggoroutine"
+extractor_rule = "testinggoroutine"
+
+[rules.noTestMainWithoutExit]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA3000"
+extractor_rule = "SA3000"
+
+[rules.noTestifyBlankImport]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "blank-import"
+
+[rules.noTestifyFloatEquality]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "float-compare"
+
+[rules.noTestifyRequireInGoroutine]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "go-require"
+
+[rules.noTestifySuiteExtraAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "suite-extra-assert-call"
+
+[rules.noTestifySuiteParallel]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "suite-broken-parallel"
+
+[rules.noTestifySuiteSignatureMismatch]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "suite-method-signature"
+
+[rules.noTestifyUnnecessaryEqualValues]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "equal-values"
+
+[rules.noTestifyUselessAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "useless-assert"
+
+[rules.noTimeTick]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1015"
+extractor_rule = "SA1015"
+
+[rules.noTimerResetRetval]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1025"
+extractor_rule = "SA1025"
+
+[rules.noTlsConnHandshake]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "tls-conn-handshake"
+
+[rules.noTlsDial]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "tls-dial"
+
+[rules.noTlsDialWithDialer]
+linter = "noctx"
+source = "https://github.com/sonatard/noctx"
+extractor_rule = "tls-dial-with-dialer"
+
+[rules.noTlsSessionResumptionBypass]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G123"
+
+[rules.noTodoComment]
+linter = "godox"
+source = "https://github.com/matoous/godox"
+extractor_rule = "todo-comment"
+
+[rules.noTodoWithoutDetail]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "todoCommentWithoutDetail"
+
+[rules.noTrailingBlankLine]
+linter = "whitespace"
+source = "https://github.com/ultraware/whitespace"
+extractor_rule = "trailing-whitespace"
+
+[rules.noTrojanSourceBidi]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G116"
+
+[rules.noTruncatingComparison]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "truncateCmp"
+
+[rules.noTypeAssertElseMisread]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9008"
+extractor_rule = "SA9008"
+
+[rules.noUnallowedImport]
+linter = "depguard"
+source = "https://github.com/OpenPeeDeeP/depguard"
+extractor_rule = "non-allowed-package"
+
+[rules.noUnboundedDecompression]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G110"
+
+[rules.noUnboundedFormParsing]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G120"
+
+[rules.noUnbufferedSignalChannel]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/sigchanyzer"
+extractor_rule = "sigchanyzer"
+
+[rules.noUnbufferedSignalNotify]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1017"
+extractor_rule = "SA1017"
+subsumed_by = "noUnbufferedSignalChannel"
+
+[rules.noUncheckedError]
+linter = "errcheck"
+source = "https://github.com/kisielk/errcheck"
+extractor_rule = "unchecked-error"
+
+[rules.noUncheckedErrorGosec]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G104"
+subsumed_by = "noUncheckedError"
+
+[rules.noUncheckedInlineError]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "uncheckedInlineErr"
+
+[rules.noUncheckedTypeAssertion]
+linter = "errcheck"
+source = "https://github.com/kisielk/errcheck"
+extractor_rule = "unchecked-type-assertion"
+
+[rules.noUnclosedBodies]
+linter = "bodyclose"
+source = "https://github.com/timakin/bodyclose"
+extractor_rule = "body-not-closed"
+
+[rules.noUnescapedHtmlTemplate]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G203"
+
+[rules.noUnescapedRegexpDot]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "regexpPattern"
+
+[rules.noUnkeyedLiteral]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/composite"
+extractor_rule = "composite"
+
+[rules.noUnmarshalableStruct]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA9005"
+extractor_rule = "SA9005"
+
+[rules.noUnmarshalableType]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1026"
+extractor_rule = "SA1026"
+
+[rules.noUnnecessaryBlankIdentifier]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1005"
+extractor_rule = "S1005"
+
+[rules.noUnnecessaryBlock]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "unnecessaryBlock"
+
+[rules.noUnnecessaryConversion]
+linter = "unconvert"
+source = "https://github.com/mdempsky/unconvert"
+extractor_rule = "unnecessary-conversion"
+
+[rules.noUnnecessaryDefer]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "unnecessaryDefer"
+
+[rules.noUnnecessaryDeferLambda]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "deferUnlambda"
+
+[rules.noUnnecessaryDeref]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "underef"
+
+[rules.noUnnecessaryLambda]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "unlambda"
+
+[rules.noUnnecessaryLoopVarCopy]
+linter = "copyloopvar"
+source = "https://github.com/karamaru-alpha/copyloopvar"
+extractor_rule = "unnecessary-loop-var-copy"
+
+[rules.noUnnecessarySprint]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1039"
+extractor_rule = "S1039"
+subsumed_by = "noRedundantSprint"
+
+[rules.noUnnecessarySprintfString]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1025"
+extractor_rule = "S1025"
+subsumed_by = "noRedundantSprint"
+
+[rules.noUnnecessaryTypeParens]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "typeUnparen"
+
+[rules.noUnobservedFieldAssign]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4005"
+extractor_rule = "SA4005"
+
+[rules.noUnpackedSliceToVariadic]
+linter = "asasalint"
+source = "https://github.com/alingse/asasalint"
+extractor_rule = "slice-as-any-to-variadic"
+
+[rules.noUnreachableCode]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/unreachable"
+extractor_rule = "unreachable"
+
+[rules.noUnreachableTypeCase]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "caseOrder"
+
+[rules.noUnreachableTypeSwitchCase]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4020"
+extractor_rule = "SA4020"
+subsumed_by = "noUnreachableTypeCase"
+
+[rules.noUnrecognizedDirective]
+linter = "gocheckcompilerdirectives"
+source = "https://github.com/leighmcculloch/gocheckcompilerdirectives"
+extractor_rule = "directive-unrecognized"
+subsumed_by = "noMalformedDirective"
+
+[rules.noUnsafeCorsBypass]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G121"
+
+[rules.noUnsafeDeserialization]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G709"
+
+[rules.noUnsafePackage]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G103"
+
+[rules.noUnsafeRedirectPolicy]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G119"
+
+[rules.noUnsignedNegativeComparison]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4003"
+extractor_rule = "SA4003"
+
+[rules.noUntrappableSignal]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1016"
+extractor_rule = "SA1016"
+
+[rules.noUnusedConstant]
+linter = "unused"
+source = "https://github.com/dominikh/go-tools/tree/master/unused"
+extractor_rule = "unused-constant"
+
+[rules.noUnusedField]
+linter = "unused"
+source = "https://github.com/dominikh/go-tools/tree/master/unused"
+extractor_rule = "unused-field"
+
+[rules.noUnusedFunction]
+linter = "unused"
+source = "https://github.com/dominikh/go-tools/tree/master/unused"
+extractor_rule = "unused-function"
+
+[rules.noUnusedFunctionResult]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/unusedresult"
+extractor_rule = "unusedresult"
+
+[rules.noUnusedNolint]
+linter = "nolintlint"
+source = "https://github.com/golangci/golangci-lint/blob/b345eab149baac70a9613e6c7b893c5fde7c3e54/pkg/golinters/nolintlint/internal/nolintlint.go"
+extractor_rule = "unused"
+
+[rules.noUnusedParameter]
+linter = "unparam"
+source = "https://github.com/mvdan/unparam"
+extractor_rule = "unused-parameter"
+
+[rules.noUnusedType]
+linter = "unused"
+source = "https://github.com/dominikh/go-tools/tree/master/unused"
+extractor_rule = "unused-type"
+
+[rules.noUnusedVariable]
+linter = "unused"
+source = "https://github.com/dominikh/go-tools/tree/master/unused"
+extractor_rule = "unused-variable"
+
+[rules.noUnusedWrite]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/unusedwrite"
+extractor_rule = "unusedwrite"
+
+[rules.noUselessMathCall]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA4015"
+extractor_rule = "SA4015"
+
+[rules.noVariableCommandExecution]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G204"
+
+[rules.noVariableShadowing]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/shadow"
+extractor_rule = "shadow"
+
+[rules.noWaitGroupAddInGoroutine]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA2000"
+extractor_rule = "SA2000"
+subsumed_by = "noWaitGroupMisuse"
+
+[rules.noWaitGroupMisuse]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/waitgroup"
+extractor_rule = "waitgroup"
+
+[rules.noWeakCryptoHash]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G401"
+
+[rules.noWeakEncryptionAlgorithm]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G405"
+
+[rules.noWeakSliceGuard]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "weakCond"
+
+[rules.noWriterBufferModification]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA1023"
+extractor_rule = "SA1023"
+
+[rules.noXssTaint]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G705"
+
+[rules.noYodaCondition]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "yodaStyleExpr"
+
+[rules.noYodaStyle]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1017"
+extractor_rule = "ST1017"
+subsumed_by = "noYodaCondition"
+
+[rules.noZeroBytesRepeat]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "zeroByteRepeat"
+
+[rules.noZipSlip]
+linter = "gosec"
+source = "https://github.com/securego/gosec"
+extractor_rule = "G305"
+
+[rules.useAnyType]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "any"
+
+[rules.useAssignmentOperator]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "assignOp"
+
+[rules.useAtomicType]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "atomic"
+
+[rules.useBenchmarkLoop]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "bloop"
+
+[rules.useBufferStringOrBytes]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1030"
+extractor_rule = "S1030"
+
+[rules.useBytesEqual]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1004"
+extractor_rule = "S1004"
+
+[rules.useCombinedAppend]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "appendCombine"
+
+[rules.useCombinedParamType]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "paramTypeCombine"
+
+[rules.useCommentSpacing]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "commentFormatting"
+
+[rules.useCompiledRegexp]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA6000"
+extractor_rule = "SA6000"
+
+[rules.useConsistentReceiverName]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1016"
+extractor_rule = "ST1016"
+
+[rules.useConstantKindConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "constant-kind"
+
+[rules.useConvenienceFunc]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "wrapperFunc"
+
+[rules.useCopyBuiltin]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1001"
+extractor_rule = "S1001"
+
+[rules.useCopyForSlide]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1018"
+extractor_rule = "S1018"
+
+[rules.useCryptoHashConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "crypto-hash"
+
+[rules.useDeMorganSimplification]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1001"
+extractor_rule = "QF1001"
+subsumed_by = "useSimplifiedBoolExpr"
+
+[rules.useDecodeRune]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "preferDecodeRune"
+
+[rules.useDefaultCasePosition]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1015"
+extractor_rule = "ST1015"
+subsumed_by = "noMisplacedDefaultCase"
+
+[rules.useDirectMethodCall]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "methodExprCall"
+
+[rules.useDirectStringComparison]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "emptyStringTest"
+
+[rules.useDirectStringRange]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1029"
+extractor_rule = "S1029"
+
+[rules.useEarlyContinue]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "nestingReduce"
+
+[rules.useElseIf]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "elseif"
+
+[rules.useEqualFold]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "equalFold"
+
+[rules.useErrorLastReturn]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1008"
+extractor_rule = "ST1008"
+
+[rules.useErrorMethod]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1028"
+extractor_rule = "S1028"
+
+[rules.useErrorsAs]
+linter = "errorlint"
+source = "https://github.com/polyfloyd/go-errorlint"
+extractor_rule = "asserts"
+
+[rules.useErrorsAsType]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "errorsastype"
+
+[rules.useFilepathJoin]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "preferFilepathJoin"
+
+[rules.useFmtAppendf]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "fmtappendf"
+
+[rules.useFprint]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "preferFprint"
+
+[rules.useFprintfDirect]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1012"
+extractor_rule = "QF1012"
+subsumed_by = "useFprint"
+
+[rules.useFuncDocPrefix]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1020"
+extractor_rule = "ST1020"
+
+[rules.useHttpMethodConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "http-method"
+
+[rules.useHttpNoBody]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "httpNoBody"
+
+[rules.useHttpStatusConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "http-status-code"
+subsumed_by = "noMagicNumberInArgument"
+
+[rules.useIdiomaticDurationName]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1011"
+extractor_rule = "ST1011"
+
+[rules.useIdiomaticErrorName]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1012"
+extractor_rule = "ST1012"
+
+[rules.useIdiomaticNaming]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1003"
+extractor_rule = "ST1003"
+
+[rules.useIdiomaticReceiverName]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1006"
+extractor_rule = "ST1006"
+
+[rules.useInfiniteFor]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1006"
+extractor_rule = "S1006"
+
+[rules.useInlineMathPow]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1005"
+extractor_rule = "QF1005"
+
+[rules.useIntegerRange]
+linter = "intrange"
+source = "https://github.com/ckaznocha/intrange"
+extractor_rule = "use-integer-range"
+
+[rules.useJoinHostPort]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/hostport"
+extractor_rule = "hostport"
+
+[rules.useLoopCondition]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1006"
+extractor_rule = "QF1006"
+
+[rules.useMapsFunc]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "mapsloop"
+
+[rules.useMatchingConstant]
+linter = "goconst"
+source = "https://github.com/jgautheron/goconst"
+extractor_rule = "match-constant"
+
+[rules.useMergedConditionalDecl]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1007"
+extractor_rule = "QF1007"
+
+[rules.useMergedVarDecl]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1021"
+extractor_rule = "S1021"
+
+[rules.useMinMax]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "minmax"
+
+[rules.useModernOctalLiteral]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "octalLiteral"
+
+[rules.useNamedResult]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "unnamedResult"
+
+[rules.useNewExpr]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "newexpr"
+
+[rules.useOmitZeroTag]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "omitzero"
+
+[rules.useOptimalFieldAlignment]
+linter = "govet"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/fieldalignment"
+extractor_rule = "fieldalignment"
+
+[rules.useOptimizedSliceClear]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sliceClear"
+
+[rules.usePackageComment]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1000"
+extractor_rule = "ST1000"
+
+[rules.useParallelAssignSwap]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "valSwap"
+
+[rules.usePercentQ]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sprintfQuotedString"
+
+[rules.usePointerInSyncPool]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA6002"
+extractor_rule = "SA6002"
+
+[rules.usePrintfSuffix]
+linter = "goprintffuncname"
+source = "https://github.com/golangci/go-printf-func-name"
+extractor_rule = "printf-func-name"
+
+[rules.useRangeInt]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "rangeint"
+subsumed_by = "useIntegerRange"
+
+[rules.useRawStringRegexp]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1007"
+extractor_rule = "S1007"
+
+[rules.useReflectTypeFor]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "reflecttypefor"
+
+[rules.useRegexpMustCompile]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "regexpMust"
+
+[rules.useReplaceAll]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1004"
+extractor_rule = "QF1004"
+subsumed_by = "useConvenienceFunc"
+
+[rules.useRpcPathConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "rpc-default-path"
+
+[rules.useShortVarDecl]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "sloppyReassign"
+
+[rules.useSimplifiedBoolExpr]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "boolExprSimplify"
+
+[rules.useSimplifiedBoolReturn]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1008"
+extractor_rule = "S1008"
+
+[rules.useSimplifiedPrintFormat]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1038"
+extractor_rule = "S1038"
+
+[rules.useSimplifiedRegexp]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "regexpSimplify"
+
+[rules.useSimplifiedSelector]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1008"
+extractor_rule = "QF1008"
+
+[rules.useSliceAppend]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1011"
+extractor_rule = "S1011"
+
+[rules.useSlicePrealloc]
+linter = "prealloc"
+source = "https://github.com/alexkohler/prealloc"
+extractor_rule = "slice-prealloc"
+
+[rules.useSlicesConcat]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "appendclipped"
+
+[rules.useSlicesContains]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "slicescontains"
+
+[rules.useSlicesDelete]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "slicesdelete"
+
+[rules.useSlicesSort]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "slicessort"
+
+[rules.useSlogAllowedKeys]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "allowed-keys"
+
+[rules.useSlogArgsOnSepLines]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "args-on-sep-lines"
+
+[rules.useSlogAttrOnly]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "attr-only"
+
+[rules.useSlogContext]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "context-only"
+
+[rules.useSlogKeyNamingCase]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "key-naming-case"
+
+[rules.useSlogKvOnly]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "kv-only"
+
+[rules.useSlogMsgStyle]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "msg-style"
+
+[rules.useSlogStaticMsg]
+linter = "sloglint"
+source = "https://github.com/go-simpler/sloglint"
+extractor_rule = "static-msg"
+
+[rules.useSortConvenience]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1032"
+extractor_rule = "S1032"
+subsumed_by = "useConvenienceFunc"
+
+[rules.useSqlIsolationConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "sql-isolation-level"
+
+[rules.useStandardCodegenComment]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "codegenComment"
+
+[rules.useStandardDeprecationComment]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "deprecatedComment"
+
+[rules.useStdIterators]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "stditerators"
+
+[rules.useStringConversionInPrint]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1010"
+extractor_rule = "QF1010"
+
+[rules.useStringMapKey]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#SA6001"
+extractor_rule = "SA6001"
+
+[rules.useStringWriter]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "preferStringWriter"
+
+[rules.useStringsBuilder]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "stringsbuilder"
+
+[rules.useStringsContains]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1003"
+extractor_rule = "S1003"
+
+[rules.useStringsCut]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "stringscut"
+
+[rules.useStringsCutPrefix]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "stringscutprefix"
+
+[rules.useStringsSplitSeq]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "stringsseq"
+
+[rules.useSwitch]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "ifElseChain"
+
+[rules.useSyncMapLoadAndDelete]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "syncMapLoadAndDelete"
+
+[rules.useTaggedSwitch]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1002"
+extractor_rule = "QF1002"
+
+[rules.useTaggedSwitchFromIfChain]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1003"
+extractor_rule = "QF1003"
+subsumed_by = "useSwitch"
+
+[rules.useTestChdir]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "os-chdir"
+
+[rules.useTestContext]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "context-background"
+
+[rules.useTestContextCancel]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "testingcontext"
+
+[rules.useTestContextTodo]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "context-todo"
+subsumed_by = "useTestContext"
+
+[rules.useTestDirForTempFile]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "os-create-temp"
+
+[rules.useTestMkdirTemp]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "os-mkdir-temp"
+
+[rules.useTestSetenv]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "os-setenv"
+
+[rules.useTestTempDir]
+linter = "usetesting"
+source = "https://github.com/ldez/usetesting"
+extractor_rule = "os-temp-dir"
+
+[rules.useTestifyBoolAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "bool-compare"
+
+[rules.useTestifyCompareAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "compares"
+
+[rules.useTestifyContainsAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "contains"
+
+[rules.useTestifyEmptyAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "empty"
+
+[rules.useTestifyEncodedAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "encoded-compare"
+
+[rules.useTestifyErrorAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "error-nil"
+
+[rules.useTestifyErrorIsAs]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "error-is-as"
+
+[rules.useTestifyExpectedFirst]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "expected-actual"
+
+[rules.useTestifyFormatAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "formatter"
+
+[rules.useTestifyLenAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "len"
+
+[rules.useTestifyNilAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "nil-compare"
+
+[rules.useTestifyRegexpString]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "regexp"
+
+[rules.useTestifyRequireError]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "require-error"
+
+[rules.useTestifySignAssert]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "negative-positive"
+
+[rules.useTestifySuiteMethod]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "suite-dont-use-pkg"
+
+[rules.useTestifySuiteRun]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "suite-subtest-run"
+
+[rules.useTestifySuiteTHelper]
+linter = "testifylint"
+source = "https://github.com/Antonboom/testifylint"
+extractor_rule = "suite-thelper"
+
+[rules.useTimeDateMonthConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "time-date-month"
+
+[rules.useTimeEqual]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#QF1009"
+extractor_rule = "QF1009"
+
+[rules.useTimeLayoutConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "time-layout"
+
+[rules.useTimeMethod]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "timeExprSimplify"
+
+[rules.useTimeMonthConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "time-month"
+
+[rules.useTimeSince]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1012"
+extractor_rule = "S1012"
+
+[rules.useTimeSleep]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1037"
+extractor_rule = "S1037"
+
+[rules.useTimeUntil]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1024"
+extractor_rule = "S1024"
+
+[rules.useTimeWeekdayConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "time-weekday"
+
+[rules.useTlsSignatureConstant]
+linter = "usestdlibvars"
+source = "https://github.com/sashamelentyev/usestdlibvars"
+extractor_rule = "tls-signature-scheme"
+
+[rules.useTrimFunction]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1017"
+extractor_rule = "S1017"
+
+[rules.useTypeAssertResult]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1034"
+extractor_rule = "S1034"
+
+[rules.useTypeConversion]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#S1016"
+extractor_rule = "S1016"
+
+[rules.useTypeDefFirst]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "typeDefFirst"
+
+[rules.useTypeDocPrefix]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1021"
+extractor_rule = "ST1021"
+
+[rules.useTypeSwitchChain]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "typeAssertChain"
+
+[rules.useTypeSwitchGuard]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "typeSwitchVar"
+
+[rules.useUnsafeHelpers]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "unsafefuncs"
+
+[rules.useVarConstDocPrefix]
+linter = "staticcheck"
+source = "https://staticcheck.dev/docs/checks/#ST1022"
+extractor_rule = "ST1022"
+
+[rules.useWaitGroupGo]
+linter = "modernize"
+source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
+extractor_rule = "waitgroup"
+
+[rules.useWriteByte]
+linter = "gocritic"
+source = "https://github.com/go-critic/go-critic"
+extractor_rule = "preferWriteByte"
+

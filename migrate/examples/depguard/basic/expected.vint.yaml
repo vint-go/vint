@@ -1,0 +1,4 @@
+settings:
+    lint/correctness/noDeniedImport: {}
+    lint/correctness/noFileScopedDeniedImport: {}
+    lint/correctness/noUnallowedImport: {}

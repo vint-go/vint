@@ -1,0 +1,12 @@
+version: "2"
+
+linters:
+  enable:
+    - depguard
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: "fmt"
+              desc: "use log package instead"

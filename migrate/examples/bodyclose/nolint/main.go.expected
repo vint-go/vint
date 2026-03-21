@@ -1,0 +1,9 @@
+package example
+
+import "net/http"
+
+func doRequest() {
+	// vint-ignore lint/correctness/noUnclosedBodies: migrated from nolint:bodyclose
+	resp, _ := http.Get("https://example.com")
+	_ = resp.StatusCode
+}

@@ -1,0 +1,13 @@
+package example
+
+import "fmt"
+
+func process() {
+	for i, v := range []int{1, 2, 3} {
+		// vint-ignore lint/style/noUnnecessaryLoopVarCopy: migrated from nolint:copyloopvar
+		i := i
+		// vint-ignore lint/style/noUnnecessaryLoopVarCopy: migrated from nolint:copyloopvar
+		v := v
+		fmt.Println(i, v)
+	}
+}

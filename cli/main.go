@@ -14,8 +14,16 @@ import (
 
 	"github.com/strowk/vint/config"
 	"github.com/strowk/vint/lint"
+	"github.com/strowk/vint/migrate"
 	"github.com/strowk/vint/revivelib"
 	"github.com/strowk/vint/vintlint0"
+
+	// Import linter migrators so they register via init().
+	_ "github.com/strowk/vint/migrate/migrator/linters/bodyclose"
+	_ "github.com/strowk/vint/migrate/migrator/linters/copyloopvar"
+	_ "github.com/strowk/vint/migrate/migrator/linters/depguard"
+	_ "github.com/strowk/vint/migrate/migrator/linters/dogsled"
+	_ "github.com/strowk/vint/migrate/migrator/linters/errcheck"
 )
 
 const (
@@ -41,6 +49,12 @@ func fail(err string) {
 
 // RunVint runs the CLI for revive.
 func RunVint(extraRules ...revivelib.ExtraRule) {
+	// Handle subcommands before flag parsing.
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+		migrate.RunMigrate(os.Args[2:])
+		return
+	}
+
 	// Move parsing flags outside of init(); otherwise, tests don't work properly.
 	// More info: https://github.com/golang/go/issues/46869#issuecomment-865695953
 	initConfig()

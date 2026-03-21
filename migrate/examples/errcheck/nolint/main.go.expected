@@ -1,0 +1,8 @@
+package example
+
+import "os"
+
+func doSomething() {
+	// vint-ignore lint/correctness/noUncheckedError: migrated from nolint:errcheck
+	os.Open("file.txt")
+}

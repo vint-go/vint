@@ -1,0 +1,11 @@
+package example
+
+func multiReturn() (int, int, int, int, int) {
+	return 1, 2, 3, 4, 5
+}
+
+func doSomething() {
+	// vint-ignore lint/style/noExcessiveBlankIdentifiers: migrated from nolint:dogsled
+	x, _, _, _, _ := multiReturn()
+	_ = x
+}

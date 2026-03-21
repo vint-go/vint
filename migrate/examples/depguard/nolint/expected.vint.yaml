@@ -1,0 +1,6 @@
+settings:
+    lint/correctness/noDeniedImport:
+        main:
+            deny:
+                - desc: use log package instead
+                  pkg: fmt

@@ -1,0 +1,7 @@
+settings:
+    lint/correctness/noBlankErrorAssignment: {}
+    lint/correctness/noUncheckedError:
+        disable-default-exclusions: true
+        exclude-functions:
+            - io/ioutil.ReadFile
+    lint/correctness/noUncheckedTypeAssertion: {}

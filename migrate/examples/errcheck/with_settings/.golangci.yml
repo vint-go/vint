@@ -1,0 +1,12 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      disable-default-exclusions: true
+      exclude-functions:
+        - io/ioutil.ReadFile

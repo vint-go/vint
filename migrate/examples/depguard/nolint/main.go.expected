@@ -1,0 +1,8 @@
+package example
+
+// vint-ignore lint/correctness/noDeniedImport: migrated from nolint:depguard
+import "fmt"
+
+func doSomething() {
+	fmt.Println("hello")
+}

@@ -1,0 +1,33 @@
+settings:
+    lint/correctness/noDeniedImport:
+        main:
+            allow:
+                - $gostd
+            deny:
+                - desc: use log/slog instead
+                  pkg: github.com/sirupsen/logrus
+            files:
+                - $all
+            list-mode: lax
+    lint/correctness/noFileScopedDeniedImport:
+        rules:
+            main:
+                allow:
+                    - $gostd
+                deny:
+                    - desc: use log/slog instead
+                      pkg: github.com/sirupsen/logrus
+                files:
+                    - $all
+                list-mode: lax
+    lint/correctness/noUnallowedImport:
+        rules:
+            main:
+                allow:
+                    - $gostd
+                deny:
+                    - desc: use log/slog instead
+                      pkg: github.com/sirupsen/logrus
+                files:
+                    - $all
+                list-mode: lax
