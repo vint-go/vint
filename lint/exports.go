@@ -19,15 +19,33 @@ import (
 // is resolved at most once.
 type SharedImporter = sharedImporter
 
+// SafeSharedImporter is an exported alias for the goroutine-safe importer.
+// It uses gcexportdata.Read under a mutex to avoid the concurrent map
+// access race in go/internal/gcimporter.
+type SafeSharedImporter = safeImporter
+
+// PackageImporter is the exported interface for importers used by Package.
+// Both SharedImporter and SafeSharedImporter satisfy this interface.
+// Implementations are restricted to the lint package (unexported methods).
+type PackageImporter = packageImporter
+
 // NewSharedImporter creates a new shared importer suitable for reuse
 // across multiple packages in a single lint run.
 func NewSharedImporter() *SharedImporter {
 	return newSharedImporter()
 }
 
+// NewSafeSharedImporter creates a goroutine-safe importer that avoids the
+// concurrent map race in go/internal/gcimporter. It separates concurrent
+// file I/O from serialized parsing for minimal performance overhead.
+// Enable via VINT_SAFE_IMPORT=1 environment variable.
+func NewSafeSharedImporter() *SafeSharedImporter {
+	return newSafeImporter()
+}
+
 // NewPackage creates a new Package with the given FileSet, Go version, and
-// shared importer. The package starts with no files — use AddFile to populate.
-func NewPackage(fset *token.FileSet, goVersion *goversion.Version, imp *SharedImporter) *Package {
+// importer. The package starts with no files — use AddFile to populate.
+func NewPackage(fset *token.FileSet, goVersion *goversion.Version, imp PackageImporter) *Package {
 	return &Package{
 		fset:      fset,
 		importer:  imp,

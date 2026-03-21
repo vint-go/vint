@@ -21,6 +21,14 @@ import (
 	"github.com/strowk/vint/internal/typeparams"
 )
 
+// packageImporter is the interface satisfied by both sharedImporter and
+// safeImporter. It lets Package.importer hold either implementation.
+type packageImporter interface {
+	types.ImporterFrom
+	cachedResult(path string) (*importResult, bool)
+	importerFileSet() *token.FileSet
+}
+
 // sharedImporter wraps a types.ImporterFrom with a lock-free cache so that
 // already-resolved packages are returned instantly without filesystem
 // syscalls. The inner importer's FindPkg is expensive (EvalSymlinks etc.)
@@ -81,10 +89,24 @@ func (s *sharedImporter) ImportFrom(path, srcDir string, mode types.ImportMode) 
 	return r.pkg, r.err
 }
 
+// cachedResult returns the cached import result for the given path.
+func (s *sharedImporter) cachedResult(path string) (*importResult, bool) {
+	v, ok := s.cache.Load(path)
+	if !ok {
+		return nil, false
+	}
+	return v.(*importResult), true
+}
+
+// importerFileSet returns the FileSet used by this importer.
+func (s *sharedImporter) importerFileSet() *token.FileSet {
+	return s.fset
+}
+
 // Package represents a package in the project.
 type Package struct {
 	fset     *token.FileSet
-	importer *sharedImporter
+	importer packageImporter
 
 	mu        sync.RWMutex
 	files     map[string]*File
@@ -176,12 +198,11 @@ func (p *Package) ImportedPkgSourceDir(importPath string) (string, bool) {
 		return "", false
 	}
 
-	v, ok := p.importer.cache.Load(importPath)
+	r, ok := p.importer.cachedResult(importPath)
 	if !ok {
 		return "", false
 	}
 
-	r := v.(*importResult)
 	if r.err != nil || r.pkg == nil {
 		return "", false
 	}
@@ -190,6 +211,7 @@ func (p *Package) ImportedPkgSourceDir(importPath string) (string, bool) {
 	// reveals the source directory. The gcimporter uses "$GOROOT" as a
 	// placeholder in filenames, so we expand it to the real path.
 	goroot := runtime.GOROOT() // todo: fix the deprecation
+	impFset := p.importer.importerFileSet()
 	scope := r.pkg.Scope()
 	for _, name := range scope.Names() {
 		obj := scope.Lookup(name)
@@ -197,7 +219,7 @@ func (p *Package) ImportedPkgSourceDir(importPath string) (string, bool) {
 			continue
 		}
 
-		pos := p.importer.fset.Position(obj.Pos())
+		pos := impFset.Position(obj.Pos())
 		if pos.Filename == "" {
 			continue
 		}

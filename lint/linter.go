@@ -29,7 +29,7 @@ type Linter struct {
 	reader         ReadFile
 	fileReadTokens chan struct{}
 	cache          *rulecache.RuleCache
-	importer       *sharedImporter
+	importer       packageImporter
 }
 
 // New creates a new Linter.
@@ -39,10 +39,16 @@ func New(reader ReadFile, maxOpenFiles int) Linter {
 		fileReadTokens = make(chan struct{}, maxOpenFiles)
 	}
 
+	var imp packageImporter
+	if os.Getenv("VINT_SAFE_IMPORT") == "1" {
+		imp = newSafeImporter()
+	} else {
+		imp = newSharedImporter()
+	}
 	l := Linter{
 		reader:         reader,
 		fileReadTokens: fileReadTokens,
-		importer:       newSharedImporter(),
+		importer:       imp,
 	}
 
 	// Auto-configure disk cache from environment.

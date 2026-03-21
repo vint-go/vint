@@ -27,7 +27,7 @@ type fileEntry struct {
 // AST-only rules (no type info needed) from TypeCheck rules, eliminating
 // the TypeCheck lock contention that plagues the original architecture.
 type Linter struct {
-	importer       *lint.SharedImporter
+	importer       lint.PackageImporter
 	index          *RuleIndex
 	config         lint.Config
 	rules          []lint.Rule // all rules (needed for disabled-interval computation)
@@ -38,8 +38,10 @@ type Linter struct {
 
 // New creates a new vintlint0 Linter.
 func New(rules []lint.Rule, config lint.Config) *Linter {
+	var imp lint.PackageImporter
+	imp = lint.NewSafeSharedImporter()
 	l := &Linter{
-		importer: lint.NewSharedImporter(),
+		importer: imp,
 		index:    NewRuleIndex(rules),
 		config:   config,
 		rules:    rules,
