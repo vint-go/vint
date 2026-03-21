@@ -35,10 +35,11 @@ type packageImporter interface {
 // and is called even on map hits, so we cache results in a sync.Map keyed
 // by import path to bypass it entirely for known packages.
 type sharedImporter struct {
-	cache sync.Map           // import path → *importResult (lock-free reads)
-	sf    singleflight.Group // deduplicates concurrent resolution of the same import path
-	inner types.ImporterFrom
-	fset  *token.FileSet // fset used by gcimporter; positions of imported objects live here
+	cache   sync.Map           // import path → *importResult (lock-free reads)
+	sf      singleflight.Group // deduplicates concurrent resolution of the same import path
+	innerMu sync.Mutex         // serializes inner.ImportFrom to avoid concurrent map race in gcimporter
+	inner   types.ImporterFrom
+	fset    *token.FileSet // fset used by gcimporter; positions of imported objects live here
 }
 
 type importResult struct {
@@ -76,7 +77,9 @@ func (s *sharedImporter) ImportFrom(path, srcDir string, mode types.ImportMode) 
 			return r, nil
 		}
 
+		s.innerMu.Lock()
 		pkg, err := s.inner.ImportFrom(path, srcDir, mode)
+		s.innerMu.Unlock()
 		r := &importResult{pkg: pkg, err: err}
 		s.cache.Store(path, r)
 		return r, nil
