@@ -51,13 +51,15 @@ func (r *NoMagicNumberInReturnRule) Configure(arguments lint.Arguments) error {
 			if !ok {
 				return fmt.Errorf(`invalid configuration value for ignored-numbers in "noMagicNumberInReturn" rule; need string but got %T`, v)
 			}
-			r.ignoredNumbers = parseIgnoredNumbers(s)
+			for k, v := range parseIgnoredNumbers(s) {
+				r.ignoredNumbers[k] = v
+			}
 		case isRuleOption(k, "ignored-files"):
 			s, ok := v.(string)
 			if !ok {
 				return fmt.Errorf(`invalid configuration value for ignored-files in "noMagicNumberInReturn" rule; need string but got %T`, v)
 			}
-			r.ignoredFiles = parseIgnoredFiles(s)
+			r.ignoredFiles = append(r.ignoredFiles, parseIgnoredFiles(s)...)
 		}
 	}
 
