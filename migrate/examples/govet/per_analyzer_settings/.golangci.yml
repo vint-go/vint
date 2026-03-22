@@ -1,0 +1,16 @@
+version: "2"
+
+linters:
+  enable:
+    - govet
+  settings:
+    govet:
+      enable:
+        - shadow
+      settings:
+        printf:
+          funcs:
+            - (github.com/my/pkg.Logger).Infof
+            - mylog.Debugf
+        shadow:
+          strict: true

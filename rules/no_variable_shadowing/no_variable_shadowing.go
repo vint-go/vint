@@ -10,17 +10,48 @@ import (
 )
 
 // NoVariableShadowingRule checks for shadowed variables via short variable declarations.
-type NoVariableShadowingRule struct{}
+type NoVariableShadowingRule struct {
+	strict bool
+}
+
+// Configure validates the rule configuration, and configures the rule accordingly.
+//
+// Configure implements the [lint.ConfigurableRule] interface.
+func (r *NoVariableShadowingRule) Configure(arguments lint.Arguments) error {
+	// Default to strict mode (report all shadowing).
+	r.strict = true
+	if len(arguments) < 1 {
+		return nil
+	}
+
+	argKV, ok := arguments[0].(map[string]any)
+	if !ok {
+		return fmt.Errorf(`invalid argument to the "noVariableShadowing" rule, expecting a k,v map, got %T`, arguments[0])
+	}
+
+	if strictVal, ok := argKV["strict"]; ok {
+		b, ok := strictVal.(bool)
+		if !ok {
+			return fmt.Errorf(`invalid "strict" value in "noVariableShadowing" rule; need bool but got %T`, strictVal)
+		}
+		r.strict = b
+	}
+
+	return nil
+}
 
 // Apply applies the rule to given file.
 func (r *NoVariableShadowingRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
 	var failures []lint.Failure
+	var pending []pendingShadow
 
 	w := &lintVariableShadowing{
 		onFailure: func(f lint.Failure) {
 			failures = append(failures, f)
 		},
-		scopes: nil,
+		scopes:         nil,
+		strict:         r.strict,
+		pendingShadows: &pending,
 	}
 
 	// Collect top-level scope names from the file scope.
@@ -40,29 +71,6 @@ func (r *NoVariableShadowingRule) Apply(file *lint.File, _ lint.Arguments) []lin
 // Note: this rule specifically is a bad idea to implement with ApplyToNode,
 // because of file.AST.Scope pass it would do down below for every Node..
 
-// ApplyToNode applies the rule while walking the AST together with other rules
-// func (r *NoVariableShadowingRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
-// 	var failures []lint.Failure
-
-// 	w := &lintVariableShadowing{
-// 		onFailure: func(f lint.Failure) {
-// 			failures = append(failures, f)
-// 		},
-// 		scopes: nil,
-// 	}
-
-// 	if file.AST.Scope != nil {
-// 		topScope := make(map[string]token.Pos)
-// 		for name, obj := range file.AST.Scope.Objects {
-// 			topScope[name] = obj.Pos()
-// 		}
-// 		w.scopes = append(w.scopes, topScope)
-// 	}
-
-// 	w.Visit(node)
-// 	return failures
-// }
-
 // Name returns the rule name.
 func (*NoVariableShadowingRule) Name() string {
 	return "noVariableShadowing"
@@ -78,11 +86,23 @@ func (*NoVariableShadowingRule) CacheTier() rulecache.CacheTier {
 	return rulecache.TierFileOnly
 }
 
+// pendingShadow records a shadow that needs to be confirmed against
+// remaining statements in non-strict mode.
+type pendingShadow struct {
+	failure    lint.Failure
+	name       string
+	scopeDepth int // depth (index) of the scope where the shadowed outer variable lives
+}
+
 type lintVariableShadowing struct {
 	onFailure func(lint.Failure)
 	// scopes is a stack of variable name -> declaration position maps.
 	// Each entry represents an enclosing scope.
 	scopes []map[string]token.Pos
+	strict bool
+	// pendingShadows collects shadows in non-strict mode for deferred resolution.
+	// Shared across inner walkers via pointer so shadows bubble up.
+	pendingShadows *[]pendingShadow
 }
 
 func (w *lintVariableShadowing) Visit(node ast.Node) ast.Visitor {
@@ -134,13 +154,13 @@ func (w *lintVariableShadowing) visitFunc(funcType *ast.FuncType, body *ast.Bloc
 	// We walk the body statements directly (not via walkBlock) to avoid
 	// creating an extra scope level, since params and body share a scope.
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), funcScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), funcScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
-	for _, stmt := range body.List {
-		inner.walkStmt(stmt)
-	}
+	inner.walkStmtList(body.List)
 }
 
 // walkBlock walks a block statement, creating a new scope for it.
@@ -152,12 +172,45 @@ func (w *lintVariableShadowing) walkBlock(block *ast.BlockStmt) {
 	// This block introduces a new scope.
 	blockScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), blockScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), blockScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
-	for _, stmt := range block.List {
-		inner.walkStmt(stmt)
+	inner.walkStmtList(block.List)
+}
+
+// walkStmtList walks a list of statements sequentially. In non-strict mode,
+// it resolves pending shadows by checking if the shadowed outer variable is
+// referenced in subsequent statements. Shadows are only resolved at the scope
+// level where the shadowed variable was defined — shadows of variables from
+// deeper outer scopes pass through to be resolved at the appropriate level.
+func (w *lintVariableShadowing) walkStmtList(stmts []ast.Stmt) {
+	// The current scope depth is the index of the innermost scope.
+	currentDepth := len(w.scopes) - 1
+
+	for i, stmt := range stmts {
+		beforeLen := len(*w.pendingShadows)
+		w.walkStmt(stmt)
+
+		if !w.strict && len(*w.pendingShadows) > beforeLen {
+			remaining := stmts[i+1:]
+			newPending := (*w.pendingShadows)[beforeLen:]
+			var kept []pendingShadow
+			for _, ps := range newPending {
+				if ps.scopeDepth == currentDepth {
+					// The shadowed variable lives in OUR scope — resolve here.
+					if identUsedInStmts(ps.name, remaining) {
+						w.onFailure(ps.failure)
+					}
+				} else {
+					// The shadowed variable lives further out — pass through.
+					kept = append(kept, ps)
+				}
+			}
+			*w.pendingShadows = append((*w.pendingShadows)[:beforeLen], kept...)
+		}
 	}
 }
 
@@ -242,8 +295,10 @@ func (w *lintVariableShadowing) walkExprForFuncLit(expr ast.Expr) {
 	ast.Inspect(expr, func(n ast.Node) bool {
 		if fl, ok := n.(*ast.FuncLit); ok {
 			inner := &lintVariableShadowing{
-				onFailure: w.onFailure,
-				scopes:    copyScopes(w.scopes),
+				onFailure:      w.onFailure,
+				scopes:         copyScopes(w.scopes),
+				strict:         w.strict,
+				pendingShadows: w.pendingShadows,
 			}
 			inner.visitFunc(fl.Type, fl.Body)
 			return false
@@ -256,8 +311,10 @@ func (w *lintVariableShadowing) walkExprForFuncLit(expr ast.Expr) {
 func (w *lintVariableShadowing) walkIfStmt(s *ast.IfStmt) {
 	ifScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), ifScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), ifScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
 	if s.Init != nil {
@@ -275,8 +332,10 @@ func (w *lintVariableShadowing) walkIfStmt(s *ast.IfStmt) {
 func (w *lintVariableShadowing) walkForStmt(s *ast.ForStmt) {
 	forScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), forScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), forScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
 	if s.Init != nil {
@@ -289,8 +348,10 @@ func (w *lintVariableShadowing) walkForStmt(s *ast.ForStmt) {
 func (w *lintVariableShadowing) walkRangeStmt(s *ast.RangeStmt) {
 	rangeScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), rangeScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), rangeScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
 	if s.Tok == token.DEFINE {
@@ -309,8 +370,10 @@ func (w *lintVariableShadowing) walkRangeStmt(s *ast.RangeStmt) {
 func (w *lintVariableShadowing) walkSwitchStmt(s *ast.SwitchStmt) {
 	switchScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), switchScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), switchScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
 	if s.Init != nil {
@@ -330,8 +393,10 @@ func (w *lintVariableShadowing) walkSwitchStmt(s *ast.SwitchStmt) {
 func (w *lintVariableShadowing) walkTypeSwitchStmt(s *ast.TypeSwitchStmt) {
 	switchScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), switchScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), switchScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
 	if s.Init != nil {
@@ -355,30 +420,30 @@ func (w *lintVariableShadowing) walkTypeSwitchStmt(s *ast.TypeSwitchStmt) {
 func (w *lintVariableShadowing) walkCaseClause(clause *ast.CaseClause) {
 	caseScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), caseScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), caseScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
-	for _, stmt := range clause.Body {
-		inner.walkStmt(stmt)
-	}
+	inner.walkStmtList(clause.Body)
 }
 
 // walkCommClause handles comm clauses in select statements.
 func (w *lintVariableShadowing) walkCommClause(clause *ast.CommClause) {
 	commScope := make(map[string]token.Pos)
 	inner := &lintVariableShadowing{
-		onFailure: w.onFailure,
-		scopes:    append(copyScopes(w.scopes), commScope),
+		onFailure:      w.onFailure,
+		scopes:         append(copyScopes(w.scopes), commScope),
+		strict:         w.strict,
+		pendingShadows: w.pendingShadows,
 	}
 
 	if clause.Comm != nil {
 		inner.walkStmt(clause.Comm)
 	}
 
-	for _, stmt := range clause.Body {
-		inner.walkStmt(stmt)
-	}
+	inner.walkStmtList(clause.Body)
 }
 
 // checkShortVarDecl checks a short variable declaration for shadowed variables.
@@ -412,12 +477,21 @@ func (w *lintVariableShadowing) checkShadowAndAdd(ident *ast.Ident) {
 	if len(w.scopes) > 1 {
 		for i := len(w.scopes) - 2; i >= 0; i-- {
 			if _, exists := w.scopes[i][name]; exists {
-				w.onFailure(lint.Failure{
+				f := lint.Failure{
 					Confidence: 1,
 					Node:       ident,
 					Category:   lint.FailureCategoryLogic,
 					Failure:    fmt.Sprintf("variable %s shadows variable from outer scope", name),
-				})
+				}
+				if w.strict {
+					w.onFailure(f)
+				} else {
+					*w.pendingShadows = append(*w.pendingShadows, pendingShadow{
+						failure:    f,
+						name:       name,
+						scopeDepth: i,
+					})
+				}
 				break
 			}
 		}
@@ -451,4 +525,33 @@ func copyScopes(scopes []map[string]token.Pos) []map[string]token.Pos {
 	result := make([]map[string]token.Pos, len(scopes))
 	copy(result, scopes)
 	return result
+}
+
+// identUsedInStmts checks whether a variable name is referenced as an identifier
+// anywhere within the given statements. Used in non-strict mode to determine
+// if a shadowed outer variable is still relevant after the shadowing scope.
+func identUsedInStmts(name string, stmts []ast.Stmt) bool {
+	for _, stmt := range stmts {
+		if identUsedInNode(name, stmt) {
+			return true
+		}
+	}
+	return false
+}
+
+// identUsedInNode checks whether a variable name is referenced as an identifier
+// anywhere within the given AST node.
+func identUsedInNode(name string, node ast.Node) bool {
+	found := false
+	ast.Inspect(node, func(n ast.Node) bool {
+		if found {
+			return false
+		}
+		if ident, ok := n.(*ast.Ident); ok && ident.Name == name {
+			found = true
+			return false
+		}
+		return true
+	})
+	return found
 }

@@ -13,7 +13,45 @@ import (
 )
 
 // NoPrintfFormatMismatchRule checks that printf format strings match the provided arguments.
-type NoPrintfFormatMismatchRule struct{}
+type NoPrintfFormatMismatchRule struct {
+	customPrintfFuncs []printfFunc
+}
+
+// Configure validates the rule configuration, and configures the rule accordingly.
+//
+// Configure implements the [lint.ConfigurableRule] interface.
+func (r *NoPrintfFormatMismatchRule) Configure(arguments lint.Arguments) error {
+	r.customPrintfFuncs = nil
+	if len(arguments) < 1 {
+		return nil
+	}
+
+	argKV, ok := arguments[0].(map[string]any)
+	if !ok {
+		return fmt.Errorf(`invalid argument to the "noPrintfFormatMismatch" rule, expecting a k,v map, got %T`, arguments[0])
+	}
+
+	funcsVal, ok := argKV["funcs"]
+	if !ok {
+		return nil
+	}
+
+	funcsList, ok := funcsVal.([]any)
+	if !ok {
+		return fmt.Errorf(`invalid "funcs" value in "noPrintfFormatMismatch" rule; need []string but got %T`, funcsVal)
+	}
+
+	for _, f := range funcsList {
+		s, ok := f.(string)
+		if !ok {
+			return fmt.Errorf(`invalid func entry in "noPrintfFormatMismatch" rule; need string but got %T`, f)
+		}
+		pf := parseCustomPrintfFunc(s)
+		r.customPrintfFuncs = append(r.customPrintfFuncs, pf)
+	}
+
+	return nil
+}
 
 // Apply applies the rule to given file.
 func (r *NoPrintfFormatMismatchRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
@@ -26,6 +64,7 @@ func (r *NoPrintfFormatMismatchRule) Apply(file *lint.File, _ lint.Arguments) []
 		onFailure: func(f lint.Failure) {
 			failures = append(failures, f)
 		},
+		customPrintfFuncs: r.customPrintfFuncs,
 	}
 
 	ast.Walk(w, file.AST)
@@ -53,8 +92,9 @@ func (*NoPrintfFormatMismatchRule) RequiresTypecheck() bool {
 }
 
 type lintPrintfFormatMismatch struct {
-	pkg       *lint.Package
-	onFailure func(lint.Failure)
+	pkg               *lint.Package
+	onFailure         func(lint.Failure)
+	customPrintfFuncs []printfFunc
 }
 
 // printfFunc describes a printf-like function.
@@ -101,6 +141,36 @@ var nonPrintfFunctions = []nonPrintfFunc{
 	{pkg: "log", name: "Panicln"},
 }
 
+// parseCustomPrintfFunc parses a custom printf function pattern from golangci-lint format.
+// Supported formats:
+//   - "(pkg/path.Type).Method" → matches calls like obj.Method(...)
+//   - "pkg.Func" → matches calls like pkg.Func(...)
+//   - "Func" → matches bare function calls
+//
+// All custom functions are assumed to have their format string as the first argument.
+func parseCustomPrintfFunc(pattern string) printfFunc {
+	// Handle method expression: (pkg/path.Type).Method
+	if strings.HasPrefix(pattern, "(") {
+		if idx := strings.Index(pattern, ")."); idx >= 0 {
+			methodName := pattern[idx+2:]
+			return printfFunc{name: methodName, fmtArgIdx: 0, isPrintf: true}
+		}
+	}
+
+	// Handle package-qualified: pkg.Func
+	if idx := strings.LastIndex(pattern, "."); idx >= 0 {
+		pkg := pattern[:idx]
+		// Use just the last component of the package path as the local name.
+		if slashIdx := strings.LastIndex(pkg, "/"); slashIdx >= 0 {
+			pkg = pkg[slashIdx+1:]
+		}
+		return printfFunc{pkg: pkg, name: pattern[idx+1:], fmtArgIdx: 0, isPrintf: true}
+	}
+
+	// Bare function name.
+	return printfFunc{name: pattern, fmtArgIdx: 0, isPrintf: true}
+}
+
 func (w *lintPrintfFormatMismatch) Visit(node ast.Node) ast.Visitor {
 	call, ok := node.(*ast.CallExpr)
 	if !ok {
@@ -133,6 +203,19 @@ func (w *lintPrintfFormatMismatch) Visit(node ast.Node) ast.Visitor {
 
 	// Check printf-style functions
 	for _, pf := range printfFunctions {
+		if pkgName == pf.pkg && funcName == pf.name {
+			w.checkPrintfCall(call, pf)
+			return w
+		}
+	}
+
+	// Check custom printf-style functions from configuration.
+	for _, pf := range w.customPrintfFuncs {
+		if pf.pkg == "" && funcName == pf.name {
+			// Bare function name match.
+			w.checkPrintfCall(call, pf)
+			return w
+		}
 		if pkgName == pf.pkg && funcName == pf.name {
 			w.checkPrintfCall(call, pf)
 			return w

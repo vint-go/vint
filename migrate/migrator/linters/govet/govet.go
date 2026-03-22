@@ -185,6 +185,40 @@ func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vint
 						}
 					}
 				}
+
+				// Map printf settings (funcs option).
+				if printfSettings, ok := settingsMap["printf"]; ok {
+					if pf, ok := printfSettings.(map[string]any); ok {
+						if _, exists := configs["lint/correctness/noPrintfFormatMismatch"]; exists {
+							opts := map[string]any{}
+							if funcs, ok := pf["funcs"]; ok {
+								opts["funcs"] = funcs
+							}
+							if len(opts) > 0 {
+								configs["lint/correctness/noPrintfFormatMismatch"] = migrate.VintRuleConfig{
+									Options: opts,
+								}
+							}
+						}
+					}
+				}
+
+				// Map shadow settings (strict option).
+				if shadowSettings, ok := settingsMap["shadow"]; ok {
+					if ss, ok := shadowSettings.(map[string]any); ok {
+						if _, exists := configs["lint/suspicious/noVariableShadowing"]; exists {
+							opts := map[string]any{}
+							if strict, ok := ss["strict"]; ok {
+								opts["strict"] = strict
+							}
+							if len(opts) > 0 {
+								configs["lint/suspicious/noVariableShadowing"] = migrate.VintRuleConfig{
+									Options: opts,
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
