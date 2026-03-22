@@ -27,22 +27,22 @@ func (r *NoNakedReturnRule) Configure(arguments lint.Arguments) error {
 
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
-		// try direct int64 argument
-		lines, ok := arguments[0].(int64)
+		// try direct int argument
+		lines, ok := toInt(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noNakedReturn" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noNakedReturn" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
-		r.maxFuncLines = int(lines)
+		r.maxFuncLines = lines
 		return nil
 	}
 
 	for k, v := range argKV {
 		if normalizeOption(k) == normalizeOption("maxFuncLines") {
-			lines, ok := v.(int64)
+			lines, ok := toInt(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for maxFuncLines in "noNakedReturn" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for maxFuncLines in "noNakedReturn" rule; need integer but got %T`, v)
 			}
-			r.maxFuncLines = int(lines)
+			r.maxFuncLines = lines
 		}
 	}
 
@@ -174,4 +174,17 @@ func (f *nakedReturnFinder) Visit(node ast.Node) ast.Visitor {
 
 func normalizeOption(s string) string {
 	return strings.ToLower(strings.ReplaceAll(s, "-", ""))
+}
+
+// toInt converts a value to int, supporting both int and int64 (YAML v3 decodes
+// integers as Go int, while some code paths may provide int64).
+func toInt(v any) (int, bool) {
+	switch n := v.(type) {
+	case int:
+		return n, true
+	case int64:
+		return int(n), true
+	default:
+		return 0, false
+	}
 }
