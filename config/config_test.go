@@ -49,6 +49,9 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/useErrorf": {
 							Severity: lint.SeverityWarning,
 						},
+						"lint/correctness/useErrorsAs": {
+							Severity: lint.SeverityWarning,
+						},
 						"lint/style/useExportedComment": {
 							Severity: lint.SeverityWarning,
 						},
@@ -458,6 +461,9 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityWarning,
 						},
 						"lint/correctness/noNonCanonicalHeaderKey": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/correctness/noNonWrappingErrorf": {
 							Severity: lint.SeverityWarning,
 						},
 						"lint/style/noRedundantCanonicalHeaderKey": {
@@ -1148,6 +1154,7 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/useErrorNaming":                          {},
 						"lint/style/noErrorStrings":                         {},
 						"lint/style/useErrorf":                                {},
+						"lint/correctness/useErrorsAs":                        {},
 						"lint/style/useExportedComment":                              {},
 						"increment-decrement":                   {},
 						"lint/style/useIndentErrorFlow":                     {},
@@ -1285,6 +1292,7 @@ func TestGetConfig(t *testing.T) {
 						"lint/correctness/noTestMainWithoutExit":         {},
 						"lint/correctness/noMalformedTestFunction":       {},
 						"lint/correctness/noNonCanonicalHeaderKey":       {},
+						"lint/correctness/noNonWrappingErrorf":           {},
 						"lint/style/noRedundantCanonicalHeaderKey":       {},
 						"lint/correctness/noNonPointerUnmarshal":         {},
 						"lint/correctness/noUnmarshalableType":           {},
@@ -1531,6 +1539,9 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityError,
 						},
 						"lint/style/useErrorf": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/useErrorsAs": {
 							Severity: lint.SeverityError,
 						},
 						"lint/style/useExportedComment": {
@@ -1946,6 +1957,9 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityError,
 						},
 						"lint/correctness/noNonCanonicalHeaderKey": {
+							Severity: lint.SeverityError,
+						},
+						"lint/correctness/noNonWrappingErrorf": {
 							Severity: lint.SeverityError,
 						},
 						"lint/style/noRedundantCanonicalHeaderKey": {
@@ -2730,9 +2744,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 350
+		defaultRulesCount = 352
 		// len of allRules: update this when adding new rules
-		allRulesCount = 493
+		allRulesCount = 495
 	)
 
 	tt := map[string]struct {

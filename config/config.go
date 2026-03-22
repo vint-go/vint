@@ -80,6 +80,7 @@ import (
 	"github.com/strowk/vint/rules/no_dynamic_errors"
 	"github.com/strowk/vint/rules/no_error_strings"
 	"github.com/strowk/vint/rules/use_errorf"
+	"github.com/strowk/vint/rules/use_errors_as"
 	"github.com/strowk/vint/rules/no_dynamic_format_string"
 	"github.com/strowk/vint/rules/no_empty_branch"
 	"github.com/strowk/vint/rules/no_empty_critical_section"
@@ -234,6 +235,7 @@ import (
 	"github.com/strowk/vint/rules/no_nolint_without_explanation"
 	"github.com/strowk/vint/rules/no_nolint_without_specific_linter"
 	"github.com/strowk/vint/rules/no_non_canonical_header_key"
+	"github.com/strowk/vint/rules/no_non_wrapping_errorf"
 	"github.com/strowk/vint/rules/no_redundant_build_tag"
 	"github.com/strowk/vint/rules/no_redundant_canonical_header_key"
 	"github.com/strowk/vint/rules/no_redundant_import_alias"
@@ -858,6 +860,8 @@ var defaultRules = []lint.Rule{
 	&no_redundant_var_type.NoRedundantVarTypeRule{},
 	&use_loop_condition.UseLoopConditionRule{},
 	&use_simplified_selector.UseSimplifiedSelectorRule{},
+	&no_non_wrapping_errorf.NoNonWrappingErrorfRule{},
+	&use_errors_as.UseErrorsAsRule{},
 }
 
 var allRules = append([]lint.Rule{
