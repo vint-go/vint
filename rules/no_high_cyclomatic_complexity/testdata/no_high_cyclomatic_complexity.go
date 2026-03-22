@@ -41,8 +41,8 @@ func highComplexity(a, b, c, d, e int) int { // MATCH /function highComplexity h
 	return a + b + c + d + e
 }
 
-// complexity = 1 (func) + 9 cases + 3 ifs + 1 for = 14, exceeds threshold of 5
-func evaluate(op string, a, b int) (int, error) { // MATCH /function evaluate has cyclomatic complexity 14 (> max enabled 5)/
+// complexity = 1 (func) + 8 cases + 3 ifs + 1 for = 13, exceeds threshold of 5 (default case excluded)
+func evaluate(op string, a, b int) (int, error) { // MATCH /function evaluate has cyclomatic complexity 13 (> max enabled 5)/
 	switch op {
 	case "add":
 		return a + b, nil

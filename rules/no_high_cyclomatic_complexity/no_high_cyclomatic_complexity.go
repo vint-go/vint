@@ -119,8 +119,16 @@ type cyclomaticComplexityVisitor struct {
 // Visit implements the [ast.Visitor] interface.
 func (v *cyclomaticComplexityVisitor) Visit(n ast.Node) ast.Visitor {
 	switch n := n.(type) {
-	case *ast.FuncDecl, *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt, *ast.CaseClause, *ast.CommClause:
+	case *ast.FuncDecl, *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt:
 		v.complexity++
+	case *ast.CaseClause:
+		if n.List != nil {
+			v.complexity++
+		}
+	case *ast.CommClause:
+		if n.Comm != nil {
+			v.complexity++
+		}
 	case *ast.BinaryExpr:
 		if n.Op == token.LAND || n.Op == token.LOR {
 			v.complexity++
