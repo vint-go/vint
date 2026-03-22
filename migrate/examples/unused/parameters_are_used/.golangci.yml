@@ -1,0 +1,8 @@
+version: "2"
+
+linters:
+  enable:
+    - unused
+  settings:
+    unused:
+      parameters-are-used: false

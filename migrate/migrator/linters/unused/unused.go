@@ -68,5 +68,15 @@ func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vint
 	}
 	configs["lint/correctness/noUnusedVariable"] = migrate.VintRuleConfig{Options: varOpts}
 
+	// parameters-are-used: when set to false, enable noUnusedParameter.
+	// Default is true (parameters considered used, not checked).
+	if settings != nil {
+		if v, ok := settings["parameters-are-used"]; ok {
+			if b, ok := v.(bool); ok && !b {
+				configs["lint/suspicious/noUnusedParameter"] = migrate.VintRuleConfig{}
+			}
+		}
+	}
+
 	return configs, nil
 }

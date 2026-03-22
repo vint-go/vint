@@ -1,0 +1,7 @@
+settings:
+    lint/correctness/noUnusedConstant: {}
+    lint/correctness/noUnusedField: {}
+    lint/correctness/noUnusedFunction: {}
+    lint/correctness/noUnusedType: {}
+    lint/correctness/noUnusedVariable: {}
+    lint/suspicious/noUnusedParameter: {}
