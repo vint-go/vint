@@ -10,6 +10,14 @@ func spacedDirective() {}
 // MATCH /malformed directive: possible misspelling of //go:noinline in "//go:noinlin"/
 func misspelled() {}
 
+//go:fakething
+// MATCH /unrecognized directive "//go:fakething"/
+func unrecognizedDirective() {}
+
+//go:custom
+// MATCH /unrecognized directive "//go:custom"/
+func customDirective() {}
+
 // Valid examples - should NOT trigger failures
 
 //go:noinline

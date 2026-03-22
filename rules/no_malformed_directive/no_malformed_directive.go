@@ -94,7 +94,7 @@ func (r *NoMalformedDirectiveRule) Apply(file *lint.File, _ lint.Arguments) []li
 				continue
 			}
 
-			// Unknown directive: check if it's a misspelling of a known one
+			// Unknown directive: flag it. If close to a known one, suggest the correction.
 			closest := findClosestDirective(directiveName)
 			if closest != "" {
 				failures = append(failures, lint.Failure{
@@ -102,6 +102,13 @@ func (r *NoMalformedDirectiveRule) Apply(file *lint.File, _ lint.Arguments) []li
 					Confidence: 1,
 					Node:       comment,
 					Failure:    fmt.Sprintf("malformed directive: possible misspelling of //go:%s in %q", closest, text),
+				})
+			} else {
+				failures = append(failures, lint.Failure{
+					Category:   lint.FailureCategoryBadPractice,
+					Confidence: 1,
+					Node:       comment,
+					Failure:    fmt.Sprintf("unrecognized directive %q", text),
 				})
 			}
 		}
