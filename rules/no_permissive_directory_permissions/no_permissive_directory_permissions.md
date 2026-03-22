@@ -14,12 +14,14 @@ title: noPermissiveDirectoryPermissions
 ```yaml title="vint.yaml"
 settings:
   lint/security/noPermissiveDirectoryPermissions:
-    # rule options here
+    maxPermission: "0750"
 ```
 
 ## Details
 
 Detects poor file permissions used when creating a directory.
+
+The `maxPermission` option allows customizing the maximum allowed directory permission mode. The value can be specified as an octal string (e.g., `"0750"`) or decimal integer. Default is `0750`.
 
 This rule monitors calls to `os.Mkdir` and `os.MkdirAll` and flags cases where the permission mode is more permissive than `0750` (default threshold). Overly permissive directory permissions can allow other users on the system to read, write, or traverse directories that should be restricted.
 

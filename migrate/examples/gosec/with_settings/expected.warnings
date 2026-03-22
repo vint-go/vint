@@ -1,0 +1,2 @@
+gosec: "severity" filter is not supported in vint — all matching findings are reported
+gosec: "confidence" filter is not supported in vint — all matching findings are reported

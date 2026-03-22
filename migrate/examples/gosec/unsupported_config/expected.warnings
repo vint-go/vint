@@ -1,0 +1,6 @@
+gosec: "severity" filter is not supported in vint — all matching findings are reported
+gosec: "confidence" filter is not supported in vint — all matching findings are reported
+gosec: "global.nosec" setting is not supported in vint — use "//nolint:" directives instead
+gosec: "global.audit" setting is not supported in vint — rules run at their default strictness
+gosec: per-rule config for G104 (unchecked errors) is not supported in vint
+gosec: per-rule config for G111 (directory serving pattern) is not supported in vint

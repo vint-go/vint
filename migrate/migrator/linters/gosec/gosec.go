@@ -1,6 +1,10 @@
 package gosec
 
-import "github.com/strowk/vint/migrate"
+import (
+	"fmt"
+
+	"github.com/strowk/vint/migrate"
+)
 
 func init() {
 	migrate.RegisterMigrator(&Migrator{})
@@ -10,10 +14,17 @@ func init() {
 // gosec inspects source code for security problems by scanning the Go AST
 // and SSA code representation. It supports includes/excludes to control
 // which rules are active, plus per-rule configuration.
-type Migrator struct{}
+type Migrator struct {
+	warnings []string
+}
 
 func (*Migrator) Name() string {
 	return "gosec"
+}
+
+// Warnings implements migrate.WarningReporter.
+func (m *Migrator) Warnings() []string {
+	return m.warnings
 }
 
 // allRules maps gosec rule IDs to their vint rule paths.
@@ -81,23 +92,153 @@ var allRules = map[string]string{
 	"G709": "lint/security/noUnsafeDeserialization",
 }
 
-func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.VintRuleConfig, error) {
+func (m *Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.VintRuleConfig, error) {
+	m.warnings = nil // reset from any previous call
 	configs := make(map[string]migrate.VintRuleConfig)
 
 	// Determine which gosec rule IDs are active based on includes/excludes.
 	activeIDs := resolveActiveRules(settings)
 
-	// Enable each active rule in vint config.
+	// Extract per-rule config map if present.
+	var perRuleConfig map[string]any
+	if settings != nil {
+		if v, ok := settings["config"]; ok {
+			if cfg, ok := v.(map[string]any); ok {
+				perRuleConfig = cfg
+			}
+		}
+	}
+
+	// Warn about unsupported top-level settings.
+	if settings != nil {
+		if _, ok := settings["severity"]; ok {
+			m.warnings = append(m.warnings, `gosec: "severity" filter is not supported in vint — all matching findings are reported`)
+		}
+		if _, ok := settings["confidence"]; ok {
+			m.warnings = append(m.warnings, `gosec: "confidence" filter is not supported in vint — all matching findings are reported`)
+		}
+	}
+
+	// Warn about unsupported per-rule configs.
+	if perRuleConfig != nil {
+		// global.nosec
+		if v, ok := perRuleConfig["global"]; ok {
+			if globalMap, ok := v.(map[string]any); ok {
+				if _, ok := globalMap["nosec"]; ok {
+					m.warnings = append(m.warnings, `gosec: "global.nosec" setting is not supported in vint — use "//nolint:" directives instead`)
+				}
+				if _, ok := globalMap["audit"]; ok {
+					m.warnings = append(m.warnings, `gosec: "global.audit" setting is not supported in vint — rules run at their default strictness`)
+				}
+			}
+		}
+		// G104.fmt
+		if _, ok := perRuleConfig["G104"]; ok {
+			if activeIDs["G104"] {
+				m.warnings = append(m.warnings, `gosec: per-rule config for G104 (unchecked errors) is not supported in vint`)
+			}
+		}
+		// G111.pattern
+		if _, ok := perRuleConfig["G111"]; ok {
+			if activeIDs["G111"] {
+				m.warnings = append(m.warnings, `gosec: per-rule config for G111 (directory serving pattern) is not supported in vint`)
+			}
+		}
+	}
+
+	// Enable each active rule in vint config, passing through supported options.
 	for _, id := range sortedKeys(activeIDs) {
 		vintPath, ok := allRules[id]
 		if !ok {
-			// Rule ID not mapped to a vint rule (e.g. missing rules).
 			continue
 		}
-		configs[vintPath] = migrate.VintRuleConfig{}
+
+		cfg := migrate.VintRuleConfig{}
+
+		// Pass through supported per-rule configuration.
+		if perRuleConfig != nil {
+			switch id {
+			case "G101":
+				opts := migrateG101Config(perRuleConfig)
+				if len(opts) > 0 {
+					cfg.Options = opts
+				}
+			case "G301":
+				opts := migratePermissionConfig(perRuleConfig, "G301")
+				if len(opts) > 0 {
+					cfg.Options = opts
+				}
+			case "G302":
+				opts := migratePermissionConfig(perRuleConfig, "G302")
+				if len(opts) > 0 {
+					cfg.Options = opts
+				}
+			case "G306":
+				opts := migratePermissionConfig(perRuleConfig, "G306")
+				if len(opts) > 0 {
+					cfg.Options = opts
+				}
+			}
+		}
+
+		configs[vintPath] = cfg
 	}
 
 	return configs, nil
+}
+
+// migrateG101Config extracts G101 configuration (pattern, entropy_threshold)
+// and converts to vint options.
+func migrateG101Config(perRuleConfig map[string]any) map[string]any {
+	v, ok := perRuleConfig["G101"]
+	if !ok {
+		return nil
+	}
+
+	opts := make(map[string]any)
+
+	switch val := v.(type) {
+	case map[string]any:
+		if pattern, ok := val["pattern"]; ok {
+			if s, ok := pattern.(string); ok {
+				opts["pattern"] = s
+			}
+		}
+		if et, ok := val["entropy_threshold"]; ok {
+			switch threshold := et.(type) {
+			case string:
+				opts["entropyThreshold"] = threshold
+			case float64:
+				opts["entropyThreshold"] = fmt.Sprintf("%g", threshold)
+			}
+		}
+	}
+
+	return opts
+}
+
+// migratePermissionConfig extracts a permission threshold from per-rule config
+// for G301, G302, or G306 and converts to vint maxPermission option.
+func migratePermissionConfig(perRuleConfig map[string]any, ruleID string) map[string]any {
+	v, ok := perRuleConfig[ruleID]
+	if !ok {
+		return nil
+	}
+
+	// gosec permission config can be a string like "0750" directly,
+	// or a map with a threshold key.
+	switch val := v.(type) {
+	case string:
+		return map[string]any{"maxPermission": val}
+	case map[string]any:
+		if threshold, ok := val["threshold"]; ok {
+			if s, ok := threshold.(string); ok {
+				return map[string]any{"maxPermission": s}
+			}
+		}
+	}
+
+	return nil
 }
 
 // resolveActiveRules determines which gosec rule IDs should be active

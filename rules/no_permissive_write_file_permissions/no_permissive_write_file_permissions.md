@@ -14,10 +14,12 @@ title: noPermissiveWriteFilePermissions
 ```yaml title="vint.yaml"
 settings:
   lint/security/noPermissiveWriteFilePermissions:
-    # rule options here
+    maxPermission: "0600"
 ```
 
 ## Details
+
+The `maxPermission` option allows customizing the maximum allowed file permission mode when writing files. The value can be specified as an octal string (e.g., `"0600"`) or decimal integer. Default is `0600`.
 
 Detects poor file permissions used when writing to a file with `os.WriteFile` or `ioutil.WriteFile`.
 

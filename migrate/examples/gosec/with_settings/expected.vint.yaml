@@ -1,5 +1,7 @@
 settings:
     lint/security/noBindToAllInterfaces: {}
     lint/security/noFileInclusionViaVariable: {}
-    lint/security/noHardcodedCredentials: {}
+    lint/security/noHardcodedCredentials:
+        entropyThreshold: "80.0"
+        pattern: (?i)my_custom_secret
     lint/security/noSsrfViaVariable: {}

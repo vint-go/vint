@@ -134,6 +134,11 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 			continue
 		}
 
+		// Collect warnings from migrators that support it.
+		if wr, ok := m.(WarningReporter); ok {
+			result.Warnings = append(result.Warnings, wr.Warnings()...)
+		}
+
 		for k, v := range configs {
 			allConfigs[k] = v
 		}

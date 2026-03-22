@@ -14,12 +14,18 @@ title: noHardcodedCredentials
 ```yaml title="vint.yaml"
 settings:
   lint/security/noHardcodedCredentials:
-    # rule options here
+    pattern: "(?i)(passwd|password|pwd|secret|token|api[_-]?key|apikey|access[_-]?key|auth[_-]?token|credentials?)"
+    entropyThreshold: 3.5
 ```
 
 ## Details
 
 Detects hardcoded credentials such as passwords, API keys, and tokens embedded directly in Go source code.
+
+Configuration options:
+
+- `pattern`: Custom regex pattern for matching credential variable names. Defaults to matching common credential identifiers.
+- `entropyThreshold`: Minimum Shannon entropy for a string to be flagged during entropy analysis. Default is `3.5`.
 
 This rule scans variable assignments, declarations, equality comparisons, and composite literals for credential-like patterns. It matches variable names against common credential identifiers (e.g., `passwd`, `password`, `secret`, `token`, `apiKey`) and checks string values against known secret formats including AWS access keys, Slack tokens, GitHub tokens, and Google API keys.
 

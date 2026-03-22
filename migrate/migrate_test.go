@@ -3,6 +3,7 @@ package migrate_test
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -68,6 +69,25 @@ func TestMigrateConfigExamples(t *testing.T) {
 				if normalizeYAML(result.VintYAML) != normalizeYAML(string(expected)) {
 					t.Errorf("vint.yaml mismatch:\n--- expected ---\n%s\n--- got ---\n%s",
 						string(expected), result.VintYAML)
+				}
+			}
+
+			// Check warnings.
+			expectedWarningsPath := filepath.Join(ex.dir, "expected.warnings")
+			if _, err := os.Stat(expectedWarningsPath); err == nil {
+				expected, err := os.ReadFile(expectedWarningsPath)
+				if err != nil {
+					t.Fatalf("read expected.warnings: %v", err)
+				}
+
+				expectedWarnings := parseWarnings(string(expected))
+				gotWarnings := slices.Clone(result.Warnings)
+				slices.Sort(expectedWarnings)
+				slices.Sort(gotWarnings)
+
+				if !slices.Equal(expectedWarnings, gotWarnings) {
+					t.Errorf("warnings mismatch:\n--- expected ---\n%s\n--- got ---\n%s",
+						strings.Join(expectedWarnings, "\n"), strings.Join(gotWarnings, "\n"))
 				}
 			}
 
@@ -137,4 +157,17 @@ func normalizeYAML(s string) string {
 
 func normalizeSource(s string) string {
 	return strings.TrimSpace(s)
+}
+
+// parseWarnings extracts non-empty, non-comment lines from an expected.warnings file.
+func parseWarnings(content string) []string {
+	var warnings []string
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		warnings = append(warnings, line)
+	}
+	return warnings
 }

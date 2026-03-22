@@ -1,0 +1,4 @@
+settings:
+    lint/correctness/noUncheckedError: {}
+    lint/security/noFilesystemRootServing: {}
+    lint/security/noHardcodedCredentials: {}

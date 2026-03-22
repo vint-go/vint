@@ -1,0 +1,22 @@
+version: "2"
+
+linters:
+  enable:
+    - gosec
+  settings:
+    gosec:
+      includes:
+        - G101
+        - G104
+        - G111
+      config:
+        global:
+          nosec: true
+          audit: true
+        G104:
+          fmt:
+            - fmt.Errorf
+        G111:
+          pattern: "^/usr/local/"
+      severity: high
+      confidence: medium

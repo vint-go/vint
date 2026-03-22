@@ -1,6 +1,7 @@
 package no_hardcoded_credentials
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"math"
@@ -13,16 +14,77 @@ import (
 
 // NoHardcodedCredentialsRule detects hardcoded credentials such as passwords,
 // API keys, and tokens embedded directly in Go source code.
-type NoHardcodedCredentialsRule struct{}
+type NoHardcodedCredentialsRule struct {
+	pattern          *regexp.Regexp
+	entropyThreshold float64
+}
+
+// Configure implements lint.ConfigurableRule.
+func (r *NoHardcodedCredentialsRule) Configure(arguments lint.Arguments) error {
+	// Set defaults
+	r.pattern = credentialNamePatterns
+	r.entropyThreshold = defaultEntropyThreshold
+
+	if len(arguments) < 1 {
+		return nil
+	}
+
+	argKV, ok := arguments[0].(map[string]any)
+	if !ok {
+		return fmt.Errorf(`invalid argument to the "noHardcodedCredentials" rule, expecting a k,v map, got %T`, arguments[0])
+	}
+
+	for k, v := range argKV {
+		switch k {
+		case "pattern":
+			s, ok := v.(string)
+			if !ok {
+				return fmt.Errorf(`invalid configuration value for pattern in "noHardcodedCredentials" rule; need string but got %T`, v)
+			}
+			re, err := regexp.Compile(s)
+			if err != nil {
+				return fmt.Errorf(`invalid regex pattern in "noHardcodedCredentials" rule: %w`, err)
+			}
+			r.pattern = re
+		case "entropyThreshold":
+			switch val := v.(type) {
+			case float64:
+				r.entropyThreshold = val
+			case int64:
+				r.entropyThreshold = float64(val)
+			case string:
+				f, err := strconv.ParseFloat(val, 64)
+				if err != nil {
+					return fmt.Errorf(`invalid entropyThreshold in "noHardcodedCredentials" rule: %w`, err)
+				}
+				r.entropyThreshold = f
+			default:
+				return fmt.Errorf(`invalid configuration value for entropyThreshold in "noHardcodedCredentials" rule; need float64 but got %T`, v)
+			}
+		}
+	}
+
+	return nil
+}
 
 // Apply applies the rule to given file.
 func (r *NoHardcodedCredentialsRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
 	var failures []lint.Failure
 
+	pattern := r.pattern
+	if pattern == nil {
+		pattern = credentialNamePatterns
+	}
+	threshold := r.entropyThreshold
+	if threshold == 0 {
+		threshold = defaultEntropyThreshold
+	}
 	w := &lintHardcodedCredentials{
 		onFailure: func(f lint.Failure) {
 			failures = append(failures, f)
 		},
+		pattern:          pattern,
+		entropyThreshold: threshold,
 	}
 	ast.Walk(w, file.AST)
 
@@ -64,11 +126,13 @@ var knownSecretPatterns = []*regexp.Regexp{
 // minEntropyLength is the minimum string length to consider for entropy analysis.
 const minEntropyLength = 12
 
-// entropyThreshold is the minimum Shannon entropy for a string to be flagged.
-const entropyThreshold = 3.5
+// defaultEntropyThreshold is the minimum Shannon entropy for a string to be flagged.
+const defaultEntropyThreshold = 3.5
 
 type lintHardcodedCredentials struct {
-	onFailure func(lint.Failure)
+	onFailure        func(lint.Failure)
+	pattern          *regexp.Regexp
+	entropyThreshold float64
 }
 
 func (w *lintHardcodedCredentials) Visit(node ast.Node) ast.Visitor {
@@ -92,14 +156,14 @@ func (w *lintHardcodedCredentials) checkAssignment(stmt *ast.AssignStmt) {
 		if !ok {
 			continue
 		}
-		if !credentialNamePatterns.MatchString(ident.Name) {
+		if !w.pattern.MatchString(ident.Name) {
 			continue
 		}
 		if i >= len(stmt.Rhs) {
 			continue
 		}
 		rhs := stmt.Rhs[i]
-		if isHardcodedString(rhs) {
+		if w.isHardcodedString(rhs) {
 			w.onFailure(lint.Failure{
 				Confidence: 1,
 				Node:       stmt,
@@ -121,13 +185,13 @@ func (w *lintHardcodedCredentials) checkGenDecl(decl *ast.GenDecl) {
 			continue
 		}
 		for i, name := range vs.Names {
-			if !credentialNamePatterns.MatchString(name.Name) {
+			if !w.pattern.MatchString(name.Name) {
 				continue
 			}
 			if i >= len(vs.Values) {
 				continue
 			}
-			if isHardcodedString(vs.Values[i]) {
+			if w.isHardcodedString(vs.Values[i]) {
 				w.onFailure(lint.Failure{
 					Confidence: 1,
 					Node:       vs,
@@ -147,7 +211,7 @@ func (w *lintHardcodedCredentials) checkBinaryExpr(expr *ast.BinaryExpr) {
 
 	// Check if left side is a credential-like name and right side is a string literal
 	if ident, ok := expr.X.(*ast.Ident); ok {
-		if credentialNamePatterns.MatchString(ident.Name) && isHardcodedString(expr.Y) {
+		if w.pattern.MatchString(ident.Name) && w.isHardcodedString(expr.Y) {
 			w.onFailure(lint.Failure{
 				Confidence: 1,
 				Node:       expr,
@@ -160,7 +224,7 @@ func (w *lintHardcodedCredentials) checkBinaryExpr(expr *ast.BinaryExpr) {
 
 	// Check if right side is a credential-like name and left side is a string literal
 	if ident, ok := expr.Y.(*ast.Ident); ok {
-		if credentialNamePatterns.MatchString(ident.Name) && isHardcodedString(expr.X) {
+		if w.pattern.MatchString(ident.Name) && w.isHardcodedString(expr.X) {
 			w.onFailure(lint.Failure{
 				Confidence: 1,
 				Node:       expr,
@@ -182,10 +246,10 @@ func (w *lintHardcodedCredentials) checkCompositeLit(lit *ast.CompositeLit) {
 		if !ok {
 			continue
 		}
-		if !credentialNamePatterns.MatchString(ident.Name) {
+		if !w.pattern.MatchString(ident.Name) {
 			continue
 		}
-		if isHardcodedString(kv.Value) {
+		if w.isHardcodedString(kv.Value) {
 			w.onFailure(lint.Failure{
 				Confidence: 1,
 				Node:       kv,
@@ -197,7 +261,7 @@ func (w *lintHardcodedCredentials) checkCompositeLit(lit *ast.CompositeLit) {
 }
 
 // isHardcodedString checks if an expression is a non-empty string literal.
-func isHardcodedString(expr ast.Expr) bool {
+func (w *lintHardcodedCredentials) isHardcodedString(expr ast.Expr) bool {
 	lit, ok := expr.(*ast.BasicLit)
 	if !ok || lit.Kind != token.STRING {
 		return false
@@ -218,7 +282,7 @@ func isHardcodedString(expr ast.Expr) bool {
 	}
 
 	// Perform entropy analysis for longer strings
-	if len(val) >= minEntropyLength && shannonEntropy(val) >= entropyThreshold {
+	if len(val) >= minEntropyLength && shannonEntropy(val) >= w.entropyThreshold {
 		return true
 	}
 

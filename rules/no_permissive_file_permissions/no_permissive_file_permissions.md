@@ -14,12 +14,14 @@ title: noPermissiveFilePermissions
 ```yaml title="vint.yaml"
 settings:
   lint/security/noPermissiveFilePermissions:
-    # rule options here
+    maxPermission: "0600"
 ```
 
 ## Details
 
 Detects poor file permissions used when creating a file or using `chmod`.
+
+The `maxPermission` option allows customizing the maximum allowed file permission mode. The value can be specified as an octal string (e.g., `"0600"`) or decimal integer. Default is `0600`.
 
 This rule monitors calls to `os.OpenFile` and `os.Chmod` and flags cases where the permission mode is more permissive than `0600` (default threshold). Overly permissive file permissions can allow other users on the system to read or modify files that should be private.
 

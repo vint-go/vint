@@ -17,3 +17,9 @@ type LinterMigrator interface {
 	// Returns map of fullVintRulePath → VintRuleConfig.
 	MigrateConfig(settings map[string]any) (map[string]VintRuleConfig, error)
 }
+
+// WarningReporter is an optional interface that migrators can implement
+// to report non-fatal warnings during migration.
+type WarningReporter interface {
+	Warnings() []string
+}

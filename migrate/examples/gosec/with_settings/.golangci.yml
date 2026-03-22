@@ -13,3 +13,10 @@ linters:
         - G304
       excludes:
         - G103
+      config:
+        G101:
+          pattern: "(?i)my_custom_secret"
+          entropy_threshold: "80.0"
+        G301: "0750"
+      severity: high
+      confidence: medium
