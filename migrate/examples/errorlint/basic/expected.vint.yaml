@@ -1,2 +1,4 @@
 settings:
     lint/correctness/noDirectErrorComparison: {}
+    lint/correctness/noNonWrappingErrorf: {}
+    lint/correctness/useErrorsAs: {}

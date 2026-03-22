@@ -29,7 +29,52 @@ func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vint
 		}
 	}
 	if enableComparison {
-		configs["lint/correctness/noDirectErrorComparison"] = migrate.VintRuleConfig{}
+		compOpts := map[string]any{}
+		if settings != nil {
+			if v, ok := settings["allowed-errors"]; ok {
+				compOpts["allowed-errors"] = v
+			}
+			if v, ok := settings["allowed-errors-wildcard"]; ok {
+				compOpts["allowed-errors-wildcard"] = v
+			}
+		}
+		configs["lint/correctness/noDirectErrorComparison"] = migrate.VintRuleConfig{
+			Options: compOpts,
+		}
+	}
+
+	// asserts (default: true) — enable useErrorsAs.
+	enableAsserts := true
+	if settings != nil {
+		if v, ok := settings["asserts"]; ok {
+			if b, ok := v.(bool); ok {
+				enableAsserts = b
+			}
+		}
+	}
+	if enableAsserts {
+		configs["lint/correctness/useErrorsAs"] = migrate.VintRuleConfig{}
+	}
+
+	// errorf (default: true) — enable noNonWrappingErrorf.
+	enableErrorf := true
+	if settings != nil {
+		if v, ok := settings["errorf"]; ok {
+			if b, ok := v.(bool); ok {
+				enableErrorf = b
+			}
+		}
+	}
+	if enableErrorf {
+		errorfOpts := map[string]any{}
+		if settings != nil {
+			if v, ok := settings["errorf-multi"]; ok {
+				errorfOpts["errorf-multi"] = v
+			}
+		}
+		configs["lint/correctness/noNonWrappingErrorf"] = migrate.VintRuleConfig{
+			Options: errorfOpts,
+		}
 	}
 
 	return configs, nil

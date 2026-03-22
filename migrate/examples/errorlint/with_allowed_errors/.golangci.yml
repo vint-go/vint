@@ -1,0 +1,13 @@
+version: "2"
+
+linters:
+  enable:
+    - errorlint
+  settings:
+    errorlint:
+      allowed-errors:
+        - err: "io.EOF"
+          fun: "example.com/pkg.Read"
+      allowed-errors-wildcard:
+        - err: "example.com/pkg.ErrMagic"
+          fun: "example.com/pkg.*"

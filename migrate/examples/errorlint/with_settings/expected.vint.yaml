@@ -1,1 +1,3 @@
-settings: {}
+settings:
+    lint/correctness/noNonWrappingErrorf: {}
+    lint/correctness/useErrorsAs: {}

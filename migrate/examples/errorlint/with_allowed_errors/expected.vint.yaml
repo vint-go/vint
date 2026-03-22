@@ -1,0 +1,10 @@
+settings:
+    lint/correctness/noDirectErrorComparison:
+        allowed-errors:
+            - err: io.EOF
+              fun: example.com/pkg.Read
+        allowed-errors-wildcard:
+            - err: example.com/pkg.ErrMagic
+              fun: example.com/pkg.*
+    lint/correctness/noNonWrappingErrorf: {}
+    lint/correctness/useErrorsAs: {}
