@@ -3,6 +3,7 @@ package no_constant_result
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 	"strings"
 
 	"github.com/strowk/vint/internal/astutils"
@@ -51,82 +52,21 @@ type resultInfo struct {
 	index     int // positional index among all individual result names
 }
 
-// Apply applies the rule to the given file.
-func (r *NoConstantResultRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
-	var failures []lint.Failure
-
-	for _, decl := range file.AST.Decls {
-		funcDecl, ok := decl.(*ast.FuncDecl)
-		if !ok || funcDecl.Body == nil {
-			continue
-		}
-
-		// Skip exported functions unless check-exported is enabled
-		if !r.checkExported && funcDecl.Name != nil && ast.IsExported(funcDecl.Name.Name) {
-			continue
-		}
-
-		results := collectNamedResults(funcDecl)
-		if len(results) == 0 {
-			continue
-		}
-
-		// Collect all return statements in the function body.
-		returnStmts := collectReturnStmts(funcDecl.Body)
-
-		// If there are no explicit return statements, skip. This can
-		// happen for functions that use bare returns or panic.
-		if len(returnStmts) == 0 {
-			continue
-		}
-
-		// For each named result, check if all return statements provide
-		// the same constant value at its position.
-		totalResults := countTotalResults(funcDecl)
-		for _, ri := range results {
-			constVal, isConst := checkConstantResult(returnStmts, ri.index, totalResults)
-			if !isConst {
-				continue
-			}
-
-			failures = append(failures, lint.Failure{
-				Confidence: 1,
-				Node:       funcDecl, // report at the function declaration
-				Category:   lint.FailureCategoryBadPractice,
-				Failure:    fmt.Sprintf("result %s is always %s", ri.name, constVal),
-			})
-		}
-	}
-
-	return failures
-}
-
-// ApplyToNode applies the rule while walking the AST together with other rules.
-func (r *NoConstantResultRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
-	funcDecl, ok := node.(*ast.FuncDecl)
-	if !ok || funcDecl.Body == nil {
-		return nil
-	}
-
-	// Skip exported functions unless check-exported is enabled
-	if !r.checkExported && funcDecl.Name != nil && ast.IsExported(funcDecl.Name.Name) {
-		return nil
-	}
-
+func (r *NoConstantResultRule) analyzeFunc(funcDecl *ast.FuncDecl) []lint.Failure {
 	results := collectNamedResults(funcDecl)
 	if len(results) == 0 {
 		return nil
 	}
 
-	returnStmts := collectReturnStmts(funcDecl.Body)
-	if len(returnStmts) == 0 {
+	returns := collectAllReturns(funcDecl.Body)
+	if len(returns) == 0 {
 		return nil
 	}
 
 	var failures []lint.Failure
 	totalResults := countTotalResults(funcDecl)
 	for _, ri := range results {
-		constVal, isConst := checkConstantResult(returnStmts, ri.index, totalResults)
+		constVal, isConst := analyzeResultConstancy(funcDecl.Body, ri, totalResults)
 		if !isConst {
 			continue
 		}
@@ -142,6 +82,40 @@ func (r *NoConstantResultRule) ApplyToNode(file *lint.File, node ast.Node, _ lin
 	return failures
 }
 
+// Apply applies the rule to the given file.
+func (r *NoConstantResultRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	var failures []lint.Failure
+
+	for _, decl := range file.AST.Decls {
+		funcDecl, ok := decl.(*ast.FuncDecl)
+		if !ok || funcDecl.Body == nil {
+			continue
+		}
+
+		if !r.checkExported && funcDecl.Name != nil && ast.IsExported(funcDecl.Name.Name) {
+			continue
+		}
+
+		failures = append(failures, r.analyzeFunc(funcDecl)...)
+	}
+
+	return failures
+}
+
+// ApplyToNode applies the rule while walking the AST together with other rules.
+func (r *NoConstantResultRule) ApplyToNode(_ *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	funcDecl, ok := node.(*ast.FuncDecl)
+	if !ok || funcDecl.Body == nil {
+		return nil
+	}
+
+	if !r.checkExported && funcDecl.Name != nil && ast.IsExported(funcDecl.Name.Name) {
+		return nil
+	}
+
+	return r.analyzeFunc(funcDecl)
+}
+
 // Name returns the rule name.
 func (*NoConstantResultRule) Name() string {
 	return "noConstantResult"
@@ -155,6 +129,246 @@ func (*NoConstantResultRule) Group() string {
 // CacheTier returns the cache tier for this rule.
 func (*NoConstantResultRule) CacheTier() rulecache.CacheTier {
 	return rulecache.TierFileOnly
+}
+
+// analyzeResultConstancy determines if a named result is always returned as
+// the same constant across all return paths, including bare returns and
+// returns via the result's own name.
+func analyzeResultConstancy(body *ast.BlockStmt, ri resultInfo, totalResults int) (string, bool) {
+	returns := collectAllReturns(body)
+	if len(returns) == 0 {
+		return "", false
+	}
+
+	//nolint:staticcheck // ast.Object is deprecated but no replacement in go/ast
+	tracker := trackResultAssignments(body, ri.nameIdent.Obj)
+
+	// When tracker is tainted (non-constant modifications), we can still
+	// detect explicit constant returns. But bare returns and named-result
+	// returns are unreliable.
+	if tracker.tainted {
+		return checkExplicitReturnsOnly(returns, ri.index, totalResults)
+	}
+
+	zeroVal := zeroValueLiteral(ri.field)
+
+	var seenValue string
+	first := true
+
+	for _, ret := range returns {
+		var resolved string
+		var ok bool
+
+		if len(ret.Results) == 0 {
+			// Bare return — resolve conservatively.
+			resolved, ok = resolveForBareReturn(tracker, zeroVal)
+		} else if len(ret.Results) != totalResults {
+			return "", false
+		} else {
+			expr := ret.Results[ri.index]
+			if isConstantExpr(expr) {
+				resolved = astutils.GoFmt(expr)
+				ok = true
+			} else if ident, isIdent := expr.(*ast.Ident); isIdent && ident.Obj == ri.nameIdent.Obj { //nolint:staticcheck
+				// Returning the named result by name.
+				resolved, ok = tracker.constantValue()
+			} else {
+				return "", false
+			}
+		}
+
+		if !ok {
+			return "", false
+		}
+
+		if first {
+			seenValue = resolved
+			first = false
+		} else if resolved != seenValue {
+			return "", false
+		}
+	}
+
+	if first {
+		return "", false
+	}
+	return seenValue, true
+}
+
+// resolveForBareReturn determines what value a bare return produces for a
+// named result. It is conservative: for non-zero tracked values, it gives
+// up because unassigned code paths would return the zero value instead.
+func resolveForBareReturn(tracker *assignTracker, zeroVal string) (string, bool) {
+	if len(tracker.values) == 0 {
+		// No assignments → zero value.
+		if zeroVal != "" {
+			return zeroVal, true
+		}
+		return "", false
+	}
+	// Has assignments → only safe if tracked constant equals zero value,
+	// because paths that skip the assignment still return the zero value.
+	constVal, ok := tracker.constantValue()
+	if !ok {
+		return "", false
+	}
+	if zeroVal != "" && constVal == zeroVal {
+		return constVal, true
+	}
+	return "", false
+}
+
+// checkExplicitReturnsOnly falls back to checking only explicit constant
+// returns (the original behavior) when assignment tracking is unreliable.
+func checkExplicitReturnsOnly(returns []*ast.ReturnStmt, index, total int) (string, bool) {
+	var seenValue string
+	first := true
+
+	for _, ret := range returns {
+		if len(ret.Results) == 0 {
+			// Bare return with tainted tracker → give up.
+			return "", false
+		}
+		if len(ret.Results) != total {
+			return "", false
+		}
+		expr := ret.Results[index]
+		if !isConstantExpr(expr) {
+			return "", false
+		}
+		rendered := astutils.GoFmt(expr)
+		if first {
+			seenValue = rendered
+			first = false
+		} else if rendered != seenValue {
+			return "", false
+		}
+	}
+
+	if first {
+		return "", false
+	}
+	return seenValue, true
+}
+
+// assignTracker tracks assignments to a single named result variable.
+type assignTracker struct {
+	values  map[string]bool // set of distinct constant values assigned
+	tainted bool            // true if any non-constant or compound modification
+}
+
+// constantValue returns the single constant value if all assignments
+// are to the same constant.
+func (t *assignTracker) constantValue() (string, bool) {
+	if t.tainted || len(t.values) != 1 {
+		return "", false
+	}
+	for v := range t.values {
+		return v, true
+	}
+	return "", false
+}
+
+// trackResultAssignments walks a function body to find all modifications
+// to a named result and classifies them. Skips nested function literals
+// but taints if the result is captured by a closure.
+//
+//nolint:staticcheck // ast.Object is deprecated but no replacement in go/ast
+func trackResultAssignments(body *ast.BlockStmt, resultObj *ast.Object) *assignTracker {
+	tracker := &assignTracker{values: map[string]bool{}}
+
+	// Pre-check: if the named result is captured by any closure, taint.
+	if isCapturedByClosure(body, resultObj) {
+		tracker.tainted = true
+		return tracker
+	}
+
+	ast.Inspect(body, func(n ast.Node) bool {
+		if tracker.tainted {
+			return false
+		}
+		// Don't descend into nested function literals (already checked above).
+		if _, ok := n.(*ast.FuncLit); ok {
+			return false
+		}
+
+		switch node := n.(type) {
+		case *ast.AssignStmt:
+			for i, lhs := range node.Lhs {
+				ident, ok := lhs.(*ast.Ident)
+				if !ok || ident.Obj != resultObj {
+					continue
+				}
+
+				if node.Tok != token.ASSIGN {
+					// +=, -=, etc.
+					tracker.tainted = true
+					return false
+				}
+
+				// Multi-value from function call (len(Lhs) != len(Rhs)).
+				if len(node.Lhs) != len(node.Rhs) {
+					tracker.tainted = true
+					return false
+				}
+
+				rhs := node.Rhs[i]
+				if isConstantExpr(rhs) {
+					tracker.values[astutils.GoFmt(rhs)] = true
+				} else {
+					tracker.tainted = true
+					return false
+				}
+			}
+
+		case *ast.IncDecStmt:
+			if ident, ok := node.X.(*ast.Ident); ok && ident.Obj == resultObj {
+				tracker.tainted = true
+				return false
+			}
+
+		case *ast.UnaryExpr:
+			// Address-of: &result — could be modified externally.
+			if node.Op == token.AND {
+				if ident, ok := node.X.(*ast.Ident); ok && ident.Obj == resultObj {
+					tracker.tainted = true
+					return false
+				}
+			}
+		}
+
+		return true
+	})
+
+	return tracker
+}
+
+// isCapturedByClosure checks if a named result is referenced inside any
+// closure (function literal) in the body.
+//
+//nolint:staticcheck // ast.Object is deprecated but no replacement in go/ast
+func isCapturedByClosure(body *ast.BlockStmt, resultObj *ast.Object) bool {
+	captured := false
+	ast.Inspect(body, func(n ast.Node) bool {
+		if captured {
+			return false
+		}
+		fl, ok := n.(*ast.FuncLit)
+		if !ok {
+			return true
+		}
+		ast.Inspect(fl.Body, func(inner ast.Node) bool {
+			if captured {
+				return false
+			}
+			if ident, ok := inner.(*ast.Ident); ok && ident.Obj == resultObj {
+				captured = true
+			}
+			return true
+		})
+		return false // don't re-enter the func lit in the outer walk
+	})
+	return captured
 }
 
 // collectNamedResults extracts a flat list of named result parameters
@@ -204,21 +418,15 @@ func countTotalResults(fn *ast.FuncDecl) int {
 	return count
 }
 
-// collectReturnStmts collects all explicit return statements in a
-// function body (not inside nested function literals). Only returns
-// with explicit result expressions are collected; bare returns are
-// ignored (they imply named results keep their current value, which
-// complicates analysis).
-func collectReturnStmts(body *ast.BlockStmt) []*ast.ReturnStmt {
+// collectAllReturns collects all return statements in a function body
+// (including bare returns), excluding those in nested function literals.
+func collectAllReturns(body *ast.BlockStmt) []*ast.ReturnStmt {
 	var stmts []*ast.ReturnStmt
 	ast.Inspect(body, func(n ast.Node) bool {
-		switch n.(type) {
-		case *ast.FuncLit:
-			// Don't descend into nested function literals.
+		if _, ok := n.(*ast.FuncLit); ok {
 			return false
 		}
-		ret, ok := n.(*ast.ReturnStmt)
-		if ok && len(ret.Results) > 0 {
+		if ret, ok := n.(*ast.ReturnStmt); ok {
 			stmts = append(stmts, ret)
 		}
 		return true
@@ -226,47 +434,40 @@ func collectReturnStmts(body *ast.BlockStmt) []*ast.ReturnStmt {
 	return stmts
 }
 
-// checkConstantResult checks whether a specific result position always
-// holds the same constant value across all return statements.
-// It returns the rendered constant value and true, or ("", false) if it varies.
-func checkConstantResult(returns []*ast.ReturnStmt, resultIndex, totalResults int) (string, bool) {
-	if len(returns) == 0 {
-		return "", false
+// zeroValueLiteral returns the Go literal for the zero value of a type,
+// or "" if the type is not recognized.
+func zeroValueLiteral(field *ast.Field) string {
+	switch t := field.Type.(type) {
+	case *ast.Ident:
+		switch t.Name {
+		case "error":
+			return "nil"
+		case "bool":
+			return "false"
+		case "int", "int8", "int16", "int32", "int64",
+			"uint", "uint8", "uint16", "uint32", "uint64",
+			"float32", "float64", "complex64", "complex128",
+			"byte", "rune", "uintptr":
+			return "0"
+		case "string":
+			return `""`
+		}
+	case *ast.StarExpr:
+		return "nil"
+	case *ast.InterfaceType:
+		return "nil"
+	case *ast.MapType:
+		return "nil"
+	case *ast.ChanType:
+		return "nil"
+	case *ast.FuncType:
+		return "nil"
+	case *ast.ArrayType:
+		if t.Len == nil {
+			return "nil" // slice
+		}
 	}
-
-	var seenValue string
-	first := true
-
-	for _, ret := range returns {
-		// If return doesn't have the expected number of results, skip
-		// analysis (could be a multi-valued call). This is conservative.
-		if len(ret.Results) != totalResults {
-			return "", false
-		}
-		if resultIndex >= len(ret.Results) {
-			return "", false
-		}
-
-		expr := ret.Results[resultIndex]
-		if !isConstantExpr(expr) {
-			return "", false
-		}
-
-		rendered := astutils.GoFmt(expr)
-		if first {
-			seenValue = rendered
-			first = false
-		} else if rendered != seenValue {
-			return "", false
-		}
-	}
-
-	if first {
-		// No returns processed
-		return "", false
-	}
-
-	return seenValue, true
+	return ""
 }
 
 // isConstantExpr returns true if the expression is a compile-time constant
@@ -276,7 +477,6 @@ func isConstantExpr(expr ast.Expr) bool {
 	case *ast.BasicLit:
 		return true
 	case *ast.Ident:
-		// true, false, nil are constant identifiers
 		return e.Name == "true" || e.Name == "false" || e.Name == "nil"
 	case *ast.UnaryExpr:
 		return isConstantExpr(e.X)

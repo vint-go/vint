@@ -3,24 +3,66 @@ package no_constant_parameter
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
+	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
 	"github.com/strowk/vint/lint"
 )
 
+// Compile-time interface checks.
+var (
+	_ lint.Rule             = (*NoConstantParameterRule)(nil)
+	_ lint.AggregatingRule  = (*NoConstantParameterRule)(nil)
+	_ lint.ConfigurableRule = (*NoConstantParameterRule)(nil)
+	_ lint.Grouped          = (*NoConstantParameterRule)(nil)
+)
+
 // NoConstantParameterRule reports function parameters that always receive the
-// same constant value at every call site in the file. By default, only
-// unexported (private) functions are checked. Set check-exported to true to
-// also analyze exported functions.
+// same constant value at every call site across all files in a package.
+// By default, only unexported (private) functions are checked. Set
+// check-exported to true to also analyze exported functions.
 type NoConstantParameterRule struct {
 	checkExported bool
+	mu            sync.Mutex
+	packages      map[string]*pkgData // pkgDir → collected data
+}
+
+// pkgData holds collected function declarations and call sites for a package.
+type pkgData struct {
+	funcs map[string]*collectedFunc     // funcName → declaration info
+	calls map[string][]collectedCall    // funcName → call sites from all files
+}
+
+// collectedFunc stores a function declaration's parameter metadata.
+type collectedFunc struct {
+	paramCount int
+	params     []collectedParam
+}
+
+// collectedParam stores a single parameter's name and source position.
+type collectedParam struct {
+	name     string
+	startPos token.Position
+	endPos   token.Position
+}
+
+// collectedCall stores one call site's argument data.
+type collectedCall struct {
+	argCount    int
+	hasEllipsis bool
+	args        []collectedArg
+}
+
+// collectedArg stores whether an argument is constant and its rendered form.
+type collectedArg struct {
+	isConstant bool
+	rendered   string
 }
 
 // Configure validates and applies the rule configuration.
-//
-// Configuration implements the [lint.ConfigurableRule] interface.
 func (r *NoConstantParameterRule) Configure(arguments lint.Arguments) error {
 	if len(arguments) < 1 {
 		r.checkExported = false
@@ -45,75 +87,43 @@ func (r *NoConstantParameterRule) Configure(arguments lint.Arguments) error {
 	return nil
 }
 
-// paramInfo tracks a single named parameter of a function declaration.
-type paramInfo struct {
-	field     *ast.Field
-	nameIdent *ast.Ident
-	paramName string
-	index     int // positional index among all individual parameter names
+// Apply returns nil — this rule produces results via Collect/Finalize.
+func (r *NoConstantParameterRule) Apply(_ *lint.File, _ lint.Arguments) []lint.Failure {
+	return nil
 }
 
-// funcInfo holds the function declaration and its parameter metadata.
-type funcInfo struct {
-	decl   *ast.FuncDecl
-	params []paramInfo
-}
+// Collect gathers function declarations and call sites from a single file.
+// Safe for concurrent calls.
+func (r *NoConstantParameterRule) Collect(file *lint.File, _ lint.Arguments) {
+	// Phase 1: Walk AST without lock to gather local data.
+	localFuncs := map[string]*collectedFunc{}
+	localCalls := map[string][]collectedCall{}
 
-// Apply applies the rule to given file.
-func (r *NoConstantParameterRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
-	var failures []lint.Failure
-
-	// Phase 1: Collect all function declarations to analyze.
-	funcs := map[string]*funcInfo{}
 	for _, decl := range file.AST.Decls {
 		funcDecl, ok := decl.(*ast.FuncDecl)
-		if !ok {
+		if !ok || funcDecl.Body == nil {
 			continue
-		}
-		if funcDecl.Body == nil {
-			continue // skip prototypes
 		}
 		// Skip methods (receiver != nil) since matching call sites is more
 		// complex and unreliable without type info.
 		if funcDecl.Recv != nil {
 			continue
 		}
-		// Skip exported functions unless check-exported is enabled
+		// Skip exported functions unless check-exported is enabled.
 		if !r.checkExported && funcDecl.Name != nil && ast.IsExported(funcDecl.Name.Name) {
 			continue
 		}
-		params := collectParams(funcDecl)
+		params := collectParams(funcDecl, file)
 		if len(params) == 0 {
 			continue
 		}
-		funcs[funcDecl.Name.Name] = &funcInfo{
-			decl:   funcDecl,
-			params: params,
+		localFuncs[funcDecl.Name.Name] = &collectedFunc{
+			paramCount: len(params),
+			params:     params,
 		}
 	}
 
-	if len(funcs) == 0 {
-		return nil
-	}
-
-	// Phase 2: Walk the entire file and collect call-site argument values.
-	// For each function parameter, we track:
-	// - the set of constant string representations seen
-	// - the total number of calls
-	type paramCallInfo struct {
-		constValues map[string]bool // set of rendered constant values
-		callCount   int             // total number of call sites
-	}
-	callData := map[string][]paramCallInfo{} // funcName -> per-param call info
-
-	for name, fi := range funcs {
-		pci := make([]paramCallInfo, len(fi.params))
-		for i := range pci {
-			pci[i].constValues = map[string]bool{}
-		}
-		callData[name] = pci
-	}
-
+	// Collect call sites from the entire file.
 	ast.Inspect(file.AST, func(n ast.Node) bool {
 		call, ok := n.(*ast.CallExpr)
 		if !ok {
@@ -123,73 +133,122 @@ func (r *NoConstantParameterRule) Apply(file *lint.File, _ lint.Arguments) []lin
 		if !ok {
 			return true
 		}
-		fi, exists := funcs[ident.Name]
-		if !exists {
-			return true
-		}
-		pci := callData[ident.Name]
 
-		// Match arguments to parameter positions.
-		// If the call has variadic args or different arg count, skip.
-		if len(call.Args) != len(fi.params) {
-			return true
-		}
-		if call.Ellipsis.IsValid() {
-			return true // skip calls with ... expansion
-		}
-
+		args := make([]collectedArg, len(call.Args))
 		for i, arg := range call.Args {
-			if i >= len(pci) {
-				break
-			}
-			pci[i].callCount++
 			if isConstantExpr(arg) {
-				rendered := astutils.GoFmt(arg)
-				pci[i].constValues[rendered] = true
-			} else {
-				// Non-constant argument: mark with a sentinel so we know
-				// the parameter is not always constant.
-				pci[i].constValues[""] = true
-				// Add a second sentinel to ensure len > 1 or use a flag
-				pci[i].constValues["\x00non-const"] = true
+				args[i] = collectedArg{
+					isConstant: true,
+					rendered:   astutils.GoFmt(arg),
+				}
 			}
 		}
+		localCalls[ident.Name] = append(localCalls[ident.Name], collectedCall{
+			argCount:    len(call.Args),
+			hasEllipsis: call.Ellipsis.IsValid(),
+			args:        args,
+		})
 
 		return true
 	})
 
-	// Phase 3: Report parameters that always receive the same constant.
-	for name, fi := range funcs {
-		pci := callData[name]
-		for i, pi := range fi.params {
-			if i >= len(pci) {
-				break
-			}
-			info := pci[i]
-			// Must have at least 1 call site, exactly 1 unique constant value,
-			// and no non-constant arguments.
-			if info.callCount == 0 {
-				continue
-			}
-			if len(info.constValues) != 1 {
-				continue
-			}
-			// Get the single constant value
-			var constVal string
-			for v := range info.constValues {
-				constVal = v
-			}
-			// Skip if it's a non-constant sentinel
-			if constVal == "" || constVal == "\x00non-const" {
+	if len(localFuncs) == 0 && len(localCalls) == 0 {
+		return
+	}
+
+	// Phase 2: Merge into shared state under lock.
+	pkgDir := filepath.Dir(file.Name)
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.packages == nil {
+		r.packages = map[string]*pkgData{}
+	}
+	pkg := r.packages[pkgDir]
+	if pkg == nil {
+		pkg = &pkgData{
+			funcs: map[string]*collectedFunc{},
+			calls: map[string][]collectedCall{},
+		}
+		r.packages[pkgDir] = pkg
+	}
+
+	for name, fi := range localFuncs {
+		pkg.funcs[name] = fi
+	}
+	for name, calls := range localCalls {
+		pkg.calls[name] = append(pkg.calls[name], calls...)
+	}
+}
+
+// Finalize analyzes collected data across all files and returns failures.
+func (r *NoConstantParameterRule) Finalize() []lint.Failure {
+	var failures []lint.Failure
+
+	for _, pkg := range r.packages {
+		for funcName, fi := range pkg.funcs {
+			calls := pkg.calls[funcName]
+			if len(calls) == 0 {
 				continue
 			}
 
-			failures = append(failures, lint.Failure{
-				Confidence: 1,
-				Node:       pi.nameIdent,
-				Category:   lint.FailureCategoryBadPractice,
-				Failure:    fmt.Sprintf("%s always receives %s", pi.paramName, constVal),
-			})
+			// Aggregate per-param constancy across all call sites.
+			type paramAgg struct {
+				constValues map[string]bool
+				callCount   int
+			}
+			agg := make([]paramAgg, fi.paramCount)
+			for i := range agg {
+				agg[i].constValues = map[string]bool{}
+			}
+
+			for _, call := range calls {
+				if call.argCount != fi.paramCount {
+					continue
+				}
+				if call.hasEllipsis {
+					continue
+				}
+				for i, arg := range call.args {
+					if i >= fi.paramCount {
+						break
+					}
+					agg[i].callCount++
+					if arg.isConstant {
+						agg[i].constValues[arg.rendered] = true
+					} else {
+						agg[i].constValues[""] = true
+						agg[i].constValues["\x00non-const"] = true
+					}
+				}
+			}
+
+			for i, pi := range fi.params {
+				if i >= len(agg) {
+					break
+				}
+				info := agg[i]
+				if info.callCount == 0 || len(info.constValues) != 1 {
+					continue
+				}
+				var constVal string
+				for v := range info.constValues {
+					constVal = v
+				}
+				if constVal == "" || constVal == "\x00non-const" {
+					continue
+				}
+
+				failures = append(failures, lint.Failure{
+					Confidence: 1,
+					Category:   lint.FailureCategoryBadPractice,
+					Failure:    fmt.Sprintf("%s always receives %s", pi.name, constVal),
+					Position: lint.FailurePosition{
+						Start: pi.startPos,
+						End:   pi.endPos,
+					},
+				})
+			}
 		}
 	}
 
@@ -206,35 +265,26 @@ func (*NoConstantParameterRule) Group() string {
 	return "suspicious"
 }
 
-// CacheTier returns the cache tier for this rule.
-func (*NoConstantParameterRule) CacheTier() rulecache.CacheTier {
-	return rulecache.TierFileOnly
-}
-
-// collectParams extracts a flat list of named parameters from a function.
-func collectParams(fn *ast.FuncDecl) []paramInfo {
+// collectParams extracts a flat list of named parameters from a function,
+// capturing their source positions for later failure reporting.
+func collectParams(fn *ast.FuncDecl, file *lint.File) []collectedParam {
 	if fn.Type.Params == nil {
 		return nil
 	}
-	var result []paramInfo
-	idx := 0
+	var result []collectedParam
 	for _, field := range fn.Type.Params.List {
 		if len(field.Names) == 0 {
-			idx++
 			continue
 		}
 		for _, name := range field.Names {
 			if name.Name == "_" {
-				idx++
 				continue
 			}
-			result = append(result, paramInfo{
-				field:     field,
-				nameIdent: name,
-				paramName: name.Name,
-				index:     idx,
+			result = append(result, collectedParam{
+				name:     name.Name,
+				startPos: file.ToPosition(name.Pos()),
+				endPos:   file.ToPosition(name.End()),
 			})
-			idx++
 		}
 	}
 	return result
@@ -247,7 +297,6 @@ func isConstantExpr(expr ast.Expr) bool {
 	case *ast.BasicLit:
 		return true
 	case *ast.Ident:
-		// true, false, nil are constant identifiers
 		return e.Name == "true" || e.Name == "false" || e.Name == "nil"
 	case *ast.UnaryExpr:
 		return isConstantExpr(e.X)
