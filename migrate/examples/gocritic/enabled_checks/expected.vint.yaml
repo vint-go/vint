@@ -1,4 +1,5 @@
 settings:
+    lint/complexity/useSimplifiedBoolExpr: {}
     lint/correctness/noDuplicateArgument: {}
     lint/correctness/noDuplicateCase: {}
     lint/correctness/noExitAfterDefer: {}
@@ -8,16 +9,14 @@ settings:
     lint/correctness/noNoopFunctionCall: {}
     lint/correctness/noOffByOneError: {}
     lint/correctness/noUnreachableTypeCase: {}
-    lint/performance/noHugeParam:
-        sizeThreshold: 256
+    lint/performance/noHugeParam: {}
     lint/performance/noRangeExprCopy: {}
-    lint/performance/noRangeValCopy:
-        sizeThreshold: 512
-        skipTestFuncs: false
+    lint/performance/noRangeValCopy: {}
     lint/performance/noRedundantStringByteConversion: {}
     lint/performance/noStringIndexAllocation: {}
     lint/performance/useCombinedAppend: {}
     lint/style/noCapitalizedLocal: {}
+    lint/style/noCommentedOutCode: {}
     lint/style/noImmediateNewDeref: {}
     lint/style/noMisplacedDefaultCase: {}
     lint/style/noRedundantSliceExpression: {}

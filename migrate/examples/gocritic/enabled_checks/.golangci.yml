@@ -1,0 +1,10 @@
+version: "2"
+
+linters:
+  enable:
+    - gocritic
+  settings:
+    gocritic:
+      enabled-checks:
+        - commentedOutCode
+        - boolExprSimplify

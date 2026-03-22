@@ -2739,7 +2739,7 @@ func TestGetLintingRules(t *testing.T) {
 		// len of defaultRules
 		defaultRulesCount = 351
 		// len of allRules: update this when adding new rules
-		allRulesCount = 494
+		allRulesCount = 495
 	)
 
 	tt := map[string]struct {

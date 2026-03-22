@@ -71,6 +71,7 @@ import (
 	"github.com/strowk/vint/rules/no_duplicate_cutset_chars"
 	"github.com/strowk/vint/rules/no_duplicate_if_condition"
 	"github.com/strowk/vint/rules/no_duplicate_import"
+	"github.com/strowk/vint/rules/no_duplicate_option"
 	"github.com/strowk/vint/rules/no_duplicate_sub_expression"
 	"github.com/strowk/vint/rules/no_duplicated_imports"
 	"github.com/strowk/vint/rules/no_dynamic_errors"
@@ -963,6 +964,7 @@ var allRules = append([]lint.Rule{
 	&no_unnecessary_type_parens.NoUnnecessaryTypeParensRule{},
 	&no_doc_comment_stub.NoDocCommentStubRule{},
 	&no_duplicate_import.NoDuplicateImportRule{},
+	&no_duplicate_option.NoDuplicateOptionRule{},
 	&no_empty_declaration.NoEmptyDeclarationRule{},
 	&no_empty_fallthrough.NoEmptyFallthroughRule{},
 	&no_eval_order_dependency.NoEvalOrderDependencyRule{},
