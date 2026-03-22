@@ -112,36 +112,33 @@ func (m *Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vi
 	// Warn about unsupported top-level settings.
 	if settings != nil {
 		if _, ok := settings["severity"]; ok {
-			m.warnings = append(m.warnings, `gosec: "severity" filter is not supported in vint — all matching findings are reported`)
+			m.warnings = append(m.warnings, migrate.WarnGosecSeverityFilter())
 		}
 		if _, ok := settings["confidence"]; ok {
-			m.warnings = append(m.warnings, `gosec: "confidence" filter is not supported in vint — all matching findings are reported`)
+			m.warnings = append(m.warnings, migrate.WarnGosecConfidenceFilter())
 		}
 	}
 
 	// Warn about unsupported per-rule configs.
 	if perRuleConfig != nil {
-		// global.nosec
 		if v, ok := perRuleConfig["global"]; ok {
 			if globalMap, ok := v.(map[string]any); ok {
 				if _, ok := globalMap["nosec"]; ok {
-					m.warnings = append(m.warnings, `gosec: "global.nosec" setting is not supported in vint — use "//nolint:" directives instead`)
+					m.warnings = append(m.warnings, migrate.WarnGosecGlobalNosec())
 				}
 				if _, ok := globalMap["audit"]; ok {
-					m.warnings = append(m.warnings, `gosec: "global.audit" setting is not supported in vint — rules run at their default strictness`)
+					m.warnings = append(m.warnings, migrate.WarnGosecGlobalAudit())
 				}
 			}
 		}
-		// G104.fmt
 		if _, ok := perRuleConfig["G104"]; ok {
 			if activeIDs["G104"] {
-				m.warnings = append(m.warnings, `gosec: per-rule config for G104 (unchecked errors) is not supported in vint`)
+				m.warnings = append(m.warnings, migrate.WarnGosecG104Config())
 			}
 		}
-		// G111.pattern
 		if _, ok := perRuleConfig["G111"]; ok {
 			if activeIDs["G111"] {
-				m.warnings = append(m.warnings, `gosec: per-rule config for G111 (directory serving pattern) is not supported in vint`)
+				m.warnings = append(m.warnings, migrate.WarnGosecG111Config())
 			}
 		}
 	}
