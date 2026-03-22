@@ -71,6 +71,50 @@ func ProcessAdmin(db *sql.DB, adminID int) (*Admin, error) {
 }
 ```
 
+```golang
+// File: validation.go
+// These two validation functions share the same structure and logic,
+// differing only in field names and error messages.
+
+func ValidateCreateRequest(req CreateRequest) error {
+    if req.Name == "" {
+        return errors.New("name is required")
+    }
+    if len(req.Name) > 255 {
+        return errors.New("name must be less than 255 characters")
+    }
+    if req.Email == "" {
+        return errors.New("email is required")
+    }
+    if !strings.Contains(req.Email, "@") {
+        return errors.New("email must be valid")
+    }
+    if req.Age < 0 || req.Age > 150 {
+        return errors.New("age must be between 0 and 150")
+    }
+    return nil
+}
+
+func ValidateUpdateRequest(req UpdateRequest) error {
+    if req.Name == "" {
+        return errors.New("name is required")
+    }
+    if len(req.Name) > 255 {
+        return errors.New("name must be less than 255 characters")
+    }
+    if req.Email == "" {
+        return errors.New("email is required")
+    }
+    if !strings.Contains(req.Email, "@") {
+        return errors.New("email must be valid")
+    }
+    if req.Age < 0 || req.Age > 150 {
+        return errors.New("age must be between 0 and 150")
+    }
+    return nil
+}
+```
+
 ### Valid
 
 ```golang
@@ -110,5 +154,42 @@ func ProcessAdmin(db *sql.DB, adminID int) (*Admin, error) {
     admin.CreatedAt = time.Now()
     admin.UpdatedAt = time.Now()
     return &admin, nil
+}
+```
+
+```golang
+// Generic validation function eliminates structural duplication.
+
+type Validatable interface {
+    GetName() string
+    GetEmail() string
+    GetAge() int
+}
+
+func validateCommonFields(v Validatable) error {
+    if v.GetName() == "" {
+        return errors.New("name is required")
+    }
+    if len(v.GetName()) > 255 {
+        return errors.New("name must be less than 255 characters")
+    }
+    if v.GetEmail() == "" {
+        return errors.New("email is required")
+    }
+    if !strings.Contains(v.GetEmail(), "@") {
+        return errors.New("email must be valid")
+    }
+    if v.GetAge() < 0 || v.GetAge() > 150 {
+        return errors.New("age must be between 0 and 150")
+    }
+    return nil
+}
+
+func ValidateCreateRequest(req CreateRequest) error {
+    return validateCommonFields(req)
+}
+
+func ValidateUpdateRequest(req UpdateRequest) error {
+    return validateCommonFields(req)
 }
 ```

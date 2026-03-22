@@ -1,4 +1,4 @@
-package no_duplicate_code_v2_test
+package no_duplicate_code_test
 
 import (
 	"go/token"
@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/no_duplicate_code_v2"
+	"github.com/strowk/vint/rules/no_duplicate_code"
 )
 
 // helper creates lint.File objects from testdata filenames.
@@ -28,7 +28,7 @@ func loadFile(t *testing.T, name string) *lint.File {
 }
 
 func TestCrossFileDuplicateDetected(t *testing.T) {
-	rule := &no_duplicate_code_v2.NoDuplicateCodeV2Rule{}
+	rule := &no_duplicate_code.NoDuplicateCodeRule{}
 	if err := rule.Configure(nil); err != nil {
 		t.Fatalf("Configure: %v", err)
 	}
@@ -62,7 +62,7 @@ func TestCrossFileDuplicateDetected(t *testing.T) {
 }
 
 func TestNoDuplicateNonMatching(t *testing.T) {
-	rule := &no_duplicate_code_v2.NoDuplicateCodeV2Rule{}
+	rule := &no_duplicate_code.NoDuplicateCodeRule{}
 	if err := rule.Configure(nil); err != nil {
 		t.Fatalf("Configure: %v", err)
 	}
@@ -83,7 +83,7 @@ func TestNoDuplicateNonMatching(t *testing.T) {
 }
 
 func TestSingleFileNoDuplicate(t *testing.T) {
-	rule := &no_duplicate_code_v2.NoDuplicateCodeV2Rule{}
+	rule := &no_duplicate_code.NoDuplicateCodeRule{}
 	if err := rule.Configure(nil); err != nil {
 		t.Fatalf("Configure: %v", err)
 	}

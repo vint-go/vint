@@ -1,4 +1,4 @@
-package no_duplicate_code_v2
+package no_duplicate_code
 
 // Suffix tree implementation using Ukkonen's algorithm on []int32.
 //
@@ -24,10 +24,10 @@ type stree struct {
 	numStates   int32
 
 	// Transition storage (indexed by transition ID).
-	tStart []int32 // edge start position in data
-	tEnd   []int32 // edge end position in data
-	tState []int32 // target state index
-	tNext  []int32 // next sibling transition for same source state (-1 = last; nil after compact)
+	tStart   []int32 // edge start position in data
+	tEnd     []int32 // edge end position in data
+	tState   []int32 // target state index
+	tNext    []int32 // next sibling transition for same source state (-1 = last; nil after compact)
 	numTrans int32
 
 	root, aux int32

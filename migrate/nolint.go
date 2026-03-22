@@ -142,6 +142,8 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 }
 
 // matchRulesToDirective finds which rules from the directive's linters actually fire.
+// For aggregating rules (which require cross-file analysis and cannot fire from
+// single-file Apply), we trust the linter-to-rule mapping unconditionally.
 func matchRulesToDirective(
 	d *nolintDirective,
 	failuresByLine map[int]map[string]bool,
@@ -161,7 +163,12 @@ func matchRulesToDirective(
 		for _, linter := range d.linters {
 			for _, mapped := range registry.RulesForLinter(linter) {
 				if mapped.FullVintPath != "" {
-					if failuresByLine[d.line] != nil && failuresByLine[d.line][mapped.FullVintPath] {
+					// Aggregating rules (e.g. noDuplicateCode) use Collect/Finalize
+					// and always return nil from Apply, so they cannot fire during
+					// single-file analysis. Trust the mapping unconditionally.
+					if isAggregatingRule(mapped.Rule) {
+						candidateRules = append(candidateRules, mapped.FullVintPath)
+					} else if failuresByLine[d.line] != nil && failuresByLine[d.line][mapped.FullVintPath] {
 						candidateRules = append(candidateRules, mapped.FullVintPath)
 					}
 				}
@@ -171,6 +178,15 @@ func matchRulesToDirective(
 
 	sort.Strings(candidateRules)
 	return candidateRules
+}
+
+// isAggregatingRule checks whether a rule implements lint.AggregatingRule.
+func isAggregatingRule(r lint.Rule) bool {
+	if r == nil {
+		return false
+	}
+	_, ok := r.(lint.AggregatingRule)
+	return ok
 }
 
 // findNolintDirectives scans source lines for //nolint comments.

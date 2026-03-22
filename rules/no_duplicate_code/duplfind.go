@@ -1,4 +1,4 @@
-package no_duplicate_code_v2
+package no_duplicate_code
 
 import (
 	"crypto/sha1"
