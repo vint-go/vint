@@ -15,13 +15,6 @@ title: noUnusedFunction
 settings:
   lint/correctness/noUnusedFunction:
     # No specific options for this rule.
-    # The unused linter can be configured globally with the following options:
-    # field-writes-are-uses: true
-    # post-statements-are-reads: true
-    # exported-fields-are-used: true
-    # parameters-are-used: true
-    # local-variables-are-used: true
-    # generated-is-used: true
 ```
 
 ## Details
