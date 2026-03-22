@@ -1,5 +1,7 @@
 package fixtures
 
+import "fmt"
+
 // Invalid: The string "user_status" appears 3 times and should be a constant.
 func GetStatus() string {
 	return "user_status" // MATCH /string literal "user_status" appears 3 times, consider extracting it into a named constant/
@@ -62,4 +64,19 @@ func twoTimes1() string {
 
 func twoTimes2() string {
 	return "only_twice"
+}
+
+// Valid: Strings that appear only in function call arguments are ignored
+// when ignore-calls is true (the default).
+func callsOnly() {
+	fmt.Println("call_only_value")
+	fmt.Println("call_only_value")
+	fmt.Println("call_only_value")
+}
+
+// Invalid: String appears in both call arguments and non-call contexts.
+func mixedContexts() {
+	x := "mixed_context" // MATCH /string literal "mixed_context" appears 3 times, consider extracting it into a named constant/
+	fmt.Println("mixed_context")
+	_ = x == "mixed_context"
 }

@@ -17,6 +17,7 @@ settings:
     min-occurrences: 3
     min-length: 3
     ignore-strings: ""
+    ignore-calls: true
     ignore-tests: true
     ignore: ""
 ```

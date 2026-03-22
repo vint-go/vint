@@ -12,5 +12,6 @@ linters:
       min: 2
       max: 100
       ignore-strings: "^(test|debug)$"
+      ignore-calls: false
       find-duplicates: true
       ignore-tests: true

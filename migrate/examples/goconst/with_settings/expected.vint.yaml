@@ -4,6 +4,7 @@ settings:
         min: 2
         min-occurrences: 2
     lint/style/noRepeatedStrings:
+        ignore-calls: false
         ignore-strings: ^(test|debug)$
         ignore-tests: true
         min-length: 5

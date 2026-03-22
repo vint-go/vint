@@ -33,6 +33,9 @@ func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vint
 		if v, ok := settings["ignore-tests"]; ok {
 			strOpts["ignore-tests"] = v
 		}
+		if v, ok := settings["ignore-calls"]; ok {
+			strOpts["ignore-calls"] = v
+		}
 	}
 	configs["lint/style/noRepeatedStrings"] = migrate.VintRuleConfig{Options: strOpts}
 

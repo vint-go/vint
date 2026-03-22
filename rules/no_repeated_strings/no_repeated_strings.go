@@ -18,6 +18,7 @@ type NoRepeatedStringsRule struct {
 	minLength      int
 	ignoreStrings  *regexp.Regexp
 	ignoreTests    bool
+	ignoreCalls    bool
 	ignorePattern  *regexp.Regexp
 }
 
@@ -34,6 +35,7 @@ func (r *NoRepeatedStringsRule) Configure(arguments lint.Arguments) error {
 	r.minLength = defaultStringMinLength
 	r.ignoreStrings = nil
 	r.ignoreTests = true
+	r.ignoreCalls = true
 	r.ignorePattern = nil
 
 	if len(arguments) < 1 {
@@ -77,6 +79,12 @@ func (r *NoRepeatedStringsRule) Configure(arguments lint.Arguments) error {
 				return fmt.Errorf(`invalid configuration value for ignore-tests in "noRepeatedStrings" rule; need bool but got %T`, v)
 			}
 			r.ignoreTests = b
+		case isRuleOption(k, "ignore-calls"):
+			b, ok := v.(bool)
+			if !ok {
+				return fmt.Errorf(`invalid configuration value for ignore-calls in "noRepeatedStrings" rule; need bool but got %T`, v)
+			}
+			r.ignoreCalls = b
 		case isRuleOption(k, "ignore"):
 			s, ok := v.(string)
 			if !ok {
@@ -120,23 +128,37 @@ func (r *NoRepeatedStringsRule) Apply(file *lint.File, _ lint.Arguments) []lint.
 	}
 	ast.Walk(collector, file.AST)
 
-	// Count occurrences of each string value.
-	counts := map[string][]ast.Node{}
+	// Group occurrences of each string value.
+	groups := map[string][]stringEntry{}
 	for _, entry := range collector.strings {
-		counts[entry.value] = append(counts[entry.value], entry.node)
+		groups[entry.value] = append(groups[entry.value], entry)
 	}
 
 	var failures []lint.Failure
 	reported := map[string]bool{}
 
-	for val, nodes := range counts {
-		if len(nodes) < r.minOccurrences {
+	for val, entries := range groups {
+		if len(entries) < r.minOccurrences {
 			continue
 		}
 
 		// Apply ignore-strings filtering if configured.
 		if r.ignoreStrings != nil && r.ignoreStrings.MatchString(val) {
 			continue
+		}
+
+		// Apply ignore-calls filtering: skip strings that only appear in call arguments.
+		if r.ignoreCalls {
+			allInCalls := true
+			for _, e := range entries {
+				if !e.inCall {
+					allInCalls = false
+					break
+				}
+			}
+			if allInCalls {
+				continue
+			}
 		}
 
 		if reported[val] {
@@ -148,8 +170,8 @@ func (r *NoRepeatedStringsRule) Apply(file *lint.File, _ lint.Arguments) []lint.
 		failures = append(failures, lint.Failure{
 			Confidence: 1,
 			Category:   lint.FailureCategoryStyle,
-			Failure:    fmt.Sprintf("string literal %q appears %d times, consider extracting it into a named constant", val, len(nodes)),
-			Node:       nodes[0],
+			Failure:    fmt.Sprintf("string literal %q appears %d times, consider extracting it into a named constant", val, len(entries)),
+			Node:       entries[0].node,
 		})
 	}
 
@@ -172,16 +194,36 @@ func (*NoRepeatedStringsRule) CacheTier() rulecache.CacheTier {
 }
 
 type stringEntry struct {
-	value string
-	node  ast.Node
+	value  string
+	node   ast.Node
+	inCall bool
 }
 
 type stringCollector struct {
-	strings   []stringEntry
-	minLength int
+	strings      []stringEntry
+	minLength    int
+	callArgDepth int
 }
 
 func (c *stringCollector) Visit(node ast.Node) ast.Visitor {
+	if node == nil {
+		return nil
+	}
+
+	// Track call expression arguments so we can mark string literals
+	// that appear only within function call arguments.
+	if callExpr, ok := node.(*ast.CallExpr); ok {
+		// Walk the function expression (not a call argument).
+		ast.Walk(c, callExpr.Fun)
+		// Walk each argument with incremented callArgDepth.
+		c.callArgDepth++
+		for _, arg := range callExpr.Args {
+			ast.Walk(c, arg)
+		}
+		c.callArgDepth--
+		return nil // prevent ast.Walk from re-walking children
+	}
+
 	lit, ok := node.(*ast.BasicLit)
 	if !ok {
 		return c
@@ -199,7 +241,7 @@ func (c *stringCollector) Visit(node ast.Node) ast.Visitor {
 		return c
 	}
 
-	c.strings = append(c.strings, stringEntry{value: val, node: lit})
+	c.strings = append(c.strings, stringEntry{value: val, node: lit, inCall: c.callArgDepth > 0})
 
 	return c
 }

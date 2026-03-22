@@ -19,3 +19,16 @@ func TestNoRepeatedStrings(t *testing.T) {
 		},
 	})
 }
+
+func TestNoRepeatedStringsIgnoreCallsDisabled(t *testing.T) {
+	functional_test_helpers.TestRule(t, "no_repeated_strings_ignore_calls_disabled", &no_repeated_strings.NoRepeatedStringsRule{}, &lint.RuleConfig{
+		Arguments: lint.Arguments{
+			map[string]any{
+				"min-occurrences": int64(3),
+				"min-length":     int64(3),
+				"ignore-tests":   true,
+				"ignore-calls":   false,
+			},
+		},
+	})
+}
