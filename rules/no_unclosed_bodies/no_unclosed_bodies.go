@@ -83,6 +83,56 @@ func (w *lintNoUnclosedBodies) checkFunctionBody(body *ast.BlockStmt) {
 			})
 		}
 	}
+
+	// Detect calls returning *http.Response where the return value is
+	// entirely discarded (expression statements, go statements, defer statements).
+	ast.Inspect(body, func(n ast.Node) bool {
+		var call *ast.CallExpr
+		switch stmt := n.(type) {
+		case *ast.ExprStmt:
+			c, ok := stmt.X.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			call = c
+		case *ast.GoStmt:
+			call = stmt.Call
+		case *ast.DeferStmt:
+			call = stmt.Call
+		default:
+			return true
+		}
+
+		if w.callReturnsHTTPResponse(call) {
+			w.onFailure(lint.Failure{
+				Category:   lint.FailureCategoryBadPractice,
+				Confidence: 1,
+				Node:       call,
+				Failure:    "response body must be closed",
+			})
+		}
+		return true
+	})
+}
+
+// callReturnsHTTPResponse checks whether a function call returns *http.Response
+// as one of its return values.
+func (w *lintNoUnclosedBodies) callReturnsHTTPResponse(call *ast.CallExpr) bool {
+	t := w.pkg.TypeOf(call.Fun)
+	if t == nil {
+		return false
+	}
+	sig, ok := t.(*types.Signature)
+	if !ok {
+		return false
+	}
+	results := sig.Results()
+	for i := 0; i < results.Len(); i++ {
+		if isHTTPResponseType(results.At(i).Type()) {
+			return true
+		}
+	}
+	return false
 }
 
 func isHTTPResponseType(t types.Type) bool {

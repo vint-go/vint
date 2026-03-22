@@ -83,3 +83,15 @@ func noUnclosedBodiesDirectClose(url string) error {
 	resp.Body.Close()
 	return nil
 }
+
+func noUnclosedBodiesDiscardedGo(url string) {
+	go http.Get(url) // MATCH /response body must be closed/
+}
+
+func noUnclosedBodiesDiscardedDefer(url string) {
+	defer http.Get(url) // MATCH /response body must be closed/
+}
+
+func noUnclosedBodiesDiscardedWrapper(client *http.Client, req *http.Request) {
+	go client.Do(req) // MATCH /response body must be closed/
+}
