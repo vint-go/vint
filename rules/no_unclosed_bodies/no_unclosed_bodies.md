@@ -80,6 +80,18 @@ func makeRequest(client *http.Client, req *http.Request) error {
 }
 ```
 
+```golang
+package main
+
+import "net/http"
+
+func discardResponse(url string) error {
+    // Response assigned to blank identifier — body can never be closed!
+    _, err := http.Get(url)
+    return err
+}
+```
+
 ### Valid
 
 ```golang

@@ -71,8 +71,12 @@ func noUnclosedBodiesPostUnclosed(url string) error {
 }
 
 func noUnclosedBodiesBlankIdentifier(url string) error {
-	_, err := http.Get(url)
+	_, err := http.Get(url) // MATCH /response body must be closed/
 	return err
+}
+
+func noUnclosedBodiesBothBlank(url string) {
+	_, _ = http.Get(url) // MATCH /response body must be closed/
 }
 
 func noUnclosedBodiesDirectClose(url string) error {

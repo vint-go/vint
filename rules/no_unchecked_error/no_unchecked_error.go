@@ -153,11 +153,11 @@ func (w *lintNoUncheckedError) Visit(node ast.Node) ast.Visitor {
 	case *ast.GoStmt:
 		// go f() — the error return is discarded
 		w.checkCallExpr(n.Call, n.Call)
-		return nil
+		return w // continue walking into function literal bodies
 	case *ast.DeferStmt:
 		// defer f() — check if error return is discarded
 		w.checkCallExpr(n.Call, n.Call)
-		return nil
+		return w // continue walking into function literal bodies
 	}
 	return w
 }
@@ -195,6 +195,13 @@ func (w *lintNoUncheckedError) checkCallExpr(call *ast.CallExpr, reportNode ast.
 }
 
 func (w *lintNoUncheckedError) checkAssignStmt(assign *ast.AssignStmt) {
+	// Only flag assignments where the RHS contains a function call.
+	// Reassigning an already-captured error variable to _ (e.g. `_ = err`)
+	// is not an unchecked call — errcheck only cares about the call site.
+	if !hasCallExpr(assign.Rhs) {
+		return
+	}
+
 	// We only care about assignments where at least one LHS is blank identifier
 	for i, lhs := range assign.Lhs {
 		ident, ok := lhs.(*ast.Ident)
@@ -218,6 +225,15 @@ func (w *lintNoUncheckedError) checkAssignStmt(assign *ast.AssignStmt) {
 			return // Only report once per assignment statement
 		}
 	}
+}
+
+func hasCallExpr(exprs []ast.Expr) bool {
+	for _, e := range exprs {
+		if _, ok := e.(*ast.CallExpr); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func (w *lintNoUncheckedError) isErrorAtIndex(assign *ast.AssignStmt, index int) bool {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sync"
 )
 
 func noUncheckedErrorOpenIgnored() {
@@ -57,4 +58,20 @@ func noUncheckedErrorCloseIgnored() {
 		return
 	}
 	defer f.Close() // MATCH /unchecked error in call to os.File.Close/
+}
+
+func noUncheckedErrorInsideGoroutine() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		http.Get("http://example.com") // MATCH /unchecked error in call to net/http.Get/
+	}()
+	wg.Wait()
+}
+
+func noUncheckedErrorInsideDeferFuncLit() {
+	defer func() {
+		os.Remove("/tmp/test") // MATCH /unchecked error in call to os.Remove/
+	}()
 }

@@ -57,6 +57,18 @@ func (w *lintNoUnclosedBodies) checkFunctionBody(body *ast.BlockStmt) {
 		if !ok {
 			return true
 		}
+
+		// Check for blank identifier assignments: when RHS is a single call
+		// returning *http.Response and the corresponding LHS is _, flag
+		// immediately since the body can never be closed.
+		if len(assign.Rhs) == 1 {
+			if call, ok := assign.Rhs[0].(*ast.CallExpr); ok {
+				if w.callReturnsHTTPResponseAt(call, assign.Lhs) {
+					return true
+				}
+			}
+		}
+
 		for _, lhs := range assign.Lhs {
 			ident, ok := lhs.(*ast.Ident)
 			if !ok || ident.Name == "_" {
@@ -113,6 +125,37 @@ func (w *lintNoUnclosedBodies) checkFunctionBody(body *ast.BlockStmt) {
 		}
 		return true
 	})
+}
+
+// callReturnsHTTPResponseAt checks whether a function call returns *http.Response
+// at a position where the corresponding LHS variable is a blank identifier.
+// If so, it emits a failure and returns true.
+func (w *lintNoUnclosedBodies) callReturnsHTTPResponseAt(call *ast.CallExpr, lhs []ast.Expr) bool {
+	t := w.pkg.TypeOf(call.Fun)
+	if t == nil {
+		return false
+	}
+	sig, ok := t.(*types.Signature)
+	if !ok {
+		return false
+	}
+	results := sig.Results()
+	for i := 0; i < results.Len() && i < len(lhs); i++ {
+		if !isHTTPResponseType(results.At(i).Type()) {
+			continue
+		}
+		ident, ok := lhs[i].(*ast.Ident)
+		if ok && ident.Name == "_" {
+			w.onFailure(lint.Failure{
+				Category:   lint.FailureCategoryBadPractice,
+				Confidence: 1,
+				Node:       call,
+				Failure:    "response body must be closed",
+			})
+			return true
+		}
+	}
+	return false
 }
 
 // callReturnsHTTPResponse checks whether a function call returns *http.Response
