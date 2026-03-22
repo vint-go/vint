@@ -2060,6 +2060,12 @@ linter = "unparam"
 source = "https://github.com/mvdan/unparam"
 extractor_rule = "unused-parameter"
 
+[rules.noUnusedParameterUnused]
+linter = "unused"
+source = "https://github.com/dominikh/go-tools/tree/master/unused"
+extractor_rule = "unused-parameter"
+subsumed_by = "noUnusedParameter"
+
 [rules.noUnusedType]
 linter = "unused"
 source = "https://github.com/dominikh/go-tools/tree/master/unused"
