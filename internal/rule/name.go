@@ -2,9 +2,17 @@
 package rule
 
 import (
+	"maps"
 	"strings"
 	"unicode"
 )
+
+// CommonInitialisms returns the set of default initialisms used for name checks.
+func CommonInitialisms() map[string]bool {
+	result := make(map[string]bool, len(commonInitialisms))
+	maps.Copy(result, commonInitialisms)
+	return result
+}
 
 // commonInitialisms is a set of common initialisms.
 // Only add entries that are highly unlikely to be non-initialisms.

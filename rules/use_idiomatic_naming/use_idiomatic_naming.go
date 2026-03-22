@@ -20,7 +20,61 @@ var knownNameExceptions = map[string]bool{
 
 // UseIdiomaticNamingRule checks that identifiers follow Go naming conventions:
 // MixedCaps or mixedCaps (not underscores), and acronyms should be all caps.
-type UseIdiomaticNamingRule struct{}
+type UseIdiomaticNamingRule struct {
+	extraInitialisms   []string // additional initialisms beyond defaults (e.g. GRPC, AMQP)
+	excludeInitialisms []string // default initialisms to skip checking
+}
+
+// Configure validates the rule configuration, and configures the rule accordingly.
+//
+// Configuration implements the [lint.ConfigurableRule] interface.
+func (r *UseIdiomaticNamingRule) Configure(arguments lint.Arguments) error {
+	if len(arguments) == 0 {
+		return nil
+	}
+
+	opts, ok := arguments[0].(map[string]any)
+	if !ok {
+		return fmt.Errorf("invalid argument to useIdiomaticNaming rule: expecting a map, got %T", arguments[0])
+	}
+
+	if v, ok := opts["extraInitialisms"]; ok {
+		list, err := toStringSlice(v, "extraInitialisms")
+		if err != nil {
+			return err
+		}
+		r.extraInitialisms = list
+	}
+
+	if v, ok := opts["excludeInitialisms"]; ok {
+		list, err := toStringSlice(v, "excludeInitialisms")
+		if err != nil {
+			return err
+		}
+		r.excludeInitialisms = list
+	}
+
+	return nil
+}
+
+func toStringSlice(v any, name string) ([]string, error) {
+	switch val := v.(type) {
+	case []any:
+		result := make([]string, 0, len(val))
+		for _, item := range val {
+			s, ok := item.(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid %s value: expecting string, got %T", name, item)
+			}
+			result = append(result, s)
+		}
+		return result, nil
+	case []string:
+		return val, nil
+	default:
+		return nil, fmt.Errorf("invalid %s: expecting a slice, got %T", name, v)
+	}
+}
 
 // Apply applies the rule to the given file.
 func (r *UseIdiomaticNamingRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
@@ -31,6 +85,8 @@ func (r *UseIdiomaticNamingRule) Apply(file *lint.File, _ lint.Arguments) []lint
 		onFailure: func(f lint.Failure) {
 			failures = append(failures, f)
 		},
+		extraInitialisms:   r.extraInitialisms,
+		excludeInitialisms: r.excludeInitialisms,
 	}
 	ast.Walk(w, file.AST)
 
@@ -44,8 +100,10 @@ func (r *UseIdiomaticNamingRule) ApplyToNode(file *lint.File, node ast.Node, _ l
 		failures = append(failures, failure)
 	}
 	w := &lintIdiomaticNaming{
-		file:      file,
-		onFailure: onFailure,
+		file:               file,
+		onFailure:          onFailure,
+		extraInitialisms:   r.extraInitialisms,
+		excludeInitialisms: r.excludeInitialisms,
 	}
 	w.Visit(node)
 	return failures
@@ -67,8 +125,10 @@ func (*UseIdiomaticNamingRule) CacheTier() rulecache.CacheTier {
 }
 
 type lintIdiomaticNaming struct {
-	file      *lint.File
-	onFailure func(lint.Failure)
+	file               *lint.File
+	onFailure          func(lint.Failure)
+	extraInitialisms   []string
+	excludeInitialisms []string
 }
 
 func (w *lintIdiomaticNaming) checkFieldList(fl *ast.FieldList, thing string) {
@@ -90,7 +150,7 @@ func (w *lintIdiomaticNaming) check(id *ast.Ident, thing string) {
 		return
 	}
 
-	should := internalrule.Name(id.Name, nil, nil, false)
+	should := internalrule.Name(id.Name, w.excludeInitialisms, w.extraInitialisms, false)
 	if id.Name == should {
 		return
 	}

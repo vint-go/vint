@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode"
 
+	internalrule "github.com/strowk/vint/internal/rule"
 	"github.com/strowk/vint/migrate"
 )
 
@@ -182,9 +183,16 @@ func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vint
 
 	// Build options for rules that accept settings.
 	var dotImportWhitelist []string
+	var extraInitialisms, excludeInitialisms []string
 	if settings != nil {
 		if v, ok := settings["dot-import-whitelist"]; ok {
 			dotImportWhitelist = toStringSlice(v)
+		}
+		if v, ok := settings["initialisms"]; ok {
+			userInits := toStringSlice(v)
+			if len(userInits) > 0 {
+				extraInitialisms, excludeInitialisms = diffInitialisms(userInits)
+			}
 		}
 	}
 
@@ -204,6 +212,18 @@ func (*Migrator) MigrateConfig(settings map[string]any) (map[string]migrate.Vint
 			cfg.Options = map[string]any{
 				"allowedPackages": dotImportWhitelist,
 			}
+		}
+
+		// Pass custom initialisms to the useIdiomaticNaming rule.
+		if checkID == "ST1003" && (len(extraInitialisms) > 0 || len(excludeInitialisms) > 0) {
+			opts := map[string]any{}
+			if len(extraInitialisms) > 0 {
+				opts["extraInitialisms"] = extraInitialisms
+			}
+			if len(excludeInitialisms) > 0 {
+				opts["excludeInitialisms"] = excludeInitialisms
+			}
+			cfg.Options = opts
 		}
 
 		configs[vintPath] = cfg
@@ -285,4 +305,28 @@ func sortStrings(s []string) {
 			s[j], s[j-1] = s[j-1], s[j]
 		}
 	}
+}
+
+// diffInitialisms computes the extra and excluded initialisms by comparing
+// the user's custom list against the built-in defaults. In golangci-lint's
+// staticcheck, the "initialisms" setting replaces the entire default list,
+// so we diff to find what was added and what was removed.
+func diffInitialisms(userInits []string) (extra, exclude []string) {
+	defaults := internalrule.CommonInitialisms()
+	userSet := make(map[string]bool, len(userInits))
+	for _, init := range userInits {
+		upper := strings.ToUpper(init)
+		userSet[upper] = true
+		if !defaults[upper] {
+			extra = append(extra, upper)
+		}
+	}
+	for init := range defaults {
+		if !userSet[init] {
+			exclude = append(exclude, init)
+		}
+	}
+	sortStrings(extra)
+	sortStrings(exclude)
+	return extra, exclude
 }
