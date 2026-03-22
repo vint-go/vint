@@ -251,6 +251,7 @@ import (
 	"github.com/strowk/vint/rules/no_redundant_import_alias"
 	"github.com/strowk/vint/rules/no_redundant_label"
 	"github.com/strowk/vint/rules/no_redundant_make_args"
+	"github.com/strowk/vint/rules/no_redundant_range_len"
 	"github.com/strowk/vint/rules/no_redundant_nil_loop_check"
 	"github.com/strowk/vint/rules/no_redundant_nil_slice_check"
 	"github.com/strowk/vint/rules/no_redundant_nil_type_check"
@@ -440,6 +441,7 @@ import (
 	"github.com/strowk/vint/rules/use_indent_error_flow"
 	"github.com/strowk/vint/rules/use_infinite_for"
 	"github.com/strowk/vint/rules/use_inline_math_pow"
+	"github.com/strowk/vint/rules/use_integer_range"
 	"github.com/strowk/vint/rules/use_join_host_port"
 	"github.com/strowk/vint/rules/use_loop_condition"
 	"github.com/strowk/vint/rules/use_map_style"
@@ -756,6 +758,7 @@ var defaultRules = []lint.Rule{
 	&use_string_map_key.UseStringMapKeyRule{},
 	&no_redundant_string_byte_conversion.NoRedundantStringByteConversionRule{},
 	&use_inline_math_pow.UseInlineMathPowRule{},
+	&use_integer_range.UseIntegerRangeRule{},
 	&use_switch.UseSwitchRule{},
 	&use_tagged_switch.UseTaggedSwitchRule{},
 	&no_suspicious_map_key.NoSuspiciousMapKeyRule{},
@@ -823,6 +826,7 @@ var defaultRules = []lint.Rule{
 	&use_raw_string_regexp.UseRawStringRegexpRule{},
 	&use_simplified_bool_return.UseSimplifiedBoolReturnRule{},
 	&no_redundant_make_args.NoRedundantMakeArgsRule{},
+	&no_redundant_range_len.NoRedundantRangeLenRule{},
 	&no_redundant_nil_loop_check.NoRedundantNilLoopCheckRule{},
 	&no_redundant_nil_slice_check.NoRedundantNilSliceCheckRule{},
 	&no_redundant_nil_type_check.NoRedundantNilTypeCheckRule{},

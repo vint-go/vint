@@ -466,6 +466,9 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/noRedundantCanonicalHeaderKey": {
 							Severity: lint.SeverityWarning,
 						},
+						"lint/style/noRedundantRangeLen": {
+							Severity: lint.SeverityWarning,
+						},
 						"lint/correctness/noNonPointerUnmarshal": {
 							Severity: lint.SeverityWarning,
 						},
@@ -674,6 +677,9 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityWarning,
 						},
 						"lint/performance/useInlineMathPow": {
+							Severity: lint.SeverityWarning,
+						},
+						"lint/style/useIntegerRange": {
 							Severity: lint.SeverityWarning,
 						},
 						"lint/performance/useCombinedAppend": {
@@ -1290,6 +1296,7 @@ func TestGetConfig(t *testing.T) {
 						"lint/correctness/noNonCanonicalHeaderKey":         {},
 						"lint/correctness/noNonWrappingErrorf":             {},
 						"lint/style/noRedundantCanonicalHeaderKey":         {},
+						"lint/style/noRedundantRangeLen":                   {},
 						"lint/correctness/noNonPointerUnmarshal":           {},
 						"lint/correctness/noUnmarshalableType":             {},
 						"lint/correctness/noUnreachableCode":               {},
@@ -1360,6 +1367,7 @@ func TestGetConfig(t *testing.T) {
 						"lint/performance/useStringMapKey":                 {},
 						"lint/performance/noRedundantStringByteConversion": {},
 						"lint/performance/useInlineMathPow":                {},
+						"lint/style/useIntegerRange":                       {},
 						"lint/performance/useCombinedAppend":               {},
 						"lint/suspicious/noSwappedArguments":               {},
 						"lint/style/useAssignmentOperator":                 {},
@@ -1958,6 +1966,9 @@ func TestGetConfig(t *testing.T) {
 						"lint/style/noRedundantCanonicalHeaderKey": {
 							Severity: lint.SeverityError,
 						},
+						"lint/style/noRedundantRangeLen": {
+							Severity: lint.SeverityError,
+						},
 						"lint/correctness/noNonPointerUnmarshal": {
 							Severity: lint.SeverityError,
 						},
@@ -2166,6 +2177,9 @@ func TestGetConfig(t *testing.T) {
 							Severity: lint.SeverityError,
 						},
 						"lint/performance/useInlineMathPow": {
+							Severity: lint.SeverityError,
+						},
+						"lint/style/useIntegerRange": {
 							Severity: lint.SeverityError,
 						},
 						"lint/performance/useCombinedAppend": {
@@ -2737,9 +2751,9 @@ func TestGetConfig(t *testing.T) {
 func TestGetLintingRules(t *testing.T) {
 	const (
 		// len of defaultRules
-		defaultRulesCount = 351
+		defaultRulesCount = 353
 		// len of allRules: update this when adding new rules
-		allRulesCount = 495
+		allRulesCount = 497
 	)
 
 	tt := map[string]struct {

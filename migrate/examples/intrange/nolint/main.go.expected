@@ -3,7 +3,7 @@ package example
 import "fmt"
 
 func loopExample() {
-	// NOTE: nolint removed — no vint rules fired (was: //nolint:intrange)
+	// vint-ignore lint/style/useIntegerRange: migrated from nolint:intrange
 	for i := 0; i < 10; i++ {
 		fmt.Println(i)
 	}
