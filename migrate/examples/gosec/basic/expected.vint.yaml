@@ -1,4 +1,5 @@
 settings:
+    lint/correctness/noUncheckedError: {}
     lint/security/noAtoiOverflow: {}
     lint/security/noBindToAllInterfaces: {}
     lint/security/noCgiImport: {}

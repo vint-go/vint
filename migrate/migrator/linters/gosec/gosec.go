@@ -22,6 +22,7 @@ var allRules = map[string]string{
 	"G101": "lint/security/noHardcodedCredentials",
 	"G102": "lint/security/noBindToAllInterfaces",
 	"G103": "lint/security/noUnsafePackage",
+	"G104": "lint/correctness/noUncheckedError", // subsumed: gosec unchecked errors
 	"G106": "lint/security/noInsecureHostKeyCallback",
 	"G107": "lint/security/noSsrfViaVariable",
 	"G108": "lint/security/noExposedPprof",
@@ -60,7 +61,13 @@ var allRules = map[string]string{
 	"G406": "lint/security/noDeprecatedHashFunction",
 	"G407": "lint/security/noHardcodedIv",
 	"G408": "lint/security/noSshAuthBypass",
+	"G501": "lint/security/noWeakCryptoHash",          // subsumed: import crypto/md5
+	"G502": "lint/security/noWeakEncryptionAlgorithm", // subsumed: import crypto/des
+	"G503": "lint/security/noWeakEncryptionAlgorithm", // subsumed: import crypto/rc4
 	"G504": "lint/security/noCgiImport",
+	"G505": "lint/security/noWeakCryptoHash",          // subsumed: import crypto/sha1
+	"G506": "lint/security/noDeprecatedHashFunction",  // subsumed: import x/crypto/md4
+	"G507": "lint/security/noDeprecatedHashFunction",  // subsumed: import x/crypto/ripemd160
 	"G601": "lint/security/noRangeVariableAlias",
 	"G602": "lint/security/noSliceBoundsOutOfRange",
 	"G701": "lint/security/noSqlInjectionTaint",
