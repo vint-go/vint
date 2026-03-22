@@ -1104,10 +1104,11 @@ type vintYAMLConfig struct {
 
 // vintYAMLRuleConfig represents a single rule's configuration in vint.yaml.
 type vintYAMLRuleConfig struct {
-	Severity  string   `yaml:"severity"`
-	Disabled  bool     `yaml:"disabled"`
-	Arguments []any    `yaml:"arguments"`
-	Exclude   []string `yaml:"exclude"`
+	Severity  string         `yaml:"severity"`
+	Disabled  bool           `yaml:"disabled"`
+	Arguments []any          `yaml:"arguments"`
+	Exclude   []string       `yaml:"exclude"`
+	Options   map[string]any `yaml:",inline"`
 }
 
 // mergeVintYAML reads vint.yaml from the given path and merges its settings
@@ -1128,10 +1129,23 @@ func mergeVintYAML(path string, config *lint.Config) error {
 	}
 
 	for name, yamlRule := range yamlCfg.Settings {
+		args := yamlRule.Arguments
+		if len(yamlRule.Options) > 0 {
+			// Rule-specific options (e.g. check-alias: true) are written as
+			// direct keys under the rule name in vint.yaml. Convert them into
+			// the Arguments format that rules expect: []any{map[string]any{...}}.
+			if len(args) == 0 {
+				args = lint.Arguments{map[string]any(yamlRule.Options)}
+			} else if m, ok := args[0].(map[string]any); ok {
+				for k, v := range yamlRule.Options {
+					m[k] = v
+				}
+			}
+		}
 		rc := lint.RuleConfig{
 			Severity:  lint.Severity(yamlRule.Severity),
 			Disabled:  yamlRule.Disabled,
-			Arguments: yamlRule.Arguments,
+			Arguments: args,
 			Exclude:   yamlRule.Exclude,
 		}
 		if err := rc.Initialize(); err != nil {
