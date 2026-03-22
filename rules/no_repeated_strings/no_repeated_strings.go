@@ -14,12 +14,13 @@ import (
 // NoRepeatedStringsRule detects string literals that appear multiple times
 // in a file and could be replaced by a named constant.
 type NoRepeatedStringsRule struct {
-	minOccurrences int
-	minLength      int
-	ignoreStrings  *regexp.Regexp
-	ignoreTests    bool
-	ignoreCalls    bool
-	ignorePattern  *regexp.Regexp
+	minOccurrences       int
+	minLength            int
+	ignoreStrings        *regexp.Regexp
+	ignoreTests          bool
+	ignoreCalls          bool
+	ignorePattern        *regexp.Regexp
+	evalConstExpressions bool
 }
 
 const (
@@ -37,6 +38,7 @@ func (r *NoRepeatedStringsRule) Configure(arguments lint.Arguments) error {
 	r.ignoreTests = true
 	r.ignoreCalls = true
 	r.ignorePattern = nil
+	r.evalConstExpressions = false
 
 	if len(arguments) < 1 {
 		return nil
@@ -97,6 +99,12 @@ func (r *NoRepeatedStringsRule) Configure(arguments lint.Arguments) error {
 				}
 				r.ignorePattern = re
 			}
+		case isRuleOption(k, "eval-const-expressions"):
+			b, ok := v.(bool)
+			if !ok {
+				return fmt.Errorf(`invalid configuration value for eval-const-expressions in "noRepeatedStrings" rule; need bool but got %T`, v)
+			}
+			r.evalConstExpressions = b
 		}
 	}
 
@@ -122,9 +130,16 @@ func (r *NoRepeatedStringsRule) Apply(file *lint.File, _ lint.Arguments) []lint.
 		return nil
 	}
 
+	// Build a constant map if eval-const-expressions is enabled.
+	var constMap map[string]string
+	if r.evalConstExpressions {
+		constMap = buildConstMap(file.AST)
+	}
+
 	// Collect all string literals and their positions.
 	collector := &stringCollector{
 		minLength: r.minLength,
+		constMap:  constMap,
 	}
 	ast.Walk(collector, file.AST)
 
@@ -203,6 +218,7 @@ type stringCollector struct {
 	strings      []stringEntry
 	minLength    int
 	callArgDepth int
+	constMap     map[string]string // constant name -> resolved string value (nil if eval-const-expressions is off)
 }
 
 func (c *stringCollector) Visit(node ast.Node) ast.Visitor {
@@ -222,6 +238,17 @@ func (c *stringCollector) Visit(node ast.Node) ast.Visitor {
 		}
 		c.callArgDepth--
 		return nil // prevent ast.Walk from re-walking children
+	}
+
+	// When eval-const-expressions is enabled, try to resolve binary
+	// concatenation expressions involving string constants.
+	if c.constMap != nil {
+		if binExpr, ok := node.(*ast.BinaryExpr); ok && binExpr.Op == token.ADD {
+			if val, ok := c.resolveStringExpr(binExpr); ok && len(val) >= c.minLength {
+				c.strings = append(c.strings, stringEntry{value: val, node: binExpr, inCall: c.callArgDepth > 0})
+				return nil // don't walk children; we already resolved the whole expression
+			}
+		}
 	}
 
 	lit, ok := node.(*ast.BasicLit)
@@ -259,6 +286,73 @@ func unquoteString(s string) string {
 		return s[1 : len(s)-1]
 	}
 	return s
+}
+
+// buildConstMap walks the AST top-level declarations and collects string
+// constants into a map of name -> resolved value.
+func buildConstMap(file *ast.File) map[string]string {
+	m := map[string]string{}
+	for _, decl := range file.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.CONST {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			vs, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			for i, val := range vs.Values {
+				if i >= len(vs.Names) {
+					break
+				}
+				if resolved, ok := resolveConstExpr(val, m); ok {
+					m[vs.Names[i].Name] = resolved
+				}
+			}
+		}
+	}
+	return m
+}
+
+// resolveConstExpr tries to evaluate an expression as a string constant.
+// It handles string literals, identifiers referring to known constants, and
+// binary ADD expressions that concatenate strings.
+func resolveConstExpr(expr ast.Expr, constMap map[string]string) (string, bool) {
+	switch e := expr.(type) {
+	case *ast.BasicLit:
+		if e.Kind == token.STRING {
+			return unquoteString(e.Value), true
+		}
+		return "", false
+	case *ast.Ident:
+		if v, ok := constMap[e.Name]; ok {
+			return v, true
+		}
+		return "", false
+	case *ast.BinaryExpr:
+		if e.Op != token.ADD {
+			return "", false
+		}
+		left, lok := resolveConstExpr(e.X, constMap)
+		if !lok {
+			return "", false
+		}
+		right, rok := resolveConstExpr(e.Y, constMap)
+		if !rok {
+			return "", false
+		}
+		return left + right, true
+	case *ast.ParenExpr:
+		return resolveConstExpr(e.X, constMap)
+	}
+	return "", false
+}
+
+// resolveStringExpr tries to evaluate a binary expression to its concatenated
+// string value using the collector's constant map.
+func (c *stringCollector) resolveStringExpr(expr ast.Expr) (string, bool) {
+	return resolveConstExpr(expr, c.constMap)
 }
 
 // isRuleOption returns true if arg and name are the same after normalization.

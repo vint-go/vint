@@ -15,3 +15,4 @@ linters:
       ignore-calls: false
       find-duplicates: true
       ignore-tests: true
+      eval-const-expressions: true

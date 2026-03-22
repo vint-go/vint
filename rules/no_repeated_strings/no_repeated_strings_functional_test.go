@@ -32,3 +32,16 @@ func TestNoRepeatedStringsIgnoreCallsDisabled(t *testing.T) {
 		},
 	})
 }
+
+func TestNoRepeatedStringsEvalConstExpressions(t *testing.T) {
+	functional_test_helpers.TestRule(t, "no_repeated_strings_eval_const_expressions", &no_repeated_strings.NoRepeatedStringsRule{}, &lint.RuleConfig{
+		Arguments: lint.Arguments{
+			map[string]any{
+				"min-occurrences":        int64(3),
+				"min-length":            int64(3),
+				"ignore-tests":          true,
+				"eval-const-expressions": true,
+			},
+		},
+	})
+}
