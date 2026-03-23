@@ -292,7 +292,7 @@ func buildDefaultConfigPath() string {
 }
 
 func initConfig() {
-	if os.Getenv("REVIVE_FORCE_COLOR") == "1" {
+	if os.Getenv("VINT_FORCE_COLOR") == "1" {
 		color.NoColor = false //nolint:reassign // We want to reassign the default value of NoColor to force colorizing for non-TTY environments.
 	}
 

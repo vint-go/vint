@@ -10,8 +10,8 @@ import (
 )
 
 // GetLogger retrieves an instance of an application logger.
-// The log level can be configured via the REVIVE_LOG_LEVEL environment variable.
-// If REVIVE_LOG_LEVEL is unset or empty, logging is disabled.
+// The log level can be configured via the VINT_LOG_LEVEL environment variable.
+// If VINT_LOG_LEVEL is unset or empty, logging is disabled.
 // If it is set to an invalid value, the log level defaults to WARN.
 //
 //nolint:unparam // err is always nil, but is included in the signature for future extensibility.
@@ -23,7 +23,7 @@ var getLogger = sync.OnceValue(initLogger(os.Stderr))
 
 func initLogger(out io.Writer) func() *slog.Logger {
 	return func() *slog.Logger {
-		logLevel := os.Getenv("REVIVE_LOG_LEVEL")
+		logLevel := os.Getenv("VINT_LOG_LEVEL")
 		if logLevel == "" {
 			return slog.New(slog.DiscardHandler)
 		}

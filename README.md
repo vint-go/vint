@@ -378,10 +378,10 @@ By default, `revive` determines whether or not to colorize its output based on w
 This works for most use cases, but may not behave as expected if you use `revive` in a pipeline of commands,
 where STDOUT is being piped to another command.
 
-To force colorization, add `REVIVE_FORCE_COLOR=1` to the environment you're running in. For example:
+To force colorization, add `VINT_FORCE_COLOR=1` to the environment you're running in. For example:
 
 ```shell
-REVIVE_FORCE_COLOR=1 revive -formatter friendly ./... | tee revive.log
+VINT_FORCE_COLOR=1 revive -formatter friendly ./... | tee revive.log
 ```
 
 _Open a PR to add your project_.

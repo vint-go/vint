@@ -10,7 +10,7 @@ import (
 
 func TestGetLogger(t *testing.T) {
 	t.Run("default logging disabled", func(t *testing.T) {
-		t.Setenv("REVIVE_LOG_LEVEL", "")
+		t.Setenv("VINT_LOG_LEVEL", "")
 		var buf bytes.Buffer
 		logging.InitForTesting(t, &buf)
 
@@ -34,8 +34,8 @@ func TestGetLogger(t *testing.T) {
 		}
 	})
 
-	t.Run("REVIVE_LOG_LEVEL debug", func(t *testing.T) {
-		t.Setenv("REVIVE_LOG_LEVEL", "debug")
+	t.Run("VINT_LOG_LEVEL debug", func(t *testing.T) {
+		t.Setenv("VINT_LOG_LEVEL", "debug")
 		var buf bytes.Buffer
 		logging.InitForTesting(t, &buf)
 
@@ -71,8 +71,8 @@ func TestGetLogger(t *testing.T) {
 		}
 	})
 
-	t.Run("REVIVE_LOG_LEVEL invalid defaults to warn", func(t *testing.T) {
-		t.Setenv("REVIVE_LOG_LEVEL", "invalid")
+	t.Run("VINT_LOG_LEVEL invalid defaults to warn", func(t *testing.T) {
+		t.Setenv("VINT_LOG_LEVEL", "invalid")
 		var buf bytes.Buffer
 		logging.InitForTesting(t, &buf)
 
@@ -97,7 +97,7 @@ func TestGetLogger(t *testing.T) {
 	})
 
 	t.Run("same logger instance returned", func(t *testing.T) {
-		t.Setenv("REVIVE_LOG_LEVEL", "info")
+		t.Setenv("VINT_LOG_LEVEL", "info")
 		var buf bytes.Buffer
 		logging.InitForTesting(t, &buf)
 

@@ -46,7 +46,7 @@ const (
 	FailureCategoryZeroValue FailureCategory = "zero-value"
 
 	// failureCategoryInternal indicates internal failures.
-	failureCategoryInternal FailureCategory = "REVIVE_INTERNAL"
+	failureCategoryInternal FailureCategory = "VINT_INTERNAL"
 	// failureCategoryValidity indicates validity issues.
 	failureCategoryValidity FailureCategory = "validity"
 )
