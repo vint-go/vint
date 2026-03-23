@@ -1,4 +1,4 @@
-// Package cli implements the revive command line application.
+// Package cli implements the vint command line application.
 package cli
 
 import (
@@ -15,7 +15,6 @@ import (
 	"github.com/vint-go/vint/config"
 	"github.com/vint-go/vint/lint"
 	"github.com/vint-go/vint/migrate"
-	"github.com/vint-go/vint/revivelib"
 	"github.com/vint-go/vint/vintlint0"
 
 	// Import linter migrators so they register via init().
@@ -73,8 +72,31 @@ func fail(err string) {
 	os.Exit(1) //revive:disable-line:deep-exit
 }
 
-// RunVint runs the CLI for revive.
-func RunVint(extraRules ...revivelib.ExtraRule) {
+// ExtraRule configures a new rule to be used with vint.
+type ExtraRule struct {
+	Rule          lint.Rule
+	DefaultConfig lint.RuleConfig
+}
+
+// ArrayFlags type for string list.
+// Implements [flag.Value] interface, to be used in command line arguments.
+type ArrayFlags []string
+
+var _ flag.Value = (*ArrayFlags)(nil)
+
+// String returns the space-separated representation of the ArrayFlags.
+func (i *ArrayFlags) String() string {
+	return strings.Join([]string(*i), " ")
+}
+
+// Set value for array flags.
+func (i *ArrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+// RunVint runs the CLI for vint.
+func RunVint(extraRules ...ExtraRule) {
 	// Handle subcommands before flag parsing.
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		migrate.RunMigrate(os.Args[2:])
@@ -105,52 +127,6 @@ func RunVint(extraRules ...revivelib.ExtraRule) {
 		fail(err.Error())
 	}
 
-	if vintlintFlag {
-		runVintlint(conf, stopProfile, extraRules...)
-		return
-	}
-
-	revive, err := revivelib.New(
-		conf,
-		setExitStatus,
-		maxOpenFiles,
-		extraRules...,
-	)
-	if err != nil {
-		fail(err.Error())
-	}
-
-	files := flag.Args()
-	packages := []*revivelib.LintPattern{}
-
-	for _, file := range files {
-		packages = append(packages, revivelib.Include(file))
-	}
-
-	for _, file := range excludePatterns {
-		packages = append(packages, revivelib.Exclude(file))
-	}
-
-	failures, err := revive.Lint(packages...)
-	if err != nil {
-		fail(err.Error())
-	}
-
-	output, exitCode, err := revive.Format(formatterName, failures)
-	if err != nil {
-		fail(err.Error())
-	}
-
-	if output != "" {
-		fmt.Println(output)
-	}
-
-	stopProfile()
-	os.Exit(exitCode) //revive:disable-line:deep-exit
-}
-
-// runVintlint runs the experimental vintlint0 orchestrator.
-func runVintlint(conf *lint.Config, stopProfile func(), extraRules ...revivelib.ExtraRule) {
 	conf.ErrorCode = 1
 	if setExitStatus {
 		conf.WarningCode = 1
@@ -238,13 +214,11 @@ func runVintlint(conf *lint.Config, stopProfile func(), extraRules ...revivelib.
 
 var (
 	configPath      string
-	excludePatterns revivelib.ArrayFlags
+	excludePatterns ArrayFlags
 	formatterName   string
 	versionFlag     bool
 	setExitStatus   bool
-	maxOpenFiles    int
 	listRulesFlag   bool
-	vintlintFlag    bool
 )
 
 var originalUsage = flag.Usage
@@ -303,12 +277,11 @@ func initConfig() {
 
 	// command line help strings
 	const (
-		configUsage       = "path to the configuration TOML file, defaults to $XDG_CONFIG_HOME/revive.toml or $HOME/revive.toml, if present (i.e. -config myconf.toml)"
-		excludeUsage      = "list of globs which specify files to be excluded (i.e. -exclude foo/...)"
-		formatterUsage    = "formatter to be used for the output (i.e. -formatter stylish)"
-		versionUsage      = "get revive version"
-		exitStatusUsage   = "set exit status to 1 if any issues are found, overwrites errorCode and warningCode in config"
-		maxOpenFilesUsage = "maximum number of open files at the same time"
+		configUsage     = "path to the configuration TOML file, defaults to $XDG_CONFIG_HOME/revive.toml or $HOME/revive.toml, if present (i.e. -config myconf.toml)"
+		excludeUsage    = "list of globs which specify files to be excluded (i.e. -exclude foo/...)"
+		formatterUsage  = "formatter to be used for the output (i.e. -formatter stylish)"
+		versionUsage    = "get vint version"
+		exitStatusUsage = "set exit status to 1 if any issues are found, overwrites errorCode and warningCode in config"
 	)
 
 	defaultConfigPath := buildDefaultConfigPath()
@@ -323,8 +296,6 @@ func initConfig() {
 	// Consider how to align with industry best practices, but exiting with 1 on errors is common enough, warnings and other severeties are less clear..
 	// Also check how golangci lint is configured for this..
 	flag.BoolVar(&setExitStatus, "set_exit_status", false, exitStatusUsage)
-	flag.IntVar(&maxOpenFiles, "max_open_files", 0, maxOpenFilesUsage)
-	flag.BoolVar(&vintlintFlag, "vintlint", false, "use experimental vintlint0 orchestrator")
 	flag.Parse() //revive:disable-line:deep-exit
 }
 

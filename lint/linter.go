@@ -40,11 +40,7 @@ func New(reader ReadFile, maxOpenFiles int) Linter {
 	}
 
 	var imp packageImporter
-	if os.Getenv("VINT_SAFE_IMPORT") == "1" {
-		imp = newSafeImporter()
-	} else {
-		imp = newSharedImporter()
-	}
+	imp = newSafeImporter()
 	l := Linter{
 		reader:         reader,
 		fileReadTokens: fileReadTokens,

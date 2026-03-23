@@ -9,7 +9,6 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/golangci/misspell v0.8.0
 	github.com/hashicorp/go-version v1.8.0
-	github.com/mgechev/dots v1.0.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/afero v1.15.0
 	golang.org/x/mod v0.34.0

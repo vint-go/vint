@@ -19,7 +19,7 @@ func loadFile(t *testing.T, name string) *lint.File {
 		t.Fatalf("failed to read %s: %v", path, err)
 	}
 	fset := token.NewFileSet()
-	pkg := lint.NewPackage(fset, lint.DefaultGoVersion, lint.NewSharedImporter())
+	pkg := lint.NewPackage(fset, lint.DefaultGoVersion, lint.NewSafeSharedImporter())
 	file, err := pkg.AddFile(path, content)
 	if err != nil {
 		t.Fatalf("failed to parse %s: %v", path, err)
