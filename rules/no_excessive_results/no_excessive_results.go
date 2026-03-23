@@ -28,9 +28,9 @@ func (r *NoExcessiveResultsRule) Configure(arguments lint.Arguments) error {
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// try direct int64 argument
-		results, ok := arguments[0].(int64)
+		results, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noExcessiveResults" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noExcessiveResults" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.maxResults = int(results)
 		return nil
@@ -39,9 +39,9 @@ func (r *NoExcessiveResultsRule) Configure(arguments lint.Arguments) error {
 	r.maxResults = defaultMaxResults
 	for k, v := range argKV {
 		if isRuleOption(k, "maxResults") {
-			results, ok := v.(int64)
+			results, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for maxResults in "noExcessiveResults" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for maxResults in "noExcessiveResults" rule; need integer but got %T`, v)
 			}
 			r.maxResults = int(results)
 		}

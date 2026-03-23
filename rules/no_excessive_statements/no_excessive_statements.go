@@ -28,9 +28,9 @@ func (r *NoExcessiveStatementsRule) Configure(arguments lint.Arguments) error {
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// try direct int64 argument
-		stmts, ok := arguments[0].(int64)
+		stmts, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noExcessiveStatements" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noExcessiveStatements" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.maxStatements = int(stmts)
 		return nil
@@ -39,9 +39,9 @@ func (r *NoExcessiveStatementsRule) Configure(arguments lint.Arguments) error {
 	r.maxStatements = defaultMaxStatements
 	for k, v := range argKV {
 		if isRuleOption(k, "statements") {
-			stmts, ok := v.(int64)
+			stmts, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for statements in "noExcessiveStatements" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for statements in "noExcessiveStatements" rule; need integer but got %T`, v)
 			}
 			r.maxStatements = int(stmts)
 		}

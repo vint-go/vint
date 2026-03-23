@@ -27,9 +27,9 @@ func (r *NoHighCognitiveComplexityRule) Configure(arguments lint.Arguments) erro
 		return nil
 	}
 
-	complexity, ok := arguments[0].(int64)
+	complexity, ok := lint.ToInt64(arguments[0])
 	if !ok {
-		return fmt.Errorf("invalid argument type for noHighCognitiveComplexity, expected int64, got %T", arguments[0])
+		return fmt.Errorf("invalid argument type for noHighCognitiveComplexity, expected integer, got %T", arguments[0])
 	}
 
 	r.maxComplexity = int(complexity)

@@ -44,13 +44,16 @@ func (r *NoRepeatedNumbersRule) Configure(arguments lint.Arguments) error {
 	for k, v := range argKV {
 		switch {
 		case isRuleOption(k, "min-occurrences"):
-			n, ok := v.(int64)
+			n, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for min-occurrences in "noRepeatedNumbers" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for min-occurrences in "noRepeatedNumbers" rule; need integer but got %T`, v)
 			}
 			r.minOccurrences = int(n)
 		case isRuleOption(k, "min"):
 			switch val := v.(type) {
+			case int:
+				r.minValue = float64(val)
+				r.hasMin = true
 			case int64:
 				r.minValue = float64(val)
 				r.hasMin = true
@@ -62,6 +65,9 @@ func (r *NoRepeatedNumbersRule) Configure(arguments lint.Arguments) error {
 			}
 		case isRuleOption(k, "max"):
 			switch val := v.(type) {
+			case int:
+				r.maxValue = float64(val)
+				r.hasMax = true
 			case int64:
 				r.maxValue = float64(val)
 				r.hasMax = true

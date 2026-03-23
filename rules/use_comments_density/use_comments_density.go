@@ -26,9 +26,9 @@ func (r *CommentsDensityRule) Configure(arguments lint.Arguments) error {
 	}
 
 	var ok bool
-	r.minimumCommentsDensity, ok = arguments[0].(int64)
+	r.minimumCommentsDensity, ok = lint.ToInt64(arguments[0])
 	if !ok {
-		return fmt.Errorf("invalid argument for %q rule: argument should be an int, got %T", r.Name(), arguments[0])
+		return fmt.Errorf("invalid argument for %q rule: argument should be an integer, got %T", r.Name(), arguments[0])
 	}
 	return nil
 }

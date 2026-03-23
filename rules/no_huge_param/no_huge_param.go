@@ -31,9 +31,9 @@ func (r *NoHugeParamRule) Configure(arguments lint.Arguments) error {
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// Try direct int64 argument.
-		threshold, ok := arguments[0].(int64)
+		threshold, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noHugeParam" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noHugeParam" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.sizeThreshold = threshold
 		return nil
@@ -41,9 +41,9 @@ func (r *NoHugeParamRule) Configure(arguments lint.Arguments) error {
 
 	for k, v := range argKV {
 		if normalizeOption(k) == "sizethreshold" {
-			threshold, ok := v.(int64)
+			threshold, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for sizeThreshold in "noHugeParam" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for sizeThreshold in "noHugeParam" rule; need integer but got %T`, v)
 			}
 			r.sizeThreshold = threshold
 		}

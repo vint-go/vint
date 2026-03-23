@@ -29,9 +29,9 @@ func (r *UseEarlyContinueRule) Configure(arguments lint.Arguments) error {
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// try direct int64 argument
-		width, ok := arguments[0].(int64)
+		width, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "useEarlyContinue" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "useEarlyContinue" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.bodyWidth = int(width)
 		return nil
@@ -40,9 +40,9 @@ func (r *UseEarlyContinueRule) Configure(arguments lint.Arguments) error {
 	r.bodyWidth = defaultBodyWidth
 	for k, v := range argKV {
 		if isRuleOption(k, "body-width") {
-			width, ok := v.(int64)
+			width, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for body-width in "useEarlyContinue" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for body-width in "useEarlyContinue" rule; need integer but got %T`, v)
 			}
 			r.bodyWidth = int(width)
 		}

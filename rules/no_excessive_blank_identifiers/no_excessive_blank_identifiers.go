@@ -28,9 +28,9 @@ func (r *NoExcessiveBlankIdentifiersRule) Configure(arguments lint.Arguments) er
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// try direct int64 argument
-		val, ok := arguments[0].(int64)
+		val, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noExcessiveBlankIdentifiers" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noExcessiveBlankIdentifiers" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.maxBlankIdentifiers = int(val)
 		return nil
@@ -39,9 +39,9 @@ func (r *NoExcessiveBlankIdentifiersRule) Configure(arguments lint.Arguments) er
 	r.maxBlankIdentifiers = defaultMaxBlankIdentifiers
 	for k, v := range argKV {
 		if isRuleOption(k, "max-blank-identifiers") {
-			val, ok := v.(int64)
+			val, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for max-blank-identifiers in "noExcessiveBlankIdentifiers" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for max-blank-identifiers in "noExcessiveBlankIdentifiers" rule; need integer but got %T`, v)
 			}
 			r.maxBlankIdentifiers = int(val)
 		}

@@ -43,15 +43,15 @@ func (r *NoLineTooLongRule) Configure(arguments lint.Arguments) error {
 	for k, v := range argKV {
 		switch {
 		case isRuleOption(k, "line-length"):
-			val, ok := v.(int64)
+			val, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for line-length in "noLineTooLong" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for line-length in "noLineTooLong" rule; need integer but got %T`, v)
 			}
 			r.lineLength = int(val)
 		case isRuleOption(k, "tab-width"):
-			val, ok := v.(int64)
+			val, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for tab-width in "noLineTooLong" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for tab-width in "noLineTooLong" rule; need integer but got %T`, v)
 			}
 			r.tabWidth = int(val)
 		}

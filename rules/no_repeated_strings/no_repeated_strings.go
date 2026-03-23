@@ -52,15 +52,15 @@ func (r *NoRepeatedStringsRule) Configure(arguments lint.Arguments) error {
 	for k, v := range argKV {
 		switch {
 		case isRuleOption(k, "min-occurrences"):
-			n, ok := v.(int64)
+			n, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for min-occurrences in "noRepeatedStrings" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for min-occurrences in "noRepeatedStrings" rule; need integer but got %T`, v)
 			}
 			r.minOccurrences = int(n)
 		case isRuleOption(k, "min-length"):
-			n, ok := v.(int64)
+			n, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for min-length in "noRepeatedStrings" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for min-length in "noRepeatedStrings" rule; need integer but got %T`, v)
 			}
 			r.minLength = int(n)
 		case isRuleOption(k, "ignore-strings"):

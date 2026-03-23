@@ -29,9 +29,9 @@ func (r *NoLongFunctionsRule) Configure(arguments lint.Arguments) error {
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// try direct int64 argument for simple threshold configuration
-		lines, ok := arguments[0].(int64)
+		lines, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noLongFunctions" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noLongFunctions" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.maxLines = int(lines)
 		return nil
@@ -42,9 +42,9 @@ func (r *NoLongFunctionsRule) Configure(arguments lint.Arguments) error {
 	for k, v := range argKV {
 		switch {
 		case isRuleOption(k, "lines"):
-			lines, ok := v.(int64)
+			lines, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for lines in "noLongFunctions" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for lines in "noLongFunctions" rule; need integer but got %T`, v)
 			}
 			r.maxLines = int(lines)
 		case isRuleOption(k, "ignoreComments"):

@@ -79,8 +79,8 @@ var allRules = map[string]string{
 	"G505": "lint/security/noWeakCryptoHash",          // subsumed: import crypto/sha1
 	"G506": "lint/security/noDeprecatedHashFunction",  // subsumed: import x/crypto/md4
 	"G507": "lint/security/noDeprecatedHashFunction",  // subsumed: import x/crypto/ripemd160
-	"G601": "lint/security/noRangeVariableAlias",
-	"G602": "lint/security/noSliceBoundsOutOfRange",
+	"G601": "lint/correctness/noRangeVariableAlias",
+	"G602": "lint/correctness/noSliceBoundsOutOfRange",
 	"G701": "lint/security/noSqlInjectionTaint",
 	"G702": "lint/security/noCommandInjectionTaint",
 	"G703": "lint/security/noPathTraversalTaint",

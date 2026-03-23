@@ -7,6 +7,23 @@ import (
 // Arguments is type used for the arguments of a rule.
 type Arguments = []any
 
+// ToInt64 converts a numeric value to (int64, true).
+// YAML/JSON parsers may decode integers as int, int64, or float64
+// depending on the implementation; this helper accepts all three.
+// Returns (0, false) for non-numeric types.
+func ToInt64(v any) (int64, bool) {
+	switch n := v.(type) {
+	case int:
+		return int64(n), true
+	case int64:
+		return n, true
+	case float64:
+		return int64(n), true
+	default:
+		return 0, false
+	}
+}
+
 // FileFilters is type used for modeling file filters to apply to rules.
 type FileFilters = []*FileFilter
 

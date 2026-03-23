@@ -43,9 +43,9 @@ func (r *NoDuplicateCodeRule) Configure(arguments lint.Arguments) error {
 
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
-		threshold, ok := arguments[0].(int64)
+		threshold, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "noDuplicateCode" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "noDuplicateCode" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.threshold = int(threshold)
 		return nil
@@ -53,9 +53,9 @@ func (r *NoDuplicateCodeRule) Configure(arguments lint.Arguments) error {
 
 	for k, v := range argKV {
 		if normalizeOption(k) == normalizeOption("threshold") {
-			threshold, ok := v.(int64)
+			threshold, ok := lint.ToInt64(v)
 			if !ok || threshold < 0 {
-				return fmt.Errorf(`invalid configuration value for threshold in "noDuplicateCode" rule; need positive int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for threshold in "noDuplicateCode" rule; need positive integer but got %T`, v)
 			}
 			r.threshold = int(threshold)
 		}

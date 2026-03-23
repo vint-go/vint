@@ -26,7 +26,7 @@ func (r *NoExcessivePublicStructsRule) Configure(arguments lint.Arguments) error
 		return nil
 	}
 
-	maxStructs, ok := arguments[0].(int64) // Alt. non panicking version
+	maxStructs, ok := lint.ToInt64(arguments[0])
 	if !ok {
 		return errors.New(`invalid value passed as argument number to the "noExcessivePublicStructs" rule`)
 	}

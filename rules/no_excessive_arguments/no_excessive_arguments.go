@@ -25,7 +25,7 @@ func (r *NoExcessiveArgumentsRule) Configure(arguments lint.Arguments) error {
 		return nil
 	}
 
-	maxArguments, ok := arguments[0].(int64) // Alt. non panicking version
+	maxArguments, ok := lint.ToInt64(arguments[0])
 	if !ok {
 		return errors.New(`invalid value passed as argument number to the "noExcessiveArguments" rule`)
 	}

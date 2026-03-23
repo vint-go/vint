@@ -26,9 +26,9 @@ func (r *UseSwitchRule) Configure(arguments lint.Arguments) error {
 	argKV, ok := arguments[0].(map[string]any)
 	if !ok {
 		// try direct int64 argument
-		threshold, ok := arguments[0].(int64)
+		threshold, ok := lint.ToInt64(arguments[0])
 		if !ok {
-			return fmt.Errorf(`invalid argument to the "useSwitch" rule, expecting a k,v map or int64, got %T`, arguments[0])
+			return fmt.Errorf(`invalid argument to the "useSwitch" rule, expecting a k,v map or integer, got %T`, arguments[0])
 		}
 		r.minThreshold = int(threshold)
 		return nil
@@ -37,9 +37,9 @@ func (r *UseSwitchRule) Configure(arguments lint.Arguments) error {
 	r.minThreshold = defaultMinThreshold
 	for k, v := range argKV {
 		if isRuleOption(k, "minThreshold") {
-			threshold, ok := v.(int64)
+			threshold, ok := lint.ToInt64(v)
 			if !ok {
-				return fmt.Errorf(`invalid configuration value for minThreshold in "useSwitch" rule; need int64 but got %T`, v)
+				return fmt.Errorf(`invalid configuration value for minThreshold in "useSwitch" rule; need integer but got %T`, v)
 			}
 			r.minThreshold = int(threshold)
 		}
