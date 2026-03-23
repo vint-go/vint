@@ -11,6 +11,8 @@ Here's how `vint` is different from `golangci-lint`:
 - More than 7x faster running the same rules as golangci-lint.
 - Clear centralized unified configuration.
 
+This is still in progress, docs are not updated and in need of some cleanup, but vint already has close to 500 rules supported and benchmarks show quite well performance.
+
 ## Installation
 
 TBD
