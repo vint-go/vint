@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/no_duplicate_code"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/no_duplicate_code"
 )
 
 // helper creates lint.File objects from testdata filenames.

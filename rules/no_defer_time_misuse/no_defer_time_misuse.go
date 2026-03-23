@@ -3,9 +3,9 @@ package no_defer_time_misuse
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoDeferTimeMisuseRule detects deferred calls to time.Since which evaluates its

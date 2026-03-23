@@ -1,3 +1,3 @@
-module github.com/strowk/vint/testdata
+module github.com/vint-go/vint/testdata
 
 go 1.22

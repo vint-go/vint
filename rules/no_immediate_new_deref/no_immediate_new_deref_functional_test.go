@@ -3,8 +3,8 @@ package no_immediate_new_deref_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_immediate_new_deref"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_immediate_new_deref"
 )
 
 func TestNoImmediateNewDeref(t *testing.T) {

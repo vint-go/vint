@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"unicode"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoControlCharInStringRule detects zero-width and control characters in string literals.

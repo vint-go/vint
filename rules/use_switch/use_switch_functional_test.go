@@ -3,8 +3,8 @@ package use_switch_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_switch"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_switch"
 )
 
 func TestUseSwitch(t *testing.T) {

@@ -6,10 +6,10 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/strowk/vint/internal/astutils"
-	internalrule "github.com/strowk/vint/internal/rule"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	internalrule "github.com/vint-go/vint/internal/rule"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // knownNameExceptions is a set of known exceptions that should not be flagged.

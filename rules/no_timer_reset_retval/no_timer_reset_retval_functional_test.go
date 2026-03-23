@@ -3,8 +3,8 @@ package no_timer_reset_retval_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_timer_reset_retval"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_timer_reset_retval"
 )
 
 func TestNoTimerResetRetval(t *testing.T) {

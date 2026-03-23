@@ -14,7 +14,7 @@ WORKDIR /src
 COPY . .
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
-    -ldflags "-X github.com/strowk/vint/cli.version=${VERSION} -X github.com/strowk/vint/cli.commit=${REVISION} -X github.com/strowk/vint/cli.date=${BUILDTIME} -X github.com/strowk/vint/cli.builtBy=${BUILDER}"
+    -ldflags "-X github.com/vint-go/vint/cli.version=${VERSION} -X github.com/vint-go/vint/cli.commit=${REVISION} -X github.com/vint-go/vint/cli.date=${BUILDTIME} -X github.com/vint-go/vint/cli.builtBy=${BUILDER}"
 
 FROM scratch
 

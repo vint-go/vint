@@ -1,6 +1,6 @@
 package lint
 
-import "github.com/strowk/vint/internal/rule"
+import "github.com/vint-go/vint/internal/rule"
 
 // Name returns a different name if it should be different.
 //

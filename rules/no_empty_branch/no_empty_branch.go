@@ -3,8 +3,8 @@ package no_empty_branch
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoEmptyBranchRule detects empty bodies in if or else branches.

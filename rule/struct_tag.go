@@ -9,9 +9,9 @@ import (
 
 	"github.com/fatih/structtag"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // StructTagRule lints struct tags.
@@ -447,7 +447,7 @@ const structTagCodecSpecialField = "_struct"
 
 func checkCodecTag(checkCtx *checkContext, tag *structtag.Tag, field *ast.Field) (message string, succeeded bool) {
 	fieldNames := field.Names
-	mustAddToCommonOptions := len(fieldNames) == 1 && fieldNames[0].Name == structTagCodecSpecialField // see https://github.com/strowk/vint/issues/1477#issuecomment-3191493076
+	mustAddToCommonOptions := len(fieldNames) == 1 && fieldNames[0].Name == structTagCodecSpecialField // see https://github.com/vint-go/vint/issues/1477#issuecomment-3191493076
 	for _, opt := range tag.Options {
 		if mustAddToCommonOptions {
 			checkCtx.addCommonOption(opt)

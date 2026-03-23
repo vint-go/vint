@@ -3,9 +3,9 @@ package no_weak_encryption_algorithm
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoWeakEncryptionAlgorithmRule detects usage of DES or RC4 encryption algorithms.

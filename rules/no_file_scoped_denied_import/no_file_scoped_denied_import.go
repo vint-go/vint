@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoFileScopedDeniedImportRule reports when a package import violates a

@@ -3,9 +3,9 @@ package use_indent_error_flow
 import (
 	"strings"
 
-	"github.com/strowk/vint/internal/ifelse"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/ifelse"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // IndentErrorFlowRule prevents redundant else statements.

@@ -3,8 +3,8 @@ package use_error_naming_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_error_naming"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_error_naming"
 )
 
 func TestUseErrorNaming(t *testing.T) {

@@ -1,6 +1,6 @@
 package revivelib
 
-import "github.com/strowk/vint/lint"
+import "github.com/vint-go/vint/lint"
 
 // ExtraRule configures a new rule to be used with revive.
 type ExtraRule struct {

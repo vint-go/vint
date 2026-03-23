@@ -3,9 +3,9 @@ package use_early_continue_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_early_continue"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_early_continue"
 )
 
 func TestUseEarlyContinue(t *testing.T) {

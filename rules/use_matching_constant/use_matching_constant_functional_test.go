@@ -3,8 +3,8 @@ package use_matching_constant_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_matching_constant"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_matching_constant"
 )
 
 func TestUseMatchingConstant(t *testing.T) {

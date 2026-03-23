@@ -3,8 +3,8 @@ package no_redundant_switch_true
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoRedundantSwitchTrueRule detects switch statements with an explicit `true` tag

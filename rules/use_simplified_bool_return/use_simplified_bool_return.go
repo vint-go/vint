@@ -3,8 +3,8 @@ package use_simplified_bool_return
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseSimplifiedBoolReturnRule detects if/else blocks that return

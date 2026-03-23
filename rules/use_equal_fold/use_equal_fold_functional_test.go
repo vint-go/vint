@@ -3,8 +3,8 @@ package use_equal_fold_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_equal_fold"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_equal_fold"
 )
 
 func TestUseEqualFold(t *testing.T) {

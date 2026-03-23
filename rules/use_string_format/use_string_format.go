@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // StringFormatRule lints strings and/or comments according to a set of regular expressions given as arguments.

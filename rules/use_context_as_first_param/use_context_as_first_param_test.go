@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func TestContextAsArgumentRule_Configure(t *testing.T) {

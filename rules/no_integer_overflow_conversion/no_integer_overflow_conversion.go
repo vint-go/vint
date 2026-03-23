@@ -6,8 +6,8 @@ import (
 	"go/token"
 	"go/types"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoIntegerOverflowConversionRule detects type conversions that can lead to integer overflow.

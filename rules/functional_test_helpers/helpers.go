@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // TestRule is a functional test helper that:

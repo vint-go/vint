@@ -3,8 +3,8 @@ package use_waitgroup_go_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_waitgroup_go"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_waitgroup_go"
 )
 
 func TestUseWaitgroupGo(t *testing.T) {

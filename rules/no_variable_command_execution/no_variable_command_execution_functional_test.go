@@ -3,8 +3,8 @@ package no_variable_command_execution_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_variable_command_execution"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_variable_command_execution"
 )
 
 func TestNoVariableCommandExecution(t *testing.T) {

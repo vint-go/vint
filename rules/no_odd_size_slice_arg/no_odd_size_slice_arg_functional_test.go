@@ -3,8 +3,8 @@ package no_odd_size_slice_arg_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_odd_size_slice_arg"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_odd_size_slice_arg"
 )
 
 func TestNoOddSizeSliceArg(t *testing.T) {

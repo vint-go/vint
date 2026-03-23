@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // NDJSON is an implementation of the [lint.Formatter] interface

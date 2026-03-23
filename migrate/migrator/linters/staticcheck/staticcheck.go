@@ -4,8 +4,8 @@ import (
 	"strings"
 	"unicode"
 
-	internalrule "github.com/strowk/vint/internal/rule"
-	"github.com/strowk/vint/migrate"
+	internalrule "github.com/vint-go/vint/internal/rule"
+	"github.com/vint-go/vint/migrate"
 )
 
 func init() {

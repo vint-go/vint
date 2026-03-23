@@ -6,7 +6,7 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoHighCyclomaticComplexityRule checks the cyclomatic complexity of Go functions

@@ -3,8 +3,8 @@ package no_test_fatal_in_goroutine_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_test_fatal_in_goroutine"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_test_fatal_in_goroutine"
 )
 
 func TestNoTestFatalInGoroutine(t *testing.T) {

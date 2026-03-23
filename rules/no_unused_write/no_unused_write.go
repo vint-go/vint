@@ -6,8 +6,8 @@ import (
 	"go/token"
 	"go/types"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnusedWriteRule detects writes to elements of a struct or array

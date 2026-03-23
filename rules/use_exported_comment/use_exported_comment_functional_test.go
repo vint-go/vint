@@ -3,9 +3,9 @@ package use_exported_comment_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_exported_comment"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_exported_comment"
 )
 
 func TestExportedWithDisableStutteringCheck(t *testing.T) {

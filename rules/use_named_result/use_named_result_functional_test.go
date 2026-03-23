@@ -3,8 +3,8 @@ package use_named_result_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_named_result"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_named_result"
 )
 
 func TestUseNamedResult(t *testing.T) {

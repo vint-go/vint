@@ -3,9 +3,9 @@ package no_sql_format_string
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoSqlFormatStringRule detects SQL query construction using format string functions,

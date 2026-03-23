@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func TestReceiverNamingRule_Configure(t *testing.T) {

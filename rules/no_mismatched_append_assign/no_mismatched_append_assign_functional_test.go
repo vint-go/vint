@@ -3,8 +3,8 @@ package no_mismatched_append_assign_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_mismatched_append_assign"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_mismatched_append_assign"
 )
 
 func TestNoMismatchedAppendAssign(t *testing.T) {

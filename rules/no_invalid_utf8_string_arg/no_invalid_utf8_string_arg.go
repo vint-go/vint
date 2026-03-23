@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoInvalidUtf8StringArgRule detects calls to strings package functions

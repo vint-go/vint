@@ -1,3 +1,3 @@
-module github.com/strowk/vint/rules/use_slices_sort/testdata
+module github.com/vint-go/vint/rules/use_slices_sort/testdata
 
 go 1.21

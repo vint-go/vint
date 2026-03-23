@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/strowk/vint/logging"
+	"github.com/vint-go/vint/logging"
 )
 
 func TestGetLogger(t *testing.T) {

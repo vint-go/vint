@@ -3,8 +3,8 @@ package no_type_assert_else_misread_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_type_assert_else_misread"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_type_assert_else_misread"
 )
 
 func TestNoTypeAssertElseMisread(t *testing.T) {

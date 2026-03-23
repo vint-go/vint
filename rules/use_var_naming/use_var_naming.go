@@ -6,11 +6,11 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rule"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/logging"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rule"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/logging"
 )
 
 var knownNameExceptions = map[string]bool{

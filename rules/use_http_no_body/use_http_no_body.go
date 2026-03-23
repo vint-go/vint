@@ -3,9 +3,9 @@ package use_http_no_body
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseHttpNoBodyRule detects nil usages in http.NewRequest calls and suggests http.NoBody instead.

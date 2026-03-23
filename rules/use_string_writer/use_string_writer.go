@@ -3,8 +3,8 @@ package use_string_writer
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseStringWriterRule detects Write([]byte("...")) calls that can be replaced

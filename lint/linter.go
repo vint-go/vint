@@ -16,7 +16,7 @@ import (
 	"strings"
 
 	goversion "github.com/hashicorp/go-version"
-	"github.com/strowk/vint/internal/rulecache"
+	"github.com/vint-go/vint/internal/rulecache"
 	"golang.org/x/mod/modfile"
 	"golang.org/x/sync/errgroup"
 )

@@ -3,7 +3,7 @@ package fixtures
 import (
 	"fmt"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func (f *Unix) Name() string { // MATCH /method receiver 'f' is not referenced in method's body, consider removing or renaming it as _/

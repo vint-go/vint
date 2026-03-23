@@ -10,9 +10,9 @@ import (
 
 	gopackages "golang.org/x/tools/go/packages"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/internal/syncset"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/internal/syncset"
+	"github.com/vint-go/vint/lint"
 )
 
 // defaultBadNames is the list of "bad" package names from https://go.dev/blog/package-names#bad-package-names.

@@ -5,8 +5,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoDuplicateImportRule detects multiple imports of the same package under different aliases.

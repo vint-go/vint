@@ -3,8 +3,8 @@ package use_regexp_must_compile_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_regexp_must_compile"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_regexp_must_compile"
 )
 
 func TestUseRegexpMustCompile(t *testing.T) {

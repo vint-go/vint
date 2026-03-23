@@ -3,8 +3,8 @@ package no_nolint_parse_error_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_nolint_parse_error"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_nolint_parse_error"
 )
 
 func TestNoNolintParseError(t *testing.T) {

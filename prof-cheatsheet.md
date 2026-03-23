@@ -10,7 +10,7 @@ go tool pprof -top cpu.prof
 go tool pprof -top -cum cpu.prof
 
 # Filter to your module only
-go tool pprof -top -cum -trim_path=github.com/strowk/vint cpu.prof
+go tool pprof -top -cum -trim_path=github.com/vint-go/vint cpu.prof
 
 # Show more entries
 go tool pprof -top -cum -nodecount=50 cpu.prof

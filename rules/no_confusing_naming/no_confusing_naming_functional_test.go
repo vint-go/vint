@@ -3,8 +3,8 @@ package no_confusing_naming_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_confusing_naming"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_confusing_naming"
 )
 
 func TestNoConfusingNaming(t *testing.T) {

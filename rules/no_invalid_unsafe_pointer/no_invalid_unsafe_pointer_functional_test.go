@@ -3,8 +3,8 @@ package no_invalid_unsafe_pointer_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_invalid_unsafe_pointer"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_invalid_unsafe_pointer"
 )
 
 func TestNoInvalidUnsafePointer(t *testing.T) {

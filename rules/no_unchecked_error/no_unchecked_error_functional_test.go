@@ -3,8 +3,8 @@ package no_unchecked_error_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_unchecked_error"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_unchecked_error"
 )
 
 func TestNoUncheckedError(t *testing.T) {

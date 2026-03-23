@@ -5,7 +5,7 @@ import (
 	"go/token"
 	"testing"
 
-	"github.com/strowk/vint/internal/ifelse"
+	"github.com/vint-go/vint/internal/ifelse"
 )
 
 func TestBlockBranch(t *testing.T) {

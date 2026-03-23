@@ -3,8 +3,8 @@ package no_secret_in_serialization_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_secret_in_serialization"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_secret_in_serialization"
 )
 
 func TestNoSecretInSerialization(t *testing.T) {

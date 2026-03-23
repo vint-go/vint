@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/lint"
 )
 
 // allowBlankIdentifierRegex is the default regex for matching blank identifier parameters.

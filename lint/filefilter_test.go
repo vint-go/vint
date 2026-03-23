@@ -3,7 +3,7 @@ package lint_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func TestFileFilter(t *testing.T) {

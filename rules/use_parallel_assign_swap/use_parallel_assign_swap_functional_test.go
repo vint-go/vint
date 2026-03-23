@@ -3,8 +3,8 @@ package use_parallel_assign_swap_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_parallel_assign_swap"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_parallel_assign_swap"
 )
 
 func TestUseParallelAssignSwap(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnusedTypeRule detects named types that are declared but never used

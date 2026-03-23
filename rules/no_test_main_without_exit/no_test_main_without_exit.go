@@ -3,9 +3,9 @@ package no_test_main_without_exit
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoTestMainWithoutExitRule detects TestMain functions that do not call os.Exit,

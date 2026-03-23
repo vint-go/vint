@@ -3,8 +3,8 @@ package no_sql_tx_query_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_sql_tx_query"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_sql_tx_query"
 )
 
 func TestNoSqlTxQuery(t *testing.T) {

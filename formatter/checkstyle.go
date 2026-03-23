@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	plain "text/template"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // Checkstyle is an implementation of the [lint.Formatter] interface

@@ -12,9 +12,9 @@ import (
 
 	"github.com/mgechev/dots"
 
-	"github.com/strowk/vint/config"
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/logging"
+	"github.com/vint-go/vint/config"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/logging"
 )
 
 // Revive is responsible for running linters and formatters

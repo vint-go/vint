@@ -3,8 +3,8 @@ package no_single_arg_append
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoSingleArgAppendRule detects append calls with only a single argument.

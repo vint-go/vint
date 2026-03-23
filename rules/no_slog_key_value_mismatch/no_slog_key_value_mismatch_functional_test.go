@@ -3,8 +3,8 @@ package no_slog_key_value_mismatch_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_slog_key_value_mismatch"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_slog_key_value_mismatch"
 )
 
 func TestNoSlogKeyValueMismatch(t *testing.T) {

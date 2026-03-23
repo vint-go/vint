@@ -3,8 +3,8 @@ package no_suspicious_sort_slice_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_suspicious_sort_slice"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_suspicious_sort_slice"
 )
 
 func TestNoSuspiciousSortSlice(t *testing.T) {

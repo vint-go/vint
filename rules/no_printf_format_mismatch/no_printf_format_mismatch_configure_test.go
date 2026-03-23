@@ -3,8 +3,8 @@ package no_printf_format_mismatch_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/no_printf_format_mismatch"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/no_printf_format_mismatch"
 )
 
 func TestConfigure_WithFuncs(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 const defaultThreshold = 150

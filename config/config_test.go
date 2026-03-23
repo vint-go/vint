@@ -8,10 +8,10 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 
-	"github.com/strowk/vint/config"
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/no_deep_exit"
-	"github.com/strowk/vint/rules/no_excessive_arguments"
+	"github.com/vint-go/vint/config"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/no_deep_exit"
+	"github.com/vint-go/vint/rules/no_excessive_arguments"
 )
 
 func TestGetConfig(t *testing.T) {

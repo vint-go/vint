@@ -3,8 +3,8 @@ package no_useless_math_call_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_useless_math_call"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_useless_math_call"
 )
 
 func TestNoUselessMathCall(t *testing.T) {

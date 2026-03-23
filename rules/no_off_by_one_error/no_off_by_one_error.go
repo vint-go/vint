@@ -3,8 +3,8 @@ package no_off_by_one_error
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoOffByOneErrorRule detects off-by-one errors such as accessing s[len(s)]

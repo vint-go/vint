@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 var vintIgnoreRegexp = regexp.MustCompile(`^//\s*vint-ignore(-all|-start|-end)?\s+(\S+?)(?::\s*(.+))?$`)

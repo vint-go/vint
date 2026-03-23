@@ -3,8 +3,8 @@ package no_external_error_reassign_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_external_error_reassign"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_external_error_reassign"
 )
 
 func TestNoExternalErrorReassign(t *testing.T) {

@@ -3,8 +3,8 @@ package use_convenience_func_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_convenience_func"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_convenience_func"
 )
 
 func TestUseConvenienceFunc(t *testing.T) {

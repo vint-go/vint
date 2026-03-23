@@ -3,9 +3,9 @@ package use_early_return_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_early_return"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_early_return"
 )
 
 func TestUseEarlyReturn(t *testing.T) {

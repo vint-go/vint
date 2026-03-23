@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/strowk/vint/internal/syncset"
+	"github.com/vint-go/vint/internal/syncset"
 )
 
 func TestNew_ConcurrentElementsAreInitiallyEmpty(t *testing.T) {

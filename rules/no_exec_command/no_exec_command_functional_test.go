@@ -3,8 +3,8 @@ package no_exec_command_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_exec_command"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_exec_command"
 )
 
 func TestNoExecCommand(t *testing.T) {

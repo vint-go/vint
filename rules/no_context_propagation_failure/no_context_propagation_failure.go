@@ -3,8 +3,8 @@ package no_context_propagation_failure
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoContextPropagationFailureRule detects context propagation failures

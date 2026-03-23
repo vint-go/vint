@@ -3,7 +3,7 @@ package fixtures
 import (
 	ast "go/ast"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func foo(a, b, c, d int) {

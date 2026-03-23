@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/golangci/misspell"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoMisspelledWordsRule detects commonly misspelled English words in Go source files.

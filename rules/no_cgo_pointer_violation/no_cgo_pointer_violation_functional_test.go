@@ -3,8 +3,8 @@ package no_cgo_pointer_violation_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_cgo_pointer_violation"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_cgo_pointer_violation"
 )
 
 func TestNoCgoPointerViolation(t *testing.T) {

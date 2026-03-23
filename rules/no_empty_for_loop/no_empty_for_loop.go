@@ -3,8 +3,8 @@ package no_empty_for_loop
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoEmptyForLoopRule detects empty for loops that busy-wait and consume 100% CPU.

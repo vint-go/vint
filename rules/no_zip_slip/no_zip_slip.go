@@ -3,8 +3,8 @@ package no_zip_slip
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoZipSlipRule detects file path traversal when extracting zip or tar archives (Zip Slip vulnerability).

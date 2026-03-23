@@ -3,8 +3,8 @@ package no_unnecessary_if_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_unnecessary_if"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_unnecessary_if"
 )
 
 func TestNoUnnecessaryIf(t *testing.T) {

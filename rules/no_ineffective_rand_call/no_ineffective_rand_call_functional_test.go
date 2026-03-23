@@ -3,8 +3,8 @@ package no_ineffective_rand_call_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_ineffective_rand_call"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_ineffective_rand_call"
 )
 
 func TestNoIneffectiveRandCall(t *testing.T) {

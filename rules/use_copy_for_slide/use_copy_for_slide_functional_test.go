@@ -3,8 +3,8 @@ package use_copy_for_slide_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_copy_for_slide"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_copy_for_slide"
 )
 
 func TestUseCopyForSlide(t *testing.T) {

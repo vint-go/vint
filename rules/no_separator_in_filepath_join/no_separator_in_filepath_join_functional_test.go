@@ -3,8 +3,8 @@ package no_separator_in_filepath_join_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_separator_in_filepath_join"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_separator_in_filepath_join"
 )
 
 func TestNoSeparatorInFilepathJoin(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	goversion "github.com/hashicorp/go-version"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 var nolintRegexp = regexp.MustCompile(`//nolint(?::(\S+))?`)

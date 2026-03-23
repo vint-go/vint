@@ -3,8 +3,8 @@ package no_implicit_const_value_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_implicit_const_value"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_implicit_const_value"
 )
 
 func TestNoImplicitConstValue(t *testing.T) {

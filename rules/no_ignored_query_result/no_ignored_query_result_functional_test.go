@@ -3,8 +3,8 @@ package no_ignored_query_result_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_ignored_query_result"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_ignored_query_result"
 )
 
 func TestNoIgnoredQueryResult(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func TestVarNamingRule_Configure(t *testing.T) {

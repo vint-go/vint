@@ -3,8 +3,8 @@ package no_insecure_cookie_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_insecure_cookie"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_insecure_cookie"
 )
 
 func TestNoInsecureCookie(t *testing.T) {

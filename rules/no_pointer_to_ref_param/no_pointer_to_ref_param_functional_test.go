@@ -3,8 +3,8 @@ package no_pointer_to_ref_param_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_pointer_to_ref_param"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_pointer_to_ref_param"
 )
 
 func TestNoPointerToRefParam(t *testing.T) {

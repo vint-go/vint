@@ -3,8 +3,8 @@ package use_direct_string_range
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseDirectStringRangeRule detects unnecessary conversion to []rune before ranging over a string.

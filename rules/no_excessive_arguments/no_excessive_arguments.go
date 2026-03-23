@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoExcessiveArgumentsRule lints the number of arguments a function can receive.

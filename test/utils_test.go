@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // configureRule configures the given rule with the given configuration

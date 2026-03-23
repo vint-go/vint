@@ -3,8 +3,8 @@ package no_unnecessary_deref_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_unnecessary_deref"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_unnecessary_deref"
 )
 
 func TestNoUnnecessaryDeref(t *testing.T) {

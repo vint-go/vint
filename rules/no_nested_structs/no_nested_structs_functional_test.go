@@ -3,8 +3,8 @@ package no_nested_structs_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_nested_structs"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_nested_structs"
 )
 
 func TestNoNestedStructs(t *testing.T) {

@@ -3,8 +3,8 @@ package no_duplicate_build_constraint_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_duplicate_build_constraint"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_duplicate_build_constraint"
 )
 
 func TestNoDuplicateBuildConstraint(t *testing.T) {

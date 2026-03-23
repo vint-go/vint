@@ -1,4 +1,4 @@
-module github.com/strowk/vint
+module github.com/vint-go/vint
 
 go 1.25.0
 

@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/strowk/vint/config"
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/revivelib"
-	"github.com/strowk/vint/rules/use_direct_return"
+	"github.com/vint-go/vint/config"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/revivelib"
+	"github.com/vint-go/vint/rules/use_direct_return"
 )
 
 func TestReviveLint(t *testing.T) {

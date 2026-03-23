@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoDeprecatedUsageRule flags usage of deprecated functions, variables, constants,

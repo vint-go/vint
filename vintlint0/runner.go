@@ -3,7 +3,7 @@ package vintlint0
 import (
 	"errors"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // runRulesOnFile executes the given rules against a single file, sending

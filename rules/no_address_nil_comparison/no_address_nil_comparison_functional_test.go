@@ -3,8 +3,8 @@ package no_address_nil_comparison_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_address_nil_comparison"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_address_nil_comparison"
 )
 
 func TestNoAddressNilComparison(t *testing.T) {

@@ -3,8 +3,8 @@ package use_time_until
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseTimeUntilRule detects x.Sub(time.Now()) and suggests time.Until(x).

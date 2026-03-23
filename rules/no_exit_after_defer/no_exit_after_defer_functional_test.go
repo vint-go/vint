@@ -3,8 +3,8 @@ package no_exit_after_defer_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_exit_after_defer"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_exit_after_defer"
 )
 
 func TestNoExitAfterDefer(t *testing.T) {

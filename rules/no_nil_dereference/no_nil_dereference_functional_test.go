@@ -3,8 +3,8 @@ package no_nil_dereference_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_nil_dereference"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_nil_dereference"
 )
 
 func TestNoNilDereference(t *testing.T) {

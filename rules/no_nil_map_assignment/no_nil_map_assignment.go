@@ -3,8 +3,8 @@ package no_nil_map_assignment
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoNilMapAssignmentRule warns when assigning to a nil map, which causes a runtime panic.

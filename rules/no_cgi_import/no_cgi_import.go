@@ -3,8 +3,8 @@ package no_cgi_import
 import (
 	"strings"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoCgiImportRule detects the import of the net/http/cgi package, which is blocklisted.

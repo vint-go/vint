@@ -3,9 +3,9 @@ package no_inline_sync_once_func
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoInlineSyncOnceFuncRule detects inline calls to sync.OnceFunc, sync.OnceValue, and sync.OnceValues.

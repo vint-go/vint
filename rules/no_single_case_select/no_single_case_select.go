@@ -3,8 +3,8 @@ package no_single_case_select
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoSingleCaseSelectRule detects select statements with a single case and no

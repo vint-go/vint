@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"go/types"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoBlankErrorAssignmentRule warns when error return values are explicitly assigned to the blank identifier.

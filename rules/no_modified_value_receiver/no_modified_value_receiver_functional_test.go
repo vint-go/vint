@@ -3,8 +3,8 @@ package no_modified_value_receiver_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_modified_value_receiver"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_modified_value_receiver"
 )
 
 func TestNoModifiedValueReceiver(t *testing.T) {

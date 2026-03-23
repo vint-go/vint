@@ -6,8 +6,8 @@ import (
 	"go/types"
 	"go/version"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoStdlibVersionMismatchRule reports uses of standard library symbols that are

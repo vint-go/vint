@@ -3,8 +3,8 @@ package no_unreachable_code
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnreachableCodeRule detects code that can never be executed because it appears

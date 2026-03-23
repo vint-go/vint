@@ -4,9 +4,9 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseRegexpMustCompileRule detects regexp.Compile* calls that can be replaced

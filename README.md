@@ -242,9 +242,9 @@ The full rule set of `revive` is also actionable by your application.
 package main
 
 import (
-	"github.com/strowk/vint/cli"
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/revivelib"
+	"github.com/vint-go/vint/cli"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/revivelib"
 )
 
 func main() {
@@ -268,9 +268,9 @@ You can still go further and use `revive` without its CLI, as part of your libra
 package mylib
 
 import (
-	"github.com/strowk/vint/config"
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/revivelib"
+	"github.com/vint-go/vint/config"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/revivelib"
 )
 
 // Error checking removed for clarity

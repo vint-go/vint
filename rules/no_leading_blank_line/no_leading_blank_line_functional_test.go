@@ -3,8 +3,8 @@ package no_leading_blank_line_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_leading_blank_line"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_leading_blank_line"
 )
 
 func TestNoLeadingBlankLine(t *testing.T) {

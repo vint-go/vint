@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"text/template/parse"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoInvalidTemplateRule validates that template strings passed to template.Must,

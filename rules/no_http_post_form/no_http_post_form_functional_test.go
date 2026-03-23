@@ -3,8 +3,8 @@ package no_http_post_form_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_http_post_form"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_http_post_form"
 )
 
 func TestNoHttpPostForm(t *testing.T) {

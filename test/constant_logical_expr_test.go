@@ -3,7 +3,7 @@ package test_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rule"
+	"github.com/vint-go/vint/rule"
 )
 
 func TestConstantLogicalExpr(t *testing.T) {

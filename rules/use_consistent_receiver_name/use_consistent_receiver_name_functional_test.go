@@ -3,8 +3,8 @@ package use_consistent_receiver_name_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_consistent_receiver_name"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_consistent_receiver_name"
 )
 
 func TestUseConsistentReceiverName(t *testing.T) {

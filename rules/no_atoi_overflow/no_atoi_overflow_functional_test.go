@@ -3,8 +3,8 @@ package no_atoi_overflow_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_atoi_overflow"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_atoi_overflow"
 )
 
 func TestNoAtoiOverflow(t *testing.T) {

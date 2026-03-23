@@ -3,8 +3,8 @@ package no_duplicated_imports
 import (
 	"fmt"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // DuplicatedImportsRule looks for packages that are imported two or more times.

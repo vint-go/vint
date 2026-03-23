@@ -3,8 +3,8 @@ package use_standard_codegen_comment_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_standard_codegen_comment"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_standard_codegen_comment"
 )
 
 func TestUseStandardCodegenComment(t *testing.T) {

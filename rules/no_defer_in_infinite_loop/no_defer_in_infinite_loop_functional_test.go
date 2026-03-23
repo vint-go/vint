@@ -3,8 +3,8 @@ package no_defer_in_infinite_loop_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_defer_in_infinite_loop"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_defer_in_infinite_loop"
 )
 
 func TestNoDeferInInfiniteLoop(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 func TestUnusedReceiverRule_Configure(t *testing.T) {

@@ -3,8 +3,8 @@ package no_unused_field_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_unused_field"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_unused_field"
 )
 
 func TestNoUnusedField(t *testing.T) {

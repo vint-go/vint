@@ -3,8 +3,8 @@ package no_infinite_recursion_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_infinite_recursion"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_infinite_recursion"
 )
 
 func TestNoInfiniteRecursion(t *testing.T) {

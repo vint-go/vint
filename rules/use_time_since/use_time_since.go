@@ -3,8 +3,8 @@ package use_time_since
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseTimeSinceRule detects time.Now().Sub(x) and suggests time.Since(x).

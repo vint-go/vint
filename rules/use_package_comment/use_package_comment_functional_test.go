@@ -3,8 +3,8 @@ package use_package_comment_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_package_comment"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_package_comment"
 )
 
 func TestUsePackageComment(t *testing.T) {

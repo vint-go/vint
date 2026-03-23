@@ -3,8 +3,8 @@ package no_side_effect_in_init_clause
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoSideEffectInInitClauseRule detects non-assignment statements inside

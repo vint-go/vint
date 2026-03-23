@@ -5,9 +5,9 @@ import (
 	"go/ast"
 	"go/types"
 
-	"github.com/strowk/vint/internal/typeparams"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/typeparams"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UnexportedReturnRule warns when a public function returns an unexported type.

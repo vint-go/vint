@@ -3,8 +3,8 @@ package use_any
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // UseAnyRule proposes to replace `interface{}` with its alias `any`.

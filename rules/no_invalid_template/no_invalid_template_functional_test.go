@@ -3,8 +3,8 @@ package no_invalid_template_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_invalid_template"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_invalid_template"
 )
 
 func TestNoInvalidTemplate(t *testing.T) {

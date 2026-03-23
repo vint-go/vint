@@ -3,8 +3,8 @@ package no_invariant_loop_condition_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_invariant_loop_condition"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_invariant_loop_condition"
 )
 
 func TestNoInvariantLoopCondition(t *testing.T) {

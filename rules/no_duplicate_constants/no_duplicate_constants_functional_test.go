@@ -3,8 +3,8 @@ package no_duplicate_constants_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_duplicate_constants"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_duplicate_constants"
 )
 
 func TestNoDuplicateConstants(t *testing.T) {

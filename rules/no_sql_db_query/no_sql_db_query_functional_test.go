@@ -3,8 +3,8 @@ package no_sql_db_query_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_sql_db_query"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_sql_db_query"
 )
 
 func TestNoSqlDbQuery(t *testing.T) {

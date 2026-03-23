@@ -3,8 +3,8 @@ package use_raw_string_regexp_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_raw_string_regexp"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_raw_string_regexp"
 )
 
 func TestUseRawStringRegexp(t *testing.T) {

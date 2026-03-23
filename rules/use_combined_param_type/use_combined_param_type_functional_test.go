@@ -3,8 +3,8 @@ package use_combined_param_type_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_combined_param_type"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_combined_param_type"
 )
 
 func TestUseCombinedParamType(t *testing.T) {

@@ -3,8 +3,8 @@ package no_duplicate_import_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_duplicate_import"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_duplicate_import"
 )
 
 func TestNoDuplicateImport(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/tools/go/ast/astutil"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoHighCognitiveComplexityRule sets restriction for maximum cognitive complexity.

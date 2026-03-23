@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/strowk/vint/internal/rulecache"
+	"github.com/vint-go/vint/internal/rulecache"
 )
 
 // DisabledInterval contains a single disabled interval and the associated rule name.

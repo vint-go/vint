@@ -3,8 +3,8 @@ package no_redundant_build_tag
 import (
 	"strings"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // RedundantBuildTagRule lints the presence of redundant build tags.

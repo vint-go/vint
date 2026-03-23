@@ -3,8 +3,8 @@ package no_unescaped_html_template
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnescapedHtmlTemplateRule detects the use of unescaped data in HTML templates,

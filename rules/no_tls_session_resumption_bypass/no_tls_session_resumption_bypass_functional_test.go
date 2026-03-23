@@ -3,8 +3,8 @@ package no_tls_session_resumption_bypass_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_tls_session_resumption_bypass"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_tls_session_resumption_bypass"
 )
 
 func TestNoTlsSessionResumptionBypass(t *testing.T) {

@@ -3,8 +3,8 @@ package use_modern_octal_literal_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_modern_octal_literal"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_modern_octal_literal"
 )
 
 func TestUseModernOctalLiteral(t *testing.T) {

@@ -3,8 +3,8 @@ package no_commented_out_code_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_commented_out_code"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_commented_out_code"
 )
 
 func TestNoCommentedOutCode(t *testing.T) {

@@ -1,6 +1,6 @@
 package errcheck
 
-import "github.com/strowk/vint/migrate"
+import "github.com/vint-go/vint/migrate"
 
 func init() {
 	migrate.RegisterMigrator(&Migrator{})

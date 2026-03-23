@@ -3,7 +3,7 @@ package rule_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/internal/rule"
+	"github.com/vint-go/vint/internal/rule"
 )
 
 func TestName(t *testing.T) {

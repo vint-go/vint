@@ -3,8 +3,8 @@ package no_unsafe_cors_bypass
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnsafeCorsBypassRule detects unsafe CORS bypass patterns such as reflecting

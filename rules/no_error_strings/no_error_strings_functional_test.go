@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_error_strings"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_error_strings"
 )
 
 func TestErrorStringsWithCustomFunctions(t *testing.T) {

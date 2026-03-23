@@ -7,8 +7,8 @@ import (
 	"go/token"
 	"go/types"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnsignedNegativeComparisonRule detects pointless comparisons of unsigned

@@ -3,9 +3,9 @@ package use_package_naming_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_package_naming"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_package_naming"
 )
 
 func TestUsePackageNaming_conventionName(t *testing.T) {

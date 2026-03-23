@@ -3,8 +3,8 @@ package no_inefficient_map_lookup_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_inefficient_map_lookup"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_inefficient_map_lookup"
 )
 
 func TestNoInefficientMapLookup(t *testing.T) {

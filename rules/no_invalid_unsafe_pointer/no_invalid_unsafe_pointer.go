@@ -3,9 +3,9 @@ package no_invalid_unsafe_pointer
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/astutils"
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/astutils"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoInvalidUnsafePointerRule checks for invalid conversions of uintptr to unsafe.Pointer.

@@ -3,8 +3,8 @@ package no_deep_equal_errors_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_deep_equal_errors"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_deep_equal_errors"
 )
 
 func TestNoDeepEqualErrors(t *testing.T) {

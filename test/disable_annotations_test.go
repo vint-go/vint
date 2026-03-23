@@ -3,9 +3,9 @@ package test_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/use_exported_comment"
-	"github.com/strowk/vint/rules/use_var_naming"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/use_exported_comment"
+	"github.com/vint-go/vint/rules/use_var_naming"
 )
 
 func TestDisabledAnnotations(t *testing.T) {

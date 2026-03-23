@@ -3,8 +3,8 @@ package no_unobserved_field_assign_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_unobserved_field_assign"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_unobserved_field_assign"
 )
 
 func TestNoUnobservedFieldAssign(t *testing.T) {

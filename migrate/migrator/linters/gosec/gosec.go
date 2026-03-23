@@ -3,7 +3,7 @@ package gosec
 import (
 	"fmt"
 
-	"github.com/strowk/vint/migrate"
+	"github.com/vint-go/vint/migrate"
 )
 
 func init() {

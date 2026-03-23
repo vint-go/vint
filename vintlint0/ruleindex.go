@@ -1,6 +1,6 @@
 package vintlint0
 
-import "github.com/strowk/vint/lint"
+import "github.com/vint-go/vint/lint"
 
 // RuleIndex partitions rules by their requirements for efficient dispatch
 // to separate worker pools.

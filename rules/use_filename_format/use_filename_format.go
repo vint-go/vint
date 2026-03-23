@@ -7,8 +7,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // FilenameFormatRule lints source filenames according to a set of regular expressions given as arguments.

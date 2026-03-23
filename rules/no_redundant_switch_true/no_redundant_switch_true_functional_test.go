@@ -3,8 +3,8 @@ package no_redundant_switch_true_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_redundant_switch_true"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_redundant_switch_true"
 )
 
 func TestNoRedundantSwitchTrue(t *testing.T) {

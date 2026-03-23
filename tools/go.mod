@@ -1,4 +1,4 @@
-module github.com/strowk/vint/tools
+module github.com/vint-go/vint/tools
 
 go 1.25.0
 
@@ -131,7 +131,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/strowk/vint v1.15.0 // indirect
+	github.com/vint-go/vint v1.15.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moricho/tparallel v0.3.2 // indirect

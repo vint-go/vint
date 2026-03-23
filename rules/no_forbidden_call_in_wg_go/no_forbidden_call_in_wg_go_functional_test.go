@@ -3,8 +3,8 @@ package no_forbidden_call_in_wg_go_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_forbidden_call_in_wg_go"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_forbidden_call_in_wg_go"
 )
 
 func TestNoForbiddenCallInWgGo(t *testing.T) {

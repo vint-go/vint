@@ -3,8 +3,8 @@ package use_write_byte_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/use_write_byte"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/use_write_byte"
 )
 
 func TestUseWriteByte(t *testing.T) {

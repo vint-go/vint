@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/strowk/vint/lint"
-	"github.com/strowk/vint/rules/no_constant_parameter"
+	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/rules/no_constant_parameter"
 )
 
 func loadFile(t *testing.T, name string) *lint.File {

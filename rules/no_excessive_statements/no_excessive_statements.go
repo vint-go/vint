@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoExcessiveStatementsRule checks that functions do not exceed a maximum number of statements.

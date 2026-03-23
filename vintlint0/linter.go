@@ -13,8 +13,8 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	"github.com/sourcegraph/conc/pool"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // fileEntry holds a file's name and content after reading from disk.

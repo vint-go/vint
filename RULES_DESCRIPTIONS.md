@@ -98,8 +98,8 @@ analysis that this rule performs.
 
 For more details, see:
 
-- <https://github.com/strowk/vint/issues/1622>
-- <https://github.com/strowk/vint/issues/386>
+- <https://github.com/vint-go/vint/issues/1622>
+- <https://github.com/vint-go/vint/issues/386>
 
 ## import-shadowing
 

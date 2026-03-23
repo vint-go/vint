@@ -5,7 +5,7 @@ import (
 	"go/types"
 	"strings"
 
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnclosedBodiesRule warns when HTTP response bodies are not closed.

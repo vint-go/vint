@@ -3,8 +3,8 @@ package no_dubious_bit_shift_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_dubious_bit_shift"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_dubious_bit_shift"
 )
 
 func TestNoDubiousBitShift(t *testing.T) {

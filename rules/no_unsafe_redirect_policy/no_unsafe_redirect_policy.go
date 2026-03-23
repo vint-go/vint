@@ -3,8 +3,8 @@ package no_unsafe_redirect_policy
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoUnsafeRedirectPolicyRule detects unsafe redirect policies that may propagate

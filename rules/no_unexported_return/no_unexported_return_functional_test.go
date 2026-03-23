@@ -3,8 +3,8 @@ package no_unexported_return_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_unexported_return"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_unexported_return"
 )
 
 func TestNoUnexportedReturn(t *testing.T) {

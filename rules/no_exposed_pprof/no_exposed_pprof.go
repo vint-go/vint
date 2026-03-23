@@ -3,8 +3,8 @@ package no_exposed_pprof
 import (
 	"go/ast"
 
-	"github.com/strowk/vint/internal/rulecache"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/internal/rulecache"
+	"github.com/vint-go/vint/lint"
 )
 
 // NoExposedPprofRule detects when net/http/pprof is imported as a blank import,

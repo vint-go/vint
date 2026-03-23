@@ -3,8 +3,8 @@ package no_suspicious_time_sleep_test
 import (
 	"testing"
 
-	"github.com/strowk/vint/rules/functional_test_helpers"
-	"github.com/strowk/vint/rules/no_suspicious_time_sleep"
+	"github.com/vint-go/vint/rules/functional_test_helpers"
+	"github.com/vint-go/vint/rules/no_suspicious_time_sleep"
 )
 
 func TestNoSuspiciousTimeSleep(t *testing.T) {

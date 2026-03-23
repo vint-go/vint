@@ -12,7 +12,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/strowk/vint/internal/rulecache"
+	"github.com/vint-go/vint/internal/rulecache"
 )
 
 // File abstraction used for representing files.

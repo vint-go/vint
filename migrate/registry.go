@@ -6,8 +6,8 @@ import (
 	"sort"
 
 	"github.com/BurntSushi/toml"
-	"github.com/strowk/vint/config"
-	"github.com/strowk/vint/lint"
+	"github.com/vint-go/vint/config"
+	"github.com/vint-go/vint/lint"
 )
 
 //go:embed registry/rules_registry.toml
