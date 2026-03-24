@@ -19,9 +19,14 @@ settings:
 
 ## Details
 
-Impossible comparison of interface value with untyped nil.
+Detects nil comparisons of interface values that are always false (`== nil`) or always true (`!= nil`).
 
-When a concrete type is stored in an interface, comparing the interface to `nil` will be false even if the concrete value is the zero value. An interface is only nil when both its type and value are nil.
+This rule checks at the **call site**, matching the semantics of staticcheck SA4023. It flags `x == nil` or `x != nil` comparisons where static analysis proves the interface value can never be untyped nil. This happens in two cases:
+
+1. The value was assigned from a function that provably never returns untyped nil at that return position (all return paths return concrete types).
+2. The value was assigned from a function whose declared return type is a concrete (non-interface) type, meaning the result is always wrapped in an interface and can never be nil.
+
+An interface value is only nil when both its type and value components are nil (untyped nil). When a concrete type (even a nil pointer) is stored in an interface, the interface itself is non-nil.
 
 Source: https://staticcheck.dev/docs/checks/#SA4023
 
@@ -38,14 +43,16 @@ type MyError struct{}
 
 func (e *MyError) Error() string { return "error" }
 
+// getError never returns untyped nil - all paths return a concrete type.
 func getError() error {
     var err *MyError
-    // Returns non-nil interface even though err is nil
-    return err
+    return err // returns non-nil interface wrapping a nil *MyError
 }
 
 func main() {
     err := getError()
+    // Flagged: nil comparison of err is always false because
+    // getError never returns nil.
     if err == nil {
         fmt.Println("no error") // never reached
     }
@@ -63,10 +70,11 @@ type MyError struct{}
 
 func (e *MyError) Error() string { return "error" }
 
+// getError can return untyped nil, so nil comparisons are valid.
 func getError() error {
     var err *MyError
     if err == nil {
-        return nil // Return untyped nil
+        return nil // returns untyped nil - interface will be nil
     }
     return err
 }
@@ -74,7 +82,7 @@ func getError() error {
 func main() {
     err := getError()
     if err == nil {
-        fmt.Println("no error")
+        fmt.Println("no error") // can be reached
     }
 }
 ```
