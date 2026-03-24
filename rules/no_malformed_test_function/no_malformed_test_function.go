@@ -76,6 +76,7 @@ func (*NoMalformedTestFunctionRule) CacheTier() rulecache.CacheTier {
 
 // checkTestFunc validates a Test function has the correct signature.
 // Test functions must have exactly one parameter of type *testing.T.
+// The special case TestMain may accept *testing.M instead.
 // The name after "Test" must either be empty (for TestMain) or start with an
 // uppercase letter or underscore.
 func checkTestFunc(fn *ast.FuncDecl) *lint.Failure {
@@ -91,6 +92,11 @@ func checkTestFunc(fn *ast.FuncDecl) *lint.Failure {
 				Failure:    fmt.Sprintf("test function %s has malformed name: first letter after 'Test' must be uppercase", name),
 			}
 		}
+	}
+
+	// TestMain is special: it accepts either *testing.T or *testing.M.
+	if name == "TestMain" && hasExactParam(fn, "testing", "M") {
+		return nil
 	}
 
 	if !hasExactParam(fn, "testing", "T") {
