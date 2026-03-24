@@ -9,7 +9,9 @@ import (
 )
 
 func TestNoVariableShadowing(t *testing.T) {
-	functional_test_helpers.TestRule(t, "no_variable_shadowing", &no_variable_shadowing.NoVariableShadowingRule{})
+	functional_test_helpers.TestRule(t, "no_variable_shadowing", &no_variable_shadowing.NoVariableShadowingRule{}, &lint.RuleConfig{
+		Arguments: lint.Arguments{map[string]any{"strict": true}},
+	})
 }
 
 func TestNoVariableShadowingNonStrict(t *testing.T) {

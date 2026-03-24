@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"go/types"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
@@ -18,8 +19,9 @@ type NoVariableShadowingRule struct {
 //
 // Configure implements the [lint.ConfigurableRule] interface.
 func (r *NoVariableShadowingRule) Configure(arguments lint.Arguments) error {
-	// Default to strict mode (report all shadowing).
-	r.strict = true
+	// Default to non-strict mode (only report shadows where the outer variable
+	// is used after the shadowing declaration), matching go vet shadow's default.
+	r.strict = false
 	if len(arguments) < 1 {
 		return nil
 	}
@@ -45,6 +47,13 @@ func (r *NoVariableShadowingRule) Apply(file *lint.File, _ lint.Arguments) []lin
 	var failures []lint.Failure
 	var pending []pendingShadow
 
+	// Attempt type checking for type-identity filtering.
+	// If it fails, typesInfo will be nil and we fall back to name-only matching.
+	var typesInfo *types.Info
+	if file.Pkg.TypeCheck() == nil {
+		typesInfo = file.Pkg.TypesInfo()
+	}
+
 	w := &lintVariableShadowing{
 		onFailure: func(f lint.Failure) {
 			failures = append(failures, f)
@@ -52,13 +61,23 @@ func (r *NoVariableShadowingRule) Apply(file *lint.File, _ lint.Arguments) []lin
 		scopes:         nil,
 		strict:         r.strict,
 		pendingShadows: &pending,
+		typesInfo:      typesInfo,
 	}
 
 	// Collect top-level scope names from the file scope.
 	if file.AST.Scope != nil {
-		topScope := make(map[string]token.Pos)
+		topScope := make(map[string]scopeEntry)
 		for name, obj := range file.AST.Scope.Objects {
-			topScope[name] = obj.Pos()
+			entry := scopeEntry{pos: obj.Pos()}
+			// Try to get type information for the top-level object.
+			if typesInfo != nil {
+				if ident, ok := obj.Decl.(*ast.Ident); ok {
+					if tObj := typesInfo.Defs[ident]; tObj != nil {
+						entry.typ = tObj.Type()
+					}
+				}
+			}
+			topScope[name] = entry
 		}
 		w.scopes = append(w.scopes, topScope)
 	}
@@ -83,7 +102,16 @@ func (*NoVariableShadowingRule) Group() string {
 
 // CacheTier returns the cache tier for this rule.
 func (*NoVariableShadowingRule) CacheTier() rulecache.CacheTier {
-	return rulecache.TierFileOnly
+	return rulecache.TierPackageAware
+}
+
+// RequiresTypecheck returns true because this rule uses type information.
+func (*NoVariableShadowingRule) RequiresTypecheck() bool { return true }
+
+// scopeEntry stores position and optional type information for a scope variable.
+type scopeEntry struct {
+	pos token.Pos
+	typ types.Type // nil if type info unavailable
 }
 
 // pendingShadow records a shadow that needs to be confirmed against
@@ -96,13 +124,15 @@ type pendingShadow struct {
 
 type lintVariableShadowing struct {
 	onFailure func(lint.Failure)
-	// scopes is a stack of variable name -> declaration position maps.
+	// scopes is a stack of variable name -> scope entry maps.
 	// Each entry represents an enclosing scope.
-	scopes []map[string]token.Pos
+	scopes []map[string]scopeEntry
 	strict bool
 	// pendingShadows collects shadows in non-strict mode for deferred resolution.
 	// Shared across inner walkers via pointer so shadows bubble up.
 	pendingShadows *[]pendingShadow
+	// typesInfo holds type checker results. May be nil if type checking failed.
+	typesInfo *types.Info
 }
 
 func (w *lintVariableShadowing) Visit(node ast.Node) ast.Visitor {
@@ -126,14 +156,14 @@ func (w *lintVariableShadowing) visitFunc(funcType *ast.FuncType, body *ast.Bloc
 
 	// In Go, function parameters, named return values, and the function body
 	// all share the same scope. So we create a single scope that holds all of them.
-	funcScope := make(map[string]token.Pos)
+	funcScope := make(map[string]scopeEntry)
 
 	// Collect parameters.
 	if funcType.Params != nil {
 		for _, field := range funcType.Params.List {
 			for _, name := range field.Names {
 				if name.Name != "_" {
-					funcScope[name.Name] = name.Pos()
+					funcScope[name.Name] = w.makeScopeEntry(name)
 				}
 			}
 		}
@@ -144,7 +174,7 @@ func (w *lintVariableShadowing) visitFunc(funcType *ast.FuncType, body *ast.Bloc
 		for _, field := range funcType.Results.List {
 			for _, name := range field.Names {
 				if name.Name != "_" {
-					funcScope[name.Name] = name.Pos()
+					funcScope[name.Name] = w.makeScopeEntry(name)
 				}
 			}
 		}
@@ -158,6 +188,7 @@ func (w *lintVariableShadowing) visitFunc(funcType *ast.FuncType, body *ast.Bloc
 		scopes:         append(copyScopes(w.scopes), funcScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	inner.walkStmtList(body.List)
@@ -170,12 +201,13 @@ func (w *lintVariableShadowing) walkBlock(block *ast.BlockStmt) {
 	}
 
 	// This block introduces a new scope.
-	blockScope := make(map[string]token.Pos)
+	blockScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), blockScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	inner.walkStmtList(block.List)
@@ -233,7 +265,7 @@ func (w *lintVariableShadowing) walkStmt(stmt ast.Stmt) {
 				if vs, ok := spec.(*ast.ValueSpec); ok {
 					for _, name := range vs.Names {
 						if name.Name != "_" {
-							w.addToCurrentScope(name.Name, name.Pos())
+							w.addToCurrentScope(name.Name, w.makeScopeEntry(name))
 						}
 					}
 					// Check values for function literals.
@@ -299,6 +331,7 @@ func (w *lintVariableShadowing) walkExprForFuncLit(expr ast.Expr) {
 				scopes:         copyScopes(w.scopes),
 				strict:         w.strict,
 				pendingShadows: w.pendingShadows,
+				typesInfo:      w.typesInfo,
 			}
 			inner.visitFunc(fl.Type, fl.Body)
 			return false
@@ -309,12 +342,13 @@ func (w *lintVariableShadowing) walkExprForFuncLit(expr ast.Expr) {
 
 // walkIfStmt handles if-init statements. The init and body share a scope.
 func (w *lintVariableShadowing) walkIfStmt(s *ast.IfStmt) {
-	ifScope := make(map[string]token.Pos)
+	ifScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), ifScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	if s.Init != nil {
@@ -330,12 +364,13 @@ func (w *lintVariableShadowing) walkIfStmt(s *ast.IfStmt) {
 
 // walkForStmt handles for statements.
 func (w *lintVariableShadowing) walkForStmt(s *ast.ForStmt) {
-	forScope := make(map[string]token.Pos)
+	forScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), forScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	if s.Init != nil {
@@ -345,21 +380,25 @@ func (w *lintVariableShadowing) walkForStmt(s *ast.ForStmt) {
 }
 
 // walkRangeStmt handles range statements.
+// Note: go vet's shadow analyzer does NOT check range key/value variables for
+// shadowing, so we only add them to scope without checking for shadows.
 func (w *lintVariableShadowing) walkRangeStmt(s *ast.RangeStmt) {
-	rangeScope := make(map[string]token.Pos)
+	rangeScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), rangeScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
+	// Add range variables to scope without shadow-checking, matching go vet behavior.
 	if s.Tok == token.DEFINE {
 		if key, ok := s.Key.(*ast.Ident); ok && key.Name != "_" {
-			inner.checkShadowAndAdd(key)
+			inner.addToCurrentScope(key.Name, inner.makeScopeEntry(key))
 		}
 		if val, ok := s.Value.(*ast.Ident); ok && val.Name != "_" {
-			inner.checkShadowAndAdd(val)
+			inner.addToCurrentScope(val.Name, inner.makeScopeEntry(val))
 		}
 	}
 
@@ -368,12 +407,13 @@ func (w *lintVariableShadowing) walkRangeStmt(s *ast.RangeStmt) {
 
 // walkSwitchStmt handles switch statements.
 func (w *lintVariableShadowing) walkSwitchStmt(s *ast.SwitchStmt) {
-	switchScope := make(map[string]token.Pos)
+	switchScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), switchScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	if s.Init != nil {
@@ -391,12 +431,13 @@ func (w *lintVariableShadowing) walkSwitchStmt(s *ast.SwitchStmt) {
 
 // walkTypeSwitchStmt handles type switch statements.
 func (w *lintVariableShadowing) walkTypeSwitchStmt(s *ast.TypeSwitchStmt) {
-	switchScope := make(map[string]token.Pos)
+	switchScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), switchScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	if s.Init != nil {
@@ -418,12 +459,13 @@ func (w *lintVariableShadowing) walkTypeSwitchStmt(s *ast.TypeSwitchStmt) {
 
 // walkCaseClause handles case clauses in switch statements.
 func (w *lintVariableShadowing) walkCaseClause(clause *ast.CaseClause) {
-	caseScope := make(map[string]token.Pos)
+	caseScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), caseScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	inner.walkStmtList(clause.Body)
@@ -431,12 +473,13 @@ func (w *lintVariableShadowing) walkCaseClause(clause *ast.CaseClause) {
 
 // walkCommClause handles comm clauses in select statements.
 func (w *lintVariableShadowing) walkCommClause(clause *ast.CommClause) {
-	commScope := make(map[string]token.Pos)
+	commScope := make(map[string]scopeEntry)
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), commScope),
 		strict:         w.strict,
 		pendingShadows: w.pendingShadows,
+		typesInfo:      w.typesInfo,
 	}
 
 	if clause.Comm != nil {
@@ -476,7 +519,18 @@ func (w *lintVariableShadowing) checkShadowAndAdd(ident *ast.Ident) {
 	// for a variable with the same name.
 	if len(w.scopes) > 1 {
 		for i := len(w.scopes) - 2; i >= 0; i-- {
-			if _, exists := w.scopes[i][name]; exists {
+			if shadowed, exists := w.scopes[i][name]; exists {
+				// Type identity check: go vet's shadow only flags shadows where
+				// the new variable has the same type as the shadowed one.
+				if w.typesInfo != nil {
+					newObj := w.typesInfo.Defs[ident]
+					if newObj != nil && shadowed.typ != nil {
+						if !types.Identical(newObj.Type(), shadowed.typ) {
+							break // different types, not a real shadow per go vet
+						}
+					}
+				}
+
 				f := lint.Failure{
 					Confidence: 1,
 					Node:       ident,
@@ -498,7 +552,18 @@ func (w *lintVariableShadowing) checkShadowAndAdd(ident *ast.Ident) {
 	}
 
 	// Add to the current (innermost) scope.
-	w.addToCurrentScope(name, ident.Pos())
+	w.addToCurrentScope(name, w.makeScopeEntry(ident))
+}
+
+// makeScopeEntry creates a scopeEntry for an identifier, including type info if available.
+func (w *lintVariableShadowing) makeScopeEntry(ident *ast.Ident) scopeEntry {
+	entry := scopeEntry{pos: ident.Pos()}
+	if w.typesInfo != nil {
+		if obj := w.typesInfo.Defs[ident]; obj != nil {
+			entry.typ = obj.Type()
+		}
+	}
+	return entry
 }
 
 // existsInCurrentScope checks if a name exists in the current (innermost) scope.
@@ -511,18 +576,18 @@ func (w *lintVariableShadowing) existsInCurrentScope(name string) bool {
 }
 
 // addToCurrentScope adds a variable to the innermost scope.
-func (w *lintVariableShadowing) addToCurrentScope(name string, pos token.Pos) {
+func (w *lintVariableShadowing) addToCurrentScope(name string, entry scopeEntry) {
 	if len(w.scopes) > 0 {
-		w.scopes[len(w.scopes)-1][name] = pos
+		w.scopes[len(w.scopes)-1][name] = entry
 	}
 }
 
 // copyScopes creates a shallow copy of the scope stack.
-func copyScopes(scopes []map[string]token.Pos) []map[string]token.Pos {
+func copyScopes(scopes []map[string]scopeEntry) []map[string]scopeEntry {
 	if scopes == nil {
 		return nil
 	}
-	result := make([]map[string]token.Pos, len(scopes))
+	result := make([]map[string]scopeEntry, len(scopes))
 	copy(result, scopes)
 	return result
 }
