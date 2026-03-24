@@ -1,0 +1,1 @@
+std-error-handling preset: added specific exclude-functions to noUncheckedError; generic patterns (.*Close, .*Flush, .*print) cannot be exactly translated — review your vint.yaml and add exclude-functions for any Close/Flush/print-like methods you want to ignore

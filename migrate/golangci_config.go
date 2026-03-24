@@ -22,7 +22,13 @@ type LintersCfg struct {
 	DisableAll bool     `yaml:"disable-all"`
 	EnableAll  bool     `yaml:"enable-all"`
 	// V2 only: settings nested under linters.
-	Settings map[string]map[string]any `yaml:"settings"`
+	Settings   map[string]map[string]any `yaml:"settings"`
+	Exclusions ExclusionsCfg             `yaml:"exclusions"`
+}
+
+// ExclusionsCfg holds the exclusion presets configuration from golangci-lint.
+type ExclusionsCfg struct {
+	Presets []string `yaml:"presets"`
 }
 
 // LoadGolangciConfig reads and parses a .golangci.yml file.

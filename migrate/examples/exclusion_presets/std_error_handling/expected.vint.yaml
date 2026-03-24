@@ -1,0 +1,7 @@
+settings:
+    lint/correctness/noUncheckedError:
+        exclude-functions:
+            - os.Remove
+            - os.RemoveAll
+            - os.Setenv
+            - os.Unsetenv

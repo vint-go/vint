@@ -1,0 +1,8 @@
+version: "2"
+
+linters:
+  enable:
+    - gosec
+  exclusions:
+    presets:
+      - common-false-positives

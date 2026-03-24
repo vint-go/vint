@@ -105,6 +105,16 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 	allConfigs := make(map[string]VintRuleConfig)
 	enabledLinters := golangciCfg.EnabledLinters()
 
+	// Track which linters contributed each rule, so exclusion presets can
+	// correctly handle rules contributed by multiple linters.
+	ruleSources := make(map[string]map[string]bool)
+	addRuleSource := func(rulePath, linterName string) {
+		if ruleSources[rulePath] == nil {
+			ruleSources[rulePath] = make(map[string]bool)
+		}
+		ruleSources[rulePath][linterName] = true
+	}
+
 	for _, linterName := range enabledLinters {
 		m, ok := migrators[linterName]
 		if !ok {
@@ -116,6 +126,7 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 				for _, mapped := range registry.RulesForLinter(linterName) {
 					if mapped.FullVintPath != "" {
 						allConfigs[mapped.FullVintPath] = VintRuleConfig{}
+						addRuleSource(mapped.FullVintPath, linterName)
 					}
 				}
 			} else {
@@ -141,7 +152,18 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 
 		for k, v := range configs {
 			allConfigs[k] = v
+			addRuleSource(k, linterName)
 		}
+	}
+
+	// Apply exclusion presets to remove or modify rules.
+	if presets := golangciCfg.Linters.Exclusions.Presets; len(presets) > 0 {
+		enabledLintersSet := make(map[string]bool, len(enabledLinters))
+		for _, name := range enabledLinters {
+			enabledLintersSet[name] = true
+		}
+		presetWarnings := applyExclusionPresets(presets, enabledLintersSet, allConfigs, ruleSources)
+		result.Warnings = append(result.Warnings, presetWarnings...)
 	}
 
 	// Render vint.yaml.

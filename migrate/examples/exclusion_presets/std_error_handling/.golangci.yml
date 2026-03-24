@@ -1,0 +1,8 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+  exclusions:
+    presets:
+      - std-error-handling

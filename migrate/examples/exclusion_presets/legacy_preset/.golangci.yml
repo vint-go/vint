@@ -1,0 +1,14 @@
+version: "2"
+
+linters:
+  enable:
+    - gosec
+    - govet
+    - staticcheck
+  settings:
+    staticcheck:
+      checks:
+        - "all"
+  exclusions:
+    presets:
+      - legacy
