@@ -73,3 +73,52 @@ func goodEmpty() {
 	for {
 	}
 }
+
+// Valid: comment before first statement in function body (no blank line).
+func goodCommentInFunc() {
+	// this is a comment
+	fmt.Println("hello")
+}
+
+// Valid: multi-line comment before first statement in function body (no blank line).
+func goodMultiLineCommentInFunc() {
+	// NOTE:
+	// Do not move the code below to a goroutine.
+	// The ConsumeClaim itself is called within a goroutine.
+	fmt.Println("hello")
+}
+
+// Valid: comment before first statement in if block (no blank line).
+func goodCommentInIf() {
+	err := fmt.Errorf("err")
+	if err != nil {
+		// handle the error
+		fmt.Println(err)
+	}
+}
+
+// Valid: comment before first statement in for loop (no blank line).
+func goodCommentInFor() {
+	for i := 0; i < 10; i++ {
+		// process element
+		fmt.Println(i)
+	}
+}
+
+// Valid: comment before first statement in case clause (no blank line).
+func goodCommentInSwitch(status string) {
+	switch status {
+	case "active":
+		// active handling
+		fmt.Println("active")
+	case "inactive":
+		fmt.Println("inactive")
+	}
+}
+
+// Invalid: blank line then comment then statement.
+func badBlankLineThenComment() { // MATCH /unnecessary leading blank line/
+
+	// this is a comment
+	fmt.Println("hello")
+}

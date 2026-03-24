@@ -2,6 +2,7 @@ package no_leading_blank_line
 
 import (
 	"go/ast"
+	"go/token"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
@@ -78,9 +79,9 @@ func (w *lintLeadingBlankLine) checkBlockStmt(block *ast.BlockStmt) {
 	}
 
 	openBraceLine := w.file.ToPosition(block.Lbrace).Line
-	firstStmtLine := w.file.ToPosition(block.List[0].Pos()).Line
+	firstContentLine := w.firstContentLine(block.Lbrace, block.List[0].Pos())
 
-	if firstStmtLine > openBraceLine+1 {
+	if firstContentLine > openBraceLine+1 {
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Node:       block,
@@ -97,9 +98,9 @@ func (w *lintLeadingBlankLine) checkCaseClause(cc *ast.CaseClause) {
 	}
 
 	colonLine := w.file.ToPosition(cc.Colon).Line
-	firstStmtLine := w.file.ToPosition(cc.Body[0].Pos()).Line
+	firstContentLine := w.firstContentLine(cc.Colon, cc.Body[0].Pos())
 
-	if firstStmtLine > colonLine+1 {
+	if firstContentLine > colonLine+1 {
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Node:       cc,
@@ -116,9 +117,9 @@ func (w *lintLeadingBlankLine) checkCommClause(cc *ast.CommClause) {
 	}
 
 	colonLine := w.file.ToPosition(cc.Colon).Line
-	firstStmtLine := w.file.ToPosition(cc.Body[0].Pos()).Line
+	firstContentLine := w.firstContentLine(cc.Colon, cc.Body[0].Pos())
 
-	if firstStmtLine > colonLine+1 {
+	if firstContentLine > colonLine+1 {
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Node:       cc,
@@ -126,4 +127,24 @@ func (w *lintLeadingBlankLine) checkCommClause(cc *ast.CommClause) {
 			Failure:    "unnecessary leading blank line",
 		})
 	}
+}
+
+// firstContentLine returns the line of the first content (statement or comment)
+// between start and firstStmt positions. This accounts for comments that appear
+// before the first statement in a block, which are not included in the AST's
+// statement list.
+func (w *lintLeadingBlankLine) firstContentLine(start, firstStmt token.Pos) int {
+	startLine := w.file.ToPosition(start).Line
+	line := w.file.ToPosition(firstStmt).Line
+	for _, cg := range w.file.AST.Comments {
+		cgPos := cg.Pos()
+		if cgPos > start && cgPos < firstStmt {
+			cgLine := w.file.ToPosition(cgPos).Line
+			// Ignore trailing comments on the same line as the opening brace/colon.
+			if cgLine > startLine && cgLine < line {
+				line = cgLine
+			}
+		}
+	}
+	return line
 }

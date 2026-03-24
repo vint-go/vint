@@ -2,6 +2,7 @@ package no_trailing_blank_line
 
 import (
 	"go/ast"
+	"go/token"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
@@ -73,10 +74,10 @@ func (w *lintTrailingBlankLine) checkBlockStmt(block *ast.BlockStmt) {
 	}
 
 	lastStmt := block.List[len(block.List)-1]
-	lastStmtEndLine := w.file.ToPosition(lastStmt.End()).Line
+	lastContentEndLine := w.lastContentEndLine(lastStmt.End(), block.Rbrace)
 	closeBraceLine := w.file.ToPosition(block.Rbrace).Line
 
-	if closeBraceLine > lastStmtEndLine+1 {
+	if closeBraceLine > lastContentEndLine+1 {
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Node:       block,
@@ -84,4 +85,23 @@ func (w *lintTrailingBlankLine) checkBlockStmt(block *ast.BlockStmt) {
 			Failure:    "unnecessary trailing blank line",
 		})
 	}
+}
+
+// lastContentEndLine returns the end line of the last content (statement or comment)
+// between lastStmtEnd and end positions. This accounts for comments that appear
+// after the last statement in a block, which are not included in the AST's
+// statement list.
+func (w *lintTrailingBlankLine) lastContentEndLine(lastStmtEnd, end token.Pos) int {
+	endLine := w.file.ToPosition(end).Line
+	line := w.file.ToPosition(lastStmtEnd).Line
+	for _, cg := range w.file.AST.Comments {
+		cgEnd := cg.End()
+		if cgEnd > lastStmtEnd && cgEnd < end {
+			// Ignore comments on the same line as the closing brace.
+			if cgEndLine := w.file.ToPosition(cgEnd).Line; cgEndLine < endLine && cgEndLine > line {
+				line = cgEndLine
+			}
+		}
+	}
+	return line
 }

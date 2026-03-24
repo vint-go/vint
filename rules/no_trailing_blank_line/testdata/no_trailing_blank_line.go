@@ -73,3 +73,41 @@ func goodEmpty() {
 	for {
 	}
 }
+
+// Valid: comment after last statement in function body (no blank line).
+func goodCommentTrailingFunc() {
+	fmt.Println("hello")
+	// trailing comment
+}
+
+// Valid: multi-line comment after last statement (no blank line).
+func goodMultiLineCommentTrailingFunc() {
+	fmt.Println("hello")
+	// NOTE:
+	// This is important.
+	// Do not remove.
+}
+
+// Valid: comment after last statement in if block (no blank line).
+func goodCommentTrailingIf() {
+	err := fmt.Errorf("err")
+	if err != nil {
+		fmt.Println(err)
+		// handle the error
+	}
+}
+
+// Valid: comment after last statement in for loop (no blank line).
+func goodCommentTrailingFor() {
+	for i := 0; i < 10; i++ {
+		fmt.Println(i)
+		// process element
+	}
+}
+
+// Invalid: blank line after comment then closing brace.
+func badBlankLineAfterComment() { // MATCH /unnecessary trailing blank line/
+	fmt.Println("hello")
+	// trailing comment
+
+}
