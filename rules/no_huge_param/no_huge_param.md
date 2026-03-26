@@ -19,7 +19,7 @@ settings:
 
 ## Details
 
-Detects params that incur excessive amount of copying. This checker identifies function parameters that exceed a specified byte threshold, as passing large structures by value causes unnecessary copying overhead. The checker suggests using a pointer instead. The `String() string` method is automatically excluded to avoid flagging Stringer interface implementations.
+Detects params that incur excessive amount of copying. This checker identifies function parameters that are greater than or equal to a specified byte threshold, as passing large structures by value causes unnecessary copying overhead. The checker suggests using a pointer instead. The `String() string` method is automatically excluded to avoid flagging Stringer interface implementations. Unnamed receivers and parameters (e.g., `func (MyType) Method()`) are silently skipped, matching gocritic behavior.
 
 Source: https://github.com/go-critic/go-critic
 
@@ -45,5 +45,12 @@ func processData(data *[1024]int) {
 func (s MyStruct) String() string {
     // String() method is excluded from this check
     return fmt.Sprintf("%v", s)
+}
+```
+
+```golang
+func (Application) TableName() string {
+    // Unnamed receivers are skipped
+    return "applications"
 }
 ```

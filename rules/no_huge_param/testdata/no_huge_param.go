@@ -66,3 +66,24 @@ func (s MyStruct) Process() { // MATCH /parameter 's' exceeds the size threshold
 func (s *MyStruct) Update() {
 	s.A = 1
 }
+
+// Valid: unnamed value receiver -- skipped to match gocritic behavior.
+type Application struct {
+	A, B, C, D, E int64
+	F, G, H, I, J int64
+	K             int64
+}
+
+func (Application) TableName() string {
+	return "applications"
+}
+
+// Boundary test: struct exactly at threshold (80 bytes = 10 * int64).
+type ExactThresholdStruct struct {
+	A, B, C, D, E int64
+	F, G, H, I, J int64
+}
+
+func processExactThreshold(s ExactThresholdStruct) { // MATCH /parameter 's' exceeds the size threshold of 80 bytes with a size of 80 bytes, consider passing it by pointer/
+	_ = s
+}

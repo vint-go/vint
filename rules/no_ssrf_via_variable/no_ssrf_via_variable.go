@@ -71,29 +71,27 @@ func (w *lintNoSsrfViaVariable) Visit(node ast.Node) ast.Visitor {
 		}
 	}
 
-	// Check http.NewRequest(method, url, body) - URL is the second argument
-	if astutils.IsPkgDotName(ce.Fun, "http", "NewRequest") {
-		if len(ce.Args) > 1 {
-			w.checkURLArg(ce, ce.Args[1], "NewRequest")
-		}
-		return w
-	}
-
-	// Check http.NewRequestWithContext(ctx, method, url, body) - URL is the third argument
-	if astutils.IsPkgDotName(ce.Fun, "http", "NewRequestWithContext") {
-		if len(ce.Args) > 2 {
-			w.checkURLArg(ce, ce.Args[2], "NewRequestWithContext")
-		}
-		return w
-	}
-
 	return w
 }
 
-// checkURLArg reports a failure if the URL argument is not a string literal.
+// checkURLArg reports a failure if the URL argument is a variable (non-constant *ast.Ident).
+// String literals, constant identifiers, call expressions, and binary expressions are not flagged,
+// matching the behavior of gosec G107's ResolveVar.
 func (w *lintNoSsrfViaVariable) checkURLArg(call *ast.CallExpr, urlArg ast.Expr, funcName string) {
-	if isConstantStringExpr(urlArg) {
-		return // hardcoded string literal is safe
+	// String literals are always safe.
+	if astutils.IsStringLiteral(urlArg) {
+		return
+	}
+
+	// Only flag *ast.Ident nodes that are not constants.
+	ident, ok := urlArg.(*ast.Ident)
+	if !ok {
+		return // call expressions, binary expressions, etc. are not flagged
+	}
+
+	// If the identifier refers to a constant, it's safe.
+	if ident.Obj != nil && ident.Obj.Kind == ast.Con {
+		return
 	}
 
 	w.onFailure(lint.Failure{
@@ -102,9 +100,4 @@ func (w *lintNoSsrfViaVariable) checkURLArg(call *ast.CallExpr, urlArg ast.Expr,
 		Category:   lint.FailureCategoryBadPractice,
 		Failure:    fmt.Sprintf("potential SSRF: URL passed to http.%s is not a hardcoded constant", funcName),
 	})
-}
-
-// isConstantStringExpr returns true if the expression is a string literal constant.
-func isConstantStringExpr(expr ast.Expr) bool {
-	return astutils.IsStringLiteral(expr)
 }

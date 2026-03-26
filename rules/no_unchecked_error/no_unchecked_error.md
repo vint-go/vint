@@ -14,6 +14,7 @@ title: noUncheckedError
 ```yaml title="vint.yaml"
 settings:
   lint/correctness/noUncheckedError:
+    check-blank: false
     disable-default-exclusions: false
     exclude-functions: []
 ```
@@ -23,6 +24,8 @@ settings:
 Detects when error return values from function calls are silently ignored. In Go, many functions return an `error` value to indicate failure. Silently discarding these errors can mask bugs, data corruption, or resource leaks, making programs unreliable and difficult to debug.
 
 This is the primary check performed by errcheck. It flags any function call whose error return value is not assigned to a variable. The rule does not perform deeper analysis on how the assigned error is subsequently handled -- it only verifies that the error is acknowledged.
+
+By default, assigning an error to the blank identifier (`_`) is **not** flagged. To also flag blank-identifier assignments (e.g., `f, _ := os.Open("file.txt")`), set `check-blank: true`. This matches errcheck's default behavior, where `check-blank` defaults to `false`.
 
 By default, errcheck excludes a set of standard library functions whose error returns are commonly considered non-critical, such as:
 
@@ -60,6 +63,18 @@ import "os"
 func main() {
     f, _ := os.Open("file.txt")
     defer f.Close()
+}
+```
+
+```golang
+// With check-blank: true, error assigned to blank identifier is also flagged
+package main
+
+import "os"
+
+func main() {
+    f, _ := os.Open("file.txt") // flagged only when check-blank is true
+    _ = f
 }
 ```
 

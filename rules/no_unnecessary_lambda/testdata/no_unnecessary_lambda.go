@@ -119,3 +119,43 @@ func goodVariadicExpansion() {
 	}
 	f(1, 2, 3)
 }
+
+type service struct{}
+
+func (s *service) handle(i int) {
+	fmt.Println(i)
+}
+
+// Valid: method call on receiver variable (SelectorExpr, not a plain function)
+func goodMethodCallOnReceiver() {
+	s := &service{}
+	f := func(i int) {
+		s.handle(i)
+	}
+	f(1)
+}
+
+// Valid: call through a parameter variable (callee is a captured variable)
+func goodCallThroughParameter() {
+	var next func(int) error
+	_ = next
+	f := func(next func(int) error, i int) error {
+		return next(i)
+	}
+	_ = f
+}
+
+type waiter struct{}
+
+func (w *waiter) WithPort(port string) *waiter { return w }
+func (w *waiter) WaitUntilReady(i, j int)      {}
+
+// Valid: method chain (SelectorExpr, eagerly evaluated chain)
+func goodMethodChain() {
+	w := &waiter{}
+	port := "8080"
+	f := func(i, j int) {
+		w.WithPort(port).WaitUntilReady(i, j)
+	}
+	f(1, 2)
+}

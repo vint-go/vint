@@ -3,6 +3,7 @@ package no_unkeyed_literal
 import (
 	"go/ast"
 	"go/types"
+	"strings"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
@@ -107,6 +108,11 @@ func (w *lintNoUnkeyedLiteral) Visit(node ast.Node) ast.Visitor {
 		return w
 	}
 
+	// Skip local types (same package) and anonymous structs, matching go vet behavior
+	if isLocalType(w.pkg, t) {
+		return w
+	}
+
 	w.onFailure(lint.Failure{
 		Confidence: 1,
 		Node:       cl,
@@ -115,4 +121,25 @@ func (w *lintNoUnkeyedLiteral) Visit(node ast.Node) ast.Visitor {
 	})
 
 	return w
+}
+
+// isLocalType checks whether a type is defined in the same package or is an
+// anonymous struct. Local types are exempt from the unkeyed literal check,
+// matching the behavior of go vet's composite analyzer.
+func isLocalType(pkg *lint.Package, typ types.Type) bool {
+	switch x := typ.(type) {
+	case *types.Struct:
+		// Anonymous struct literals are always local
+		return true
+	case *types.Pointer:
+		return isLocalType(pkg, x.Elem())
+	case *types.Named:
+		obj := x.Obj()
+		if obj.Pkg() == nil {
+			return false
+		}
+		return strings.TrimSuffix(obj.Pkg().Path(), "_test") ==
+			strings.TrimSuffix(pkg.TypesPkg().Path(), "_test")
+	}
+	return false
 }

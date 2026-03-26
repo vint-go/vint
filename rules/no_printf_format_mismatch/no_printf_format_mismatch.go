@@ -507,6 +507,9 @@ func (w *lintPrintfFormatMismatch) checkVerbTypeMatch(call *ast.CallExpr, verb r
 	if t == nil {
 		return // type info not available
 	}
+	if basic, ok := t.(*types.Basic); ok && basic.Kind() == types.Invalid {
+		return // unresolved type (e.g. missing third-party dependency)
+	}
 
 	// %v, %T, %p, %w accept anything
 	if verb == 'v' || verb == 'T' || verb == 'p' {

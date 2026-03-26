@@ -21,6 +21,8 @@ settings:
 
 Checks for unreachable code. This analyzer detects code that can never be executed because it appears after a statement that unconditionally exits the function, such as `return`, `panic`, `os.Exit`, `log.Fatal`, or an infinite loop with no break. Unreachable code is usually a sign of a programming error or dead code that should be removed.
 
+For library function calls like `os.Exit` or `log.Fatal`, the rule verifies that the identifier actually refers to an imported package rather than a local variable with the same name. For example, a local variable named `log` (e.g., of type `*zap.SugaredLogger`) calling `.Panic()` will not be treated as the stdlib `log.Panic()`.
+
 Source: https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/unreachable
 
 ## Examples
@@ -56,5 +58,12 @@ func example(x int) int {
         return x
     }
     return -x // Good: reachable when x <= 0
+}
+```
+
+```golang
+func example(log *zap.SugaredLogger) {
+    log.Panic("something went wrong")
+    cleanup() // Good: log is a local variable, not the stdlib log package
 }
 ```

@@ -19,9 +19,11 @@ settings:
 
 ## Details
 
-Detects potential Server-Side Request Forgery (SSRF) vulnerabilities by identifying HTTP requests made with URLs derived from variables or user input.
+Detects potential Server-Side Request Forgery (SSRF) vulnerabilities by identifying HTTP requests made with URLs derived from variables.
 
-This rule monitors calls to `net/http` methods including `Do`, `Get`, `Head`, `Post`, `PostForm`, and `RoundTrip`, and flags cases where the URL argument is sourced from a variable rather than a hardcoded constant string. Variable-sourced URLs could be attacker-controlled, enabling SSRF attacks that allow an attacker to make the server issue requests to arbitrary internal or external services.
+This rule monitors calls to `net/http` package-level functions `Get`, `Head`, `Post`, and `PostForm`, matching the scope of gosec rule G107. It flags cases where the URL argument is a variable identifier (not resolvable to a constant). String literals, constant identifiers, call expressions (e.g., `fmt.Sprintf(...)`), and binary expressions are not flagged.
+
+Note: `http.NewRequest` and `http.NewRequestWithContext` are not monitored, as they are not in the scope of gosec G107.
 
 SSRF attacks can be used to bypass firewalls, access internal services, scan internal networks, and exfiltrate data. URL inputs should be validated against an allowlist of permitted hosts or URL patterns.
 
@@ -43,21 +45,10 @@ func fetch(url string) (*http.Response, error) {
 ```golang
 import "net/http"
 
-// URL constructed from user input
+// URL constructed from user input, stored in variable
 func fetchUser(userID string) (*http.Response, error) {
     url := "https://api.example.com/users/" + userID
     return http.Get(url)
-}
-```
-
-```golang
-import "net/http"
-
-// URL from fmt.Sprintf
-func fetchResource(host string) (*http.Response, error) {
-    url := fmt.Sprintf("https://%s/api/resource", host)
-    req, _ := http.NewRequest("GET", url, nil)
-    return http.DefaultClient.Do(req)
 }
 ```
 
@@ -66,9 +57,32 @@ func fetchResource(host string) (*http.Response, error) {
 ```golang
 import "net/http"
 
-// Hardcoded URL constant
+// Hardcoded URL constant - safe
 func fetchConfig() (*http.Response, error) {
     return http.Get("https://config.internal.example.com/settings")
+}
+```
+
+```golang
+import "net/http"
+
+// Constant identifier - safe
+const apiURL = "https://api.example.com/data"
+
+func fetchData() (*http.Response, error) {
+    return http.Get(apiURL)
+}
+```
+
+```golang
+import (
+    "fmt"
+    "net/http"
+)
+
+// Call expression (fmt.Sprintf) - not flagged
+func fetchResource(host string) (*http.Response, error) {
+    return http.Get(fmt.Sprintf("https://%s/api/resource", host))
 }
 ```
 

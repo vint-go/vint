@@ -55,6 +55,19 @@ func goodFunc6() {
 	doWork()
 }
 
+func goodFunc7() {
+	// TODO: 404
+	// fmt.Println("debug output")
+	// result := computeValue()
+	doWork()
+}
+
+func goodFunc8() {
+	// See https://example.com/issue/123
+	// if err != nil { return err }
+	doWork()
+}
+
 // Top-level commented-out code should NOT trigger (only inside functions)
 // fmt.Println("top level debug")
 

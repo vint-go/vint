@@ -50,6 +50,7 @@ var defaultExcludedFunctions = map[string]bool{
 // are silently ignored, either by discarding the entire return value or by
 // assigning the error to the blank identifier.
 type NoUncheckedErrorRule struct {
+	checkBlank               bool
 	disableDefaultExclusions bool
 	excludeFunctions         map[string]bool
 }
@@ -62,6 +63,12 @@ func (r *NoUncheckedErrorRule) Configure(arguments lint.Arguments) error {
 		cfg, ok := arg.(map[string]any)
 		if !ok {
 			continue
+		}
+
+		if v, ok := cfg["check-blank"]; ok {
+			if b, ok := v.(bool); ok {
+				r.checkBlank = b
+			}
 		}
 
 		if v, ok := cfg["disable-default-exclusions"]; ok {
@@ -92,6 +99,7 @@ func (r *NoUncheckedErrorRule) Apply(file *lint.File, _ lint.Arguments) []lint.F
 
 	w := &lintNoUncheckedError{
 		pkg:                      file.Pkg,
+		checkBlank:               r.checkBlank,
 		disableDefaultExclusions: r.disableDefaultExclusions,
 		excludeFunctions:         r.excludeFunctions,
 		onFailure: func(f lint.Failure) {
@@ -109,6 +117,7 @@ func (r *NoUncheckedErrorRule) ApplyToNode(file *lint.File, node ast.Node, _ lin
 
 	w := &lintNoUncheckedError{
 		pkg:                      file.Pkg,
+		checkBlank:               r.checkBlank,
 		disableDefaultExclusions: r.disableDefaultExclusions,
 		excludeFunctions:         r.excludeFunctions,
 		onFailure: func(f lint.Failure) {
@@ -135,6 +144,7 @@ func (*NoUncheckedErrorRule) RequiresTypecheck() bool {
 
 type lintNoUncheckedError struct {
 	pkg                      *lint.Package
+	checkBlank               bool
 	disableDefaultExclusions bool
 	excludeFunctions         map[string]bool
 	onFailure                func(lint.Failure)
@@ -147,8 +157,10 @@ func (w *lintNoUncheckedError) Visit(node ast.Node) ast.Visitor {
 		w.checkExprStmt(n)
 		return nil
 	case *ast.AssignStmt:
-		// Check for error values assigned to blank identifier
-		w.checkAssignStmt(n)
+		// Check for error values assigned to blank identifier (only when check-blank is enabled)
+		if w.checkBlank {
+			w.checkAssignStmt(n)
+		}
 		return w
 	case *ast.GoStmt:
 		// go f() — the error return is discarded

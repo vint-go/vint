@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"go/types"
 
 	"github.com/vint-go/vint/internal/astutils"
 	"github.com/vint-go/vint/internal/rulecache"
@@ -16,13 +17,19 @@ type NoRedundantSliceExpressionRule struct{}
 
 // Apply applies the rule to given file.
 func (r *NoRedundantSliceExpressionRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	file.Pkg.TypeCheck()
+	typesInfo := file.Pkg.TypesInfo()
+	if typesInfo == nil {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
 	}
 
-	w := &lintRedundantSlice{onFailure: onFailure}
+	w := &lintRedundantSlice{onFailure: onFailure, typesInfo: typesInfo}
 	ast.Walk(w, file.AST)
 
 	return failures
@@ -30,13 +37,19 @@ func (r *NoRedundantSliceExpressionRule) Apply(file *lint.File, _ lint.Arguments
 
 // ApplyToNode applies the rule while walking the AST together with other rules.
 func (r *NoRedundantSliceExpressionRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	file.Pkg.TypeCheck()
+	typesInfo := file.Pkg.TypesInfo()
+	if typesInfo == nil {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
 	}
 
-	w := &lintRedundantSlice{onFailure: onFailure}
+	w := &lintRedundantSlice{onFailure: onFailure, typesInfo: typesInfo}
 	w.Visit(node)
 
 	return failures
@@ -54,16 +67,27 @@ func (*NoRedundantSliceExpressionRule) Group() string {
 
 // CacheTier returns the cache tier for this rule.
 func (*NoRedundantSliceExpressionRule) CacheTier() rulecache.CacheTier {
-	return rulecache.TierFileOnly
+	return rulecache.TierPackageAware
+}
+
+// RequiresTypecheck returns true because this rule uses type information.
+func (*NoRedundantSliceExpressionRule) RequiresTypecheck() bool {
+	return true
 }
 
 type lintRedundantSlice struct {
 	onFailure func(lint.Failure)
+	typesInfo *types.Info
 }
 
 func (w *lintRedundantSlice) Visit(node ast.Node) ast.Visitor {
 	sliceExpr, ok := node.(*ast.SliceExpr)
 	if !ok {
+		return w
+	}
+
+	// Skip array types: array[:] is a necessary conversion from [N]T to []T.
+	if w.isArrayType(sliceExpr.X) {
 		return w
 	}
 
@@ -104,6 +128,17 @@ func isZeroLiteral(expr ast.Expr) bool {
 		return false
 	}
 	return lit.Kind == token.INT && lit.Value == "0"
+}
+
+// isArrayType returns true if the expression has an array type. If type info
+// is unavailable, it returns true (erring on the safe side by not flagging).
+func (w *lintRedundantSlice) isArrayType(expr ast.Expr) bool {
+	t := w.typesInfo.TypeOf(expr)
+	if t == nil {
+		return true // err on safe side
+	}
+	_, isArray := t.Underlying().(*types.Array)
+	return isArray
 }
 
 // isLenOfExpr checks if highExpr is a call to len(x) where x matches sliceX.

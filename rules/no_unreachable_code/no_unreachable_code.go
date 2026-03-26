@@ -2,6 +2,8 @@ package no_unreachable_code
 
 import (
 	"go/ast"
+	"path"
+	"strings"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
@@ -36,11 +38,25 @@ func (r *NoUnreachableCodeRule) Apply(file *lint.File, _ lint.Arguments) []lint.
 		"f": testingFunctions,
 	}
 
+	// Build a set of imported package names from the file's imports.
+	importedPkgs := make(map[string]bool, len(file.AST.Imports))
+	for _, imp := range file.AST.Imports {
+		importPath := strings.Trim(imp.Path.Value, `"`)
+		var name string
+		if imp.Name != nil {
+			name = imp.Name.Name
+		} else {
+			name = path.Base(importPath)
+		}
+		importedPkgs[name] = true
+	}
+
 	w := &lintUnreachableCode{
 		onFailure: func(f lint.Failure) {
 			failures = append(failures, f)
 		},
 		branchingFunctions: branchingFunctions,
+		importedPkgs:       importedPkgs,
 	}
 	ast.Walk(w, file.AST)
 
@@ -65,6 +81,7 @@ func (*NoUnreachableCodeRule) CacheTier() rulecache.CacheTier {
 type lintUnreachableCode struct {
 	onFailure          func(lint.Failure)
 	branchingFunctions map[string]map[string]bool
+	importedPkgs       map[string]bool
 }
 
 func (w *lintUnreachableCode) Visit(node ast.Node) ast.Visitor {
@@ -123,6 +140,16 @@ loop:
 			pkg := id.Name
 			if !w.branchingFunctions[pkg][fn] {
 				continue
+			}
+
+			// Verify this identifier actually refers to an imported package,
+			// not a local variable with the same name (e.g., a variable named
+			// "log" of type *zap.SugaredLogger).
+			if id.Obj != nil && id.Obj.Kind == ast.Var {
+				continue // local variable, not a package reference
+			}
+			if !w.importedPkgs[pkg] {
+				continue // package not imported in this file
 			}
 
 			if _, ok := next.(*ast.ReturnStmt); ok {

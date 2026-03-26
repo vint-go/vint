@@ -1,7 +1,9 @@
 package use_equal_fold
 
 import (
+	"bytes"
 	"go/ast"
+	"go/printer"
 	"go/token"
 
 	"github.com/vint-go/vint/internal/astutils"
@@ -75,6 +77,17 @@ func (w *lintEqualFold) Visit(node ast.Node) ast.Visitor {
 		return w
 	}
 
+	// Self-comparison guard: skip if both sides are textually identical
+	if nodeText(binExpr.X) == nodeText(binExpr.Y) {
+		return w
+	}
+
+	// Purity check: both operands (the arguments to case-conversion calls
+	// and the other side of the comparison) must be side-effect free.
+	if !operandIsPure(binExpr.X) || !operandIsPure(binExpr.Y) {
+		return w
+	}
+
 	w.onFailure(lint.Failure{
 		Confidence: 1,
 		Node:       node,
@@ -95,4 +108,46 @@ func isCaseConversionCall(expr ast.Expr) bool {
 
 	return astutils.IsPkgDotName(call.Fun, "strings", "ToLower") ||
 		astutils.IsPkgDotName(call.Fun, "strings", "ToUpper")
+}
+
+// operandIsPure checks whether an operand in the comparison is pure
+// (side-effect free). For case-conversion calls like strings.ToLower(x),
+// it checks purity of the argument x. For other expressions it checks
+// the expression directly.
+func operandIsPure(expr ast.Expr) bool {
+	if call, ok := expr.(*ast.CallExpr); ok && isCaseConversionCall(expr) {
+		if len(call.Args) != 1 {
+			return false
+		}
+		return isPure(call.Args[0])
+	}
+	return isPure(expr)
+}
+
+// isPure returns true if the expression is side-effect free.
+// Function/method calls are considered impure.
+func isPure(expr ast.Expr) bool {
+	switch e := expr.(type) {
+	case *ast.Ident:
+		return true
+	case *ast.BasicLit:
+		return true
+	case *ast.SelectorExpr:
+		return isPure(e.X)
+	case *ast.IndexExpr:
+		return isPure(e.X) && isPure(e.Index)
+	case *ast.ParenExpr:
+		return isPure(e.X)
+	case *ast.CallExpr:
+		return false
+	default:
+		return false
+	}
+}
+
+// nodeText returns a textual representation of an AST node for comparison.
+func nodeText(expr ast.Expr) string {
+	var buf bytes.Buffer
+	_ = printer.Fprint(&buf, token.NewFileSet(), expr)
+	return buf.String()
 }

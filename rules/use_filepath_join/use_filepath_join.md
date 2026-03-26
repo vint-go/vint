@@ -19,7 +19,9 @@ settings:
 
 ## Details
 
-Detects path concatenation that can be replaced with `filepath.Join`. Manual path concatenation using `+` and `/` is error-prone, especially across operating systems. Using `filepath.Join` handles path separator differences automatically.
+Detects path concatenation using `string(os.PathSeparator)` that can be replaced with `filepath.Join`. Using `filepath.Join` handles path separator differences automatically and is more readable.
+
+This rule matches the specific pattern `x + string(os.PathSeparator) + y`, matching the behavior of go-critic's `preferFilepathJoin` checker. It does **not** flag general string concatenation with literal `/` or `\` characters (e.g., URLs, MQTT topics, HTTP paths).
 
 This rule is distinct from `noSeparatorInFilepathJoin`, which detects separator characters inside arguments already passed to `filepath.Join`. This rule instead detects cases where `filepath.Join` is not used at all.
 
@@ -30,11 +32,15 @@ Source: https://github.com/go-critic/go-critic
 ### Invalid
 
 ```golang
-path := dir + "/" + filename
+path := dir + string(os.PathSeparator) + filename
 ```
 
 ### Valid
 
 ```golang
 path := filepath.Join(dir, filename)
+
+// These are NOT flagged (literal slashes, not os.PathSeparator):
+url := "https://example.com/" + path
+topic := "devices/" + device + "/status"
 ```

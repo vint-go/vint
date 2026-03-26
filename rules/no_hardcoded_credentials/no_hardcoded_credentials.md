@@ -29,7 +29,7 @@ Configuration options:
 
 This rule scans variable assignments, declarations, equality comparisons, and composite literals for credential-like patterns. It matches variable names against common credential identifiers (e.g., `passwd`, `password`, `secret`, `token`, `apiKey`) and checks string values against known secret formats including AWS access keys, Slack tokens, GitHub tokens, and Google API keys.
 
-The rule also performs entropy analysis using the zxcvbn password strength library to identify high-entropy strings that are likely secrets. The entropy threshold, per-character threshold, and minimum entropy length are configurable.
+The rule also performs Shannon entropy analysis to identify high-entropy strings that are likely real secrets. Low-entropy strings (such as environment variable names or event topic names) assigned to credential-named variables are not flagged. The entropy threshold and minimum entropy length are configurable.
 
 Hardcoded credentials are a significant security risk because they can be extracted from source code, version control history, or compiled binaries. Secrets should be stored in environment variables, secret management systems, or configuration files that are excluded from version control.
 
@@ -81,4 +81,9 @@ if err != nil {
 ```golang
 // Reading token from configuration file
 token := config.GetString("auth.token")
+```
+
+```golang
+// Low-entropy string (env var name) assigned to credential variable - not flagged
+password := "KAFKA_PASSWORD"
 ```

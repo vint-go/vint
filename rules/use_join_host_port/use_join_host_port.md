@@ -19,15 +19,28 @@ settings:
 
 ## Details
 
-Checks for `net.Dial` calls that use IPv4-only address construction patterns such as `fmt.Sprintf("%s:%d", host, port)` or `fmt.Sprintf("%s:%s", host, port)`. These patterns do not work correctly with IPv6 addresses because IPv6 addresses contain colons and must be enclosed in square brackets in a host:port string (e.g., `[::1]:8080`).
+Checks for `fmt.Sprintf` calls that construct URLs with a scheme prefix and a host:port component, such as `fmt.Sprintf("http://%s:%d", host, port)` or `fmt.Sprintf("https://%s:%s", host, port)`. These patterns do not work correctly with IPv6 addresses because IPv6 addresses contain colons and must be enclosed in square brackets in a host:port string (e.g., `[::1]:8080`).
+
+Bare host:port patterns like `fmt.Sprintf("%s:%d", host, port)` are **not** flagged, as they are commonly used for `net.Listen`, `http.Server.Addr`, etc., where the risk of IPv6 breakage is lower.
 
 Instead, use `net.JoinHostPort` which correctly handles both IPv4 and IPv6 addresses.
 
-Source: https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/hostport
+Source: https://github.com/stbenjam/no-sprintf-host-port
 
 ## Examples
 
 ### Invalid
+
+```golang
+import "fmt"
+
+func buildURL(host string, port int) string {
+    // Bad: URL construction does not work with IPv6 addresses
+    return fmt.Sprintf("http://%s:%d/path", host, port)
+}
+```
+
+### Valid
 
 ```golang
 import (
@@ -35,21 +48,13 @@ import (
     "net"
 )
 
-func connect(host string, port int) (net.Conn, error) {
-    // Bad: does not work with IPv6 addresses
-    addr := fmt.Sprintf("%s:%d", host, port)
-    return net.Dial("tcp", addr)
-}
-```
-
-### Valid
-
-```golang
-import "net"
-
-func connect(host string, port string) (net.Conn, error) {
+func buildURL(host string, port int) string {
     // Good: net.JoinHostPort handles IPv6 correctly
-    addr := net.JoinHostPort(host, port)
-    return net.Dial("tcp", addr)
+    return fmt.Sprintf("http://%s/path", net.JoinHostPort(host, fmt.Sprintf("%d", port)))
+}
+
+func listen(host string, port int) string {
+    // OK: bare host:port is acceptable for non-URL uses
+    return fmt.Sprintf("%s:%d", host, port)
 }
 ```

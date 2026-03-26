@@ -46,4 +46,31 @@ func valid(s string) {
 	if len(s) < 3 {
 		handleEmpty()
 	}
+
+	// len() on non-string types should not be flagged
+	sl := []int{1, 2, 3}
+	if len(sl) == 0 {
+		handleEmpty()
+	}
+	if 0 == len(sl) {
+		handleEmpty()
+	}
+
+	m := map[string]int{"a": 1}
+	if len(m) == 0 {
+		handleEmpty()
+	}
+	if len(m) != 0 {
+		handleNonEmpty()
+	}
+
+	arr := [3]int{1, 2, 3}
+	if len(arr) == 0 {
+		handleEmpty()
+	}
+
+	ch := make(chan int, 5)
+	if len(ch) == 0 {
+		handleEmpty()
+	}
 }

@@ -67,8 +67,6 @@ func (w *lintCombinedParamType) Visit(node ast.Node) ast.Visitor {
 	switch n := node.(type) {
 	case *ast.FuncDecl:
 		w.checkParams(n.Type.Params)
-	case *ast.FuncLit:
-		w.checkParams(n.Type.Params)
 	}
 	return w
 }

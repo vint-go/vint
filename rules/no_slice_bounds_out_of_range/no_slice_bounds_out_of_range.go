@@ -54,25 +54,156 @@ type lintNoSliceBoundsOutOfRange struct {
 	onFailure func(lint.Failure)
 }
 
+// rangeScope tracks a for-range statement whose key variable is a safe index.
+type rangeScope struct {
+	keyName   string // the name of the range key variable (e.g. "i")
+	sliceName string // the name of the ranged slice (e.g. "pes")
+}
+
+// sortSliceScope tracks a sort.Slice callback whose parameters are safe indices.
+type sortSliceScope struct {
+	paramNames []string // callback parameter names (e.g. ["i", "j"])
+	sliceName  string   // the slice being sorted
+}
+
 func (w *lintNoSliceBoundsOutOfRange) checkFunctionBody(body *ast.BlockStmt) {
-	ast.Inspect(body, func(n ast.Node) bool {
+	w.walkBlock(body, body, nil, nil)
+}
+
+// walkBlock recursively walks AST nodes, tracking range and sort.Slice scopes.
+func (w *lintNoSliceBoundsOutOfRange) walkBlock(node ast.Node, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+	ast.Inspect(node, func(n ast.Node) bool {
+		if n == nil {
+			return false
+		}
 		switch expr := n.(type) {
+		case *ast.RangeStmt:
+			w.walkRange(expr, body, ranges, sortScopes)
+			return false // we handle children ourselves
+		case *ast.CallExpr:
+			if sliceName, paramNames := w.parseSortSliceCall(expr); sliceName != "" {
+				newScope := sortSliceScope{paramNames: paramNames, sliceName: sliceName}
+				w.walkSortSliceCallback(expr, body, ranges, append(sortScopes, newScope))
+				return false
+			}
 		case *ast.IndexExpr:
-			w.checkIndexExpr(expr, body)
+			w.checkIndexExprWithScopes(expr, body, ranges, sortScopes)
 		case *ast.SliceExpr:
-			w.checkSliceExpr(expr, body)
+			w.checkSliceExprWithScopes(expr, body, ranges, sortScopes)
 		}
 		return true
 	})
 }
 
-func (w *lintNoSliceBoundsOutOfRange) checkIndexExpr(expr *ast.IndexExpr, body *ast.BlockStmt) {
+// walkRange walks a for-range statement, adding its key variable as a safe index.
+func (w *lintNoSliceBoundsOutOfRange) walkRange(rs *ast.RangeStmt, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+	// Only track if the range key is an identifier and the ranged expression is a named slice
+	if rs.Key != nil && rs.Body != nil {
+		keyIdent, ok := rs.Key.(*ast.Ident)
+		if ok && keyIdent.Name != "_" && w.isSliceType(rs.X) {
+			sliceName := w.exprName(rs.X)
+			if sliceName != "" {
+				newRanges := append(ranges, rangeScope{keyName: keyIdent.Name, sliceName: sliceName})
+				w.walkBlock(rs.Body, body, newRanges, sortScopes)
+				return
+			}
+		}
+	}
+	// Fallback: walk children with current scopes
+	w.walkBlock(rs.Body, body, ranges, sortScopes)
+}
+
+// parseSortSliceCall checks if a call is sort.Slice(slice, func(i, j int) bool { ... })
+// and returns the slice name and callback parameter names.
+func (w *lintNoSliceBoundsOutOfRange) parseSortSliceCall(call *ast.CallExpr) (string, []string) {
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return "", nil
+	}
+	pkgIdent, ok := sel.X.(*ast.Ident)
+	if !ok || pkgIdent.Name != "sort" {
+		return "", nil
+	}
+	if sel.Sel.Name != "Slice" && sel.Sel.Name != "SliceStable" {
+		return "", nil
+	}
+	if len(call.Args) != 2 {
+		return "", nil
+	}
+
+	sliceName := w.exprName(call.Args[0])
+	if sliceName == "" {
+		return "", nil
+	}
+
+	funcLit, ok := call.Args[1].(*ast.FuncLit)
+	if !ok || funcLit.Type.Params == nil {
+		return "", nil
+	}
+
+	var paramNames []string
+	for _, field := range funcLit.Type.Params.List {
+		for _, name := range field.Names {
+			paramNames = append(paramNames, name.Name)
+		}
+	}
+	if len(paramNames) == 0 {
+		return "", nil
+	}
+
+	return sliceName, paramNames
+}
+
+// walkSortSliceCallback walks the sort.Slice call but avoids re-walking the callback body
+// with different scopes. Instead, we walk the callback body with the new sort scope.
+func (w *lintNoSliceBoundsOutOfRange) walkSortSliceCallback(call *ast.CallExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+	funcLit, ok := call.Args[1].(*ast.FuncLit)
+	if !ok || funcLit.Body == nil {
+		return
+	}
+	// Walk the callback body with the added sort scope
+	w.walkBlock(funcLit.Body, body, ranges, sortScopes)
+}
+
+func (w *lintNoSliceBoundsOutOfRange) isIndexSafe(indexExpr ast.Expr, sliceName string, ranges []rangeScope, sortScopes []sortSliceScope) bool {
+	idxIdent, ok := indexExpr.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	idxName := idxIdent.Name
+
+	// Check range scopes
+	for _, rs := range ranges {
+		if rs.keyName == idxName && rs.sliceName == sliceName {
+			return true
+		}
+	}
+
+	// Check sort.Slice scopes
+	for _, ss := range sortScopes {
+		if ss.sliceName == sliceName {
+			for _, pn := range ss.paramNames {
+				if pn == idxName {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func (w *lintNoSliceBoundsOutOfRange) checkIndexExprWithScopes(expr *ast.IndexExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
 	if !w.isSliceType(expr.X) {
 		return
 	}
 
 	sliceName := w.exprName(expr.X)
 	if sliceName == "" {
+		return
+	}
+
+	if w.isIndexSafe(expr.Index, sliceName, ranges, sortScopes) {
 		return
 	}
 
@@ -88,7 +219,7 @@ func (w *lintNoSliceBoundsOutOfRange) checkIndexExpr(expr *ast.IndexExpr, body *
 	})
 }
 
-func (w *lintNoSliceBoundsOutOfRange) checkSliceExpr(expr *ast.SliceExpr, body *ast.BlockStmt) {
+func (w *lintNoSliceBoundsOutOfRange) checkSliceExprWithScopes(expr *ast.SliceExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
 	if !w.isSliceType(expr.X) {
 		return
 	}
@@ -98,9 +229,15 @@ func (w *lintNoSliceBoundsOutOfRange) checkSliceExpr(expr *ast.SliceExpr, body *
 		return
 	}
 
-	// Check if high bound is a literal or variable without bounds check
 	if expr.High == nil && expr.Low == nil {
 		return // s[:] is always safe
+	}
+
+	// Check if low/high bounds are safe via range or sort scopes
+	lowSafe := expr.Low == nil || w.isIndexSafe(expr.Low, sliceName, ranges, sortScopes)
+	highSafe := expr.High == nil || w.isIndexSafe(expr.High, sliceName, ranges, sortScopes)
+	if lowSafe && highSafe {
+		return
 	}
 
 	if w.hasBoundsCheck(body, sliceName, expr.Pos()) {

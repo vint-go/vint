@@ -18,6 +18,7 @@ func callRepeat() {
 	fmt.Println(repeat("ha", 3))
 	fmt.Println(repeat("ho", 3))
 	fmt.Println(repeat("he", 3))
+	fmt.Println(repeat("hee", 3))
 }
 
 // Invalid: every caller passes true for "verbose".
@@ -33,6 +34,7 @@ func callLogMessage() {
 	logMessage("starting", true)
 	logMessage("processing", true)
 	logMessage("done", true)
+	logMessage("finishing", true)
 }
 
 // Invalid: the "separator" parameter is always ",".
@@ -45,6 +47,9 @@ func callJoinStrings(rows [][]string) string {
 	for _, row := range rows {
 		lines = append(lines, joinStrings(row, ","))
 	}
+	lines = append(lines, joinStrings(nil, ","))
+	lines = append(lines, joinStrings(nil, ","))
+	lines = append(lines, joinStrings(nil, ","))
 	return strings.Join(lines, "\n")
 }
 

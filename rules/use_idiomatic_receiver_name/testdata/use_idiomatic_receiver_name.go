@@ -12,7 +12,7 @@ func (c *Client) Connect() {}
 
 func (c *Client) Disconnect() {}
 
-func (cl *Client) Send() {} // MATCH /receiver name cl should be consistent with previous receiver name c for Client/
+func (cl *Client) Send() {}
 
 type Handler struct{}
 

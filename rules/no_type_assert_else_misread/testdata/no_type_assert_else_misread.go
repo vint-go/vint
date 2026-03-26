@@ -113,3 +113,27 @@ func multipleRefsInElse(x interface{}) {
 		fmt.Println("also:", v)         // MATCH /type assertion else branch reads v which is the zero value of the asserted type, not the original value/
 	}
 }
+
+// Valid: variable redeclared via := in inner scope within else branch
+func validRedeclaredInElse(x interface{}, y interface{}) {
+	if v, ok := x.(string); ok {
+		fmt.Println("string:", v)
+	} else {
+		// v is redeclared here; the inner v refers to a new variable
+		if v, ok := y.(string); ok {
+			fmt.Println("inner string:", v) // refers to inner v, not outer zero-value
+		}
+		_ = ok
+	}
+}
+
+// Valid: variable redeclared via := in separate assignment in else branch
+func validRedeclaredSeparateAssign(x interface{}, y interface{}) {
+	v, ok := x.(string)
+	if ok {
+		fmt.Println("string:", v)
+	} else {
+		v, ok := y.(string) // redeclares v
+		fmt.Println("rebound:", v, ok)
+	}
+}

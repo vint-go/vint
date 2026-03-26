@@ -58,3 +58,19 @@ func goodAssert(x interface{}) {
 func multiReturn() (int, error) {
 	return 0, nil
 }
+
+// Valid: pointer dereference with parentheses is NOT a type expression
+func pointerDeref() {
+	x := 42
+	ptr := &x
+	_ = *(ptr)
+}
+
+// Valid: pointer dereference of a struct field
+type myStruct struct {
+	VirtualCuOwnerID *int
+}
+
+func structFieldDeref(s myStruct) {
+	_ = *(s.VirtualCuOwnerID)
+}

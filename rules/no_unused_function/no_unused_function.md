@@ -24,7 +24,7 @@ Detects functions that are declared but never called or referenced anywhere in t
 The `unused` linter uses a graph-based approach to trace how code elements are referenced. A function is considered "used" if it is reachable from an entry point such as `main()`, `init()`, an exported symbol, a test function, or a cgo-exported function. If a function is not reachable through any of these paths, it is reported as unused.
 
 Key rules governing function usage:
-- Packages use their exported functions (but not exported methods; those are handled via their named type).
+- Packages use their exported functions and exported methods (reachable from outside the package).
 - `init` functions are always considered used.
 - The `main` function is always used when in the `main` package.
 - Functions exported to cgo via `//export` are always considered used.
@@ -116,6 +116,21 @@ func main() {}
 
 func setup() {
     // used by init
+}
+```
+
+```golang
+package mypackage
+
+type Service struct{}
+
+// Exported method calls an unexported function — the function is reachable.
+func (s *Service) Handle() string {
+    return formatResult()
+}
+
+func formatResult() string {
+    return "ok"
 }
 ```
 

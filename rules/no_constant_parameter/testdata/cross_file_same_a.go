@@ -8,4 +8,5 @@ func alwaysFast(mode string) {
 
 func callerSameA() {
 	alwaysFast("fast")
+	alwaysFast("fast")
 }

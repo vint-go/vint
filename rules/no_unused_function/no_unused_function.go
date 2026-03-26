@@ -72,12 +72,40 @@ func (r *NoUnusedFunctionRule) Apply(file *lint.File, _ lint.Arguments) []lint.F
 	return failures
 }
 
+// methodKey returns the call graph key for a method: "TypeName.MethodName".
+func methodKey(funcDecl *ast.FuncDecl) string {
+	if funcDecl.Recv == nil || len(funcDecl.Recv.List) == 0 {
+		return funcDecl.Name.Name
+	}
+	recvType := funcDecl.Recv.List[0].Type
+	// Unwrap pointer receiver.
+	if star, ok := recvType.(*ast.StarExpr); ok {
+		recvType = star.X
+	}
+	if ident, ok := recvType.(*ast.Ident); ok {
+		return ident.Name + "." + funcDecl.Name.Name
+	}
+	return funcDecl.Name.Name
+}
+
 // collectFunctions scans a file for function declarations and classifies them
-// as entry points or regular functions.
+// as entry points or regular functions. Methods are also tracked: exported
+// methods are entry points and all method names are recorded so their bodies
+// can be walked for call-graph edges.
 func collectFunctions(file *lint.File, isMain bool, allFuncs map[string]bool, entryPoints map[string]bool) {
 	for _, decl := range file.AST.Decls {
 		funcDecl, ok := decl.(*ast.FuncDecl)
-		if !ok || funcDecl.Recv != nil {
+		if !ok {
+			continue
+		}
+
+		if funcDecl.Recv != nil {
+			// Track methods: exported methods are entry points.
+			key := methodKey(funcDecl)
+			allFuncs[key] = true
+			if ast.IsExported(funcDecl.Name.Name) {
+				entryPoints[key] = true
+			}
 			continue
 		}
 
@@ -124,8 +152,9 @@ func hasCgoExportOrLinkname(funcDecl *ast.FuncDecl) bool {
 	return false
 }
 
-// buildCallGraph walks each function body and records which other package-level
-// functions it references (by name).
+// buildCallGraph walks each function/method body and records which other
+// package-level functions it references (by name). It also walks method bodies
+// so that method-to-function call edges are captured.
 func buildCallGraph(file *lint.File, allFuncs map[string]bool, callGraph map[string]map[string]bool) {
 	for _, decl := range file.AST.Decls {
 		funcDecl, ok := decl.(*ast.FuncDecl)
@@ -133,12 +162,7 @@ func buildCallGraph(file *lint.File, allFuncs map[string]bool, callGraph map[str
 			continue
 		}
 
-		// Only track calls from functions (not methods).
-		if funcDecl.Recv != nil {
-			continue
-		}
-
-		callerName := funcDecl.Name.Name
+		callerName := methodKey(funcDecl)
 		if callGraph[callerName] == nil {
 			callGraph[callerName] = map[string]bool{}
 		}
@@ -153,11 +177,10 @@ func buildCallGraph(file *lint.File, allFuncs map[string]bool, callGraph map[str
 			if name == callerName {
 				return true // skip self-references
 			}
+			// Use the set of known function names instead of ident.Obj, which
+			// is nil for cross-file references (parser resolves per-file only).
 			if allFuncs[name] {
-				// Verify it's actually a function reference using Obj.
-				if ident.Obj != nil && ident.Obj.Kind == ast.Fun {
-					callGraph[callerName][name] = true
-				}
+				callGraph[callerName][name] = true
 			}
 			return true
 		})
@@ -175,15 +198,13 @@ func buildCallGraph(file *lint.File, allFuncs map[string]bool, callGraph map[str
 				return true
 			}
 			if allFuncs[ident.Name] {
-				if ident.Obj != nil && ident.Obj.Kind == ast.Fun {
-					// Package-level init references count as entry point references.
-					// We model this by adding these to a synthetic "__pkg_init__" entry.
-					const pkgInit = "__pkg_init__"
-					if callGraph[pkgInit] == nil {
-						callGraph[pkgInit] = map[string]bool{}
-					}
-					callGraph[pkgInit][ident.Name] = true
+				// Package-level init references count as entry point references.
+				// We model this by adding these to a synthetic "__pkg_init__" entry.
+				const pkgInit = "__pkg_init__"
+				if callGraph[pkgInit] == nil {
+					callGraph[pkgInit] = map[string]bool{}
 				}
+				callGraph[pkgInit][ident.Name] = true
 			}
 			return true
 		})

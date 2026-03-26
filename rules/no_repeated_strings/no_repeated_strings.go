@@ -226,6 +226,16 @@ func (c *stringCollector) Visit(node ast.Node) ast.Visitor {
 		return nil
 	}
 
+	// Skip strings inside constant declarations — they are already constants.
+	if genDecl, ok := node.(*ast.GenDecl); ok && genDecl.Tok == token.CONST {
+		return nil // don't descend into const blocks
+	}
+
+	// Skip strings inside composite literals (struct/slice/map literals).
+	if _, ok := node.(*ast.CompositeLit); ok {
+		return nil // don't descend into composite literals
+	}
+
 	// Track call expression arguments so we can mark string literals
 	// that appear only within function call arguments.
 	if callExpr, ok := node.(*ast.CallExpr); ok {

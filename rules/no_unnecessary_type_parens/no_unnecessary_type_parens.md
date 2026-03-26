@@ -44,3 +44,8 @@ var x *int
 ```golang
 var m map[string]int
 ```
+
+```golang
+// Pointer dereference with parentheses is not flagged (not a type expression)
+val := *(ptr)
+```

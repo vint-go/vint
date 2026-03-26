@@ -22,7 +22,7 @@ settings:
 Detects commented-out code inside function bodies. This checker uses heuristics to identify comments that appear to contain executable Go code rather than actual documentation. Comments should describe code, not contain disabled code that should be removed or managed via version control.
 
 The checker applies several filters to minimize false positives:
-- Skips comments containing markers like "TODO", URLs, or explanatory phrases like "e.g."
+- If any line in a comment group contains a marker like "TODO", a URL, or an explanatory phrase like "e.g.", the entire comment group is skipped. This prevents false positives where a TODO annotation precedes commented-out code in the same block.
 - Ignores very short comments (default minimum length: 15 characters)
 - Allows certain statement types and patterns
 
@@ -45,6 +45,15 @@ func process() {
 ```golang
 func process() {
     // Process the work items and return results
+    doWork()
+}
+```
+
+```golang
+func process() {
+    // TODO: 404
+    // fmt.Println("debug output")
+    // result := computeValue()
     doWork()
 }
 ```

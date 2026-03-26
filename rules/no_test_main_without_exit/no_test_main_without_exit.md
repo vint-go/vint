@@ -23,6 +23,8 @@ settings:
 
 When using a custom `TestMain` function, you must call `os.Exit` with the result of `m.Run()`. Otherwise, the test binary will always exit with code 0, even if tests fail, effectively hiding failures.
 
+**Note:** This rule only applies to projects targeting Go < 1.15. Since Go 1.15, the test runner automatically uses the result of `m.Run()` as the exit code, making explicit `os.Exit` calls unnecessary. On Go >= 1.15 projects, this rule is suppressed and the inverse rule `noRedundantTestMainExit` applies instead.
+
 Source: https://staticcheck.dev/docs/checks/#SA3000
 
 ## Examples

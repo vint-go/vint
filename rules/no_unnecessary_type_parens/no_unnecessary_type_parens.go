@@ -56,19 +56,31 @@ type lintTypeParens struct {
 
 func (w *lintTypeParens) Visit(node ast.Node) ast.Visitor {
 	switch n := node.(type) {
-	case *ast.StarExpr:
-		// Pointer type: *(<type>) -> check if X is parenthesized
-		w.checkParenExpr(n.X)
+	case *ast.ValueSpec:
+		// var/const declarations: var x *(int)
+		w.checkTypeExpr(n.Type)
+	case *ast.TypeSpec:
+		// type declarations: type T *(int)
+		w.checkTypeExpr(n.Type)
+	case *ast.CompositeLit:
+		// composite literals: *(int){...}
+		w.checkTypeExpr(n.Type)
+	case *ast.StructType:
+		// struct field types
+		w.checkFieldList(n.Fields)
+	case *ast.InterfaceType:
+		// interface method types
+		w.checkFieldList(n.Methods)
 	case *ast.ArrayType:
 		// Array/slice element type: [N](<type>) or [](<type>)
-		w.checkParenExpr(n.Elt)
+		w.checkTypeExpr(n.Elt)
 	case *ast.MapType:
 		// Map key and value types: map[(<key>)](<value>)
-		w.checkParenExpr(n.Key)
-		w.checkParenExpr(n.Value)
+		w.checkTypeExpr(n.Key)
+		w.checkTypeExpr(n.Value)
 	case *ast.ChanType:
 		// Channel value type: chan (<type>)
-		w.checkParenExpr(n.Value)
+		w.checkTypeExpr(n.Value)
 	case *ast.FuncType:
 		// Function parameter and return types
 		w.checkFieldList(n.Params)
@@ -76,7 +88,7 @@ func (w *lintTypeParens) Visit(node ast.Node) ast.Visitor {
 	case *ast.TypeAssertExpr:
 		// Type assertion: x.(<type>)
 		if n.Type != nil {
-			w.checkParenExpr(n.Type)
+			w.checkTypeExpr(n.Type)
 		}
 	}
 	return w
@@ -87,19 +99,35 @@ func (w *lintTypeParens) checkFieldList(fl *ast.FieldList) {
 		return
 	}
 	for _, field := range fl.List {
-		w.checkParenExpr(field.Type)
+		w.checkTypeExpr(field.Type)
 	}
 }
 
-func (w *lintTypeParens) checkParenExpr(expr ast.Expr) {
-	paren, ok := expr.(*ast.ParenExpr)
-	if !ok {
+// checkTypeExpr checks a type expression for unnecessary parentheses.
+// It handles both direct ParenExpr (e.g., (int) in map[(string)]int)
+// and StarExpr wrapping ParenExpr (e.g., *(int) in var x *(int)).
+func (w *lintTypeParens) checkTypeExpr(expr ast.Expr) {
+	if expr == nil {
 		return
 	}
-	w.onFailure(lint.Failure{
-		Category:   lint.FailureCategoryStyle,
-		Confidence: 1,
-		Node:       paren,
-		Failure:    "unnecessary parentheses in type expression",
-	})
+	switch e := expr.(type) {
+	case *ast.ParenExpr:
+		w.onFailure(lint.Failure{
+			Category:   lint.FailureCategoryStyle,
+			Confidence: 1,
+			Node:       e,
+			Failure:    "unnecessary parentheses in type expression",
+		})
+	case *ast.StarExpr:
+		// In a type context, *ast.StarExpr is a pointer type.
+		// Check if the inner type has unnecessary parens: *(int) -> *int
+		if paren, ok := e.X.(*ast.ParenExpr); ok {
+			w.onFailure(lint.Failure{
+				Category:   lint.FailureCategoryStyle,
+				Confidence: 1,
+				Node:       paren,
+				Failure:    "unnecessary parentheses in type expression",
+			})
+		}
+	}
 }

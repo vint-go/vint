@@ -53,3 +53,43 @@ func apply(f func() int) int {
 func myFunc() int {
 	return 1
 }
+
+// Valid: unexported function called from an exported method should be reachable.
+
+type MyService struct{}
+
+func (s *MyService) Run() string {
+	return methodCalledHelper()
+}
+
+func methodCalledHelper() string {
+	return "called from method"
+}
+
+// Valid: unexported function called transitively from an unexported method
+// that is called from an exported method.
+
+func (s *MyService) Process() int {
+	return unexportedMethodHelper()
+}
+
+func unexportedMethodHelper() int {
+	return deepHelper()
+}
+
+func deepHelper() int {
+	return 99
+}
+
+// Invalid: unexported function called only from an unexported method on an
+// unexported type — the method itself is unreachable.
+
+type hiddenService struct{}
+
+func (h *hiddenService) run() string {
+	return unreachableViaMethod()
+}
+
+func unreachableViaMethod() string { // MATCH /func unreachableViaMethod is unused/
+	return "nobody calls me"
+}

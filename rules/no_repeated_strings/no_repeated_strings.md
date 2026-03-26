@@ -112,3 +112,23 @@ func greet() string {
     return "Hello, welcome to the application!"
 }
 ```
+
+```golang
+// Strings in constant declarations are not counted as occurrences.
+// The user already extracted the string into a constant.
+const dbDriver = "postgres"
+
+func connect1() string { return dbDriver }
+func connect2() string { return dbDriver }
+```
+
+```golang
+// Strings in composite literals (struct, slice, map values) are not counted.
+func getConfigs() []Config {
+    return []Config{
+        {Driver: "postgres", Host: "localhost"},
+        {Driver: "postgres", Host: "localhost"},
+        {Driver: "postgres", Host: "localhost"},
+    }
+}
+```

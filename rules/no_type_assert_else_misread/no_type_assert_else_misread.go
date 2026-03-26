@@ -186,15 +186,77 @@ func isNegatedIdentCondition(expr ast.Expr, name string) bool {
 }
 
 // findIdentRefs finds all references to an identifier with the given name
-// within the given AST node.
+// within the given AST node. It is scope-aware: if the variable is
+// redeclared via := in an inner scope, references within that scope are
+// skipped because they refer to the new variable, not the outer zero-valued one.
 func findIdentRefs(node ast.Node, name string) []*ast.Ident {
 	var refs []*ast.Ident
+	findIdentRefsInner(node, name, &refs)
+	return refs
+}
+
+func findIdentRefsInner(node ast.Node, name string, refs *[]*ast.Ident) {
+	// For block statements, walk statements sequentially and stop once
+	// the variable is redeclared, since subsequent statements in the
+	// same block refer to the new variable.
+	if block, ok := node.(*ast.BlockStmt); ok {
+		for _, stmt := range block.List {
+			if stmtDefinesName(stmt, name) {
+				return // stop: variable redeclared in this scope
+			}
+			findIdentRefsInner(stmt, name, refs)
+		}
+		return
+	}
+
 	ast.Inspect(node, func(n ast.Node) bool {
-		ident, ok := n.(*ast.Ident)
-		if ok && ident.Name == name {
-			refs = append(refs, ident)
+		if n == node {
+			return true // always descend into the root
+		}
+		switch n := n.(type) {
+		case *ast.BlockStmt:
+			// Handle blocks with our scope-aware logic instead.
+			findIdentRefsInner(n, name, refs)
+			return false
+		case *ast.IfStmt:
+			// If the IfStmt's Init redeclares the variable, skip the whole IfStmt.
+			if n.Init != nil {
+				if assign, ok := n.Init.(*ast.AssignStmt); ok &&
+					assign.Tok == token.DEFINE && assignDefinesName(assign, name) {
+					return false
+				}
+			}
+		case *ast.Ident:
+			if n.Name == name {
+				*refs = append(*refs, n)
+			}
 		}
 		return true
 	})
-	return refs
+}
+
+// stmtDefinesName reports whether the statement defines the given name via :=.
+// This covers both direct assignments and if-statements with init clauses.
+func stmtDefinesName(stmt ast.Stmt, name string) bool {
+	switch s := stmt.(type) {
+	case *ast.AssignStmt:
+		return s.Tok == token.DEFINE && assignDefinesName(s, name)
+	case *ast.IfStmt:
+		if s.Init != nil {
+			if assign, ok := s.Init.(*ast.AssignStmt); ok {
+				return assign.Tok == token.DEFINE && assignDefinesName(assign, name)
+			}
+		}
+	}
+	return false
+}
+
+// assignDefinesName reports whether the assignment defines a variable with the given name on its LHS.
+func assignDefinesName(assign *ast.AssignStmt, name string) bool {
+	for _, lhs := range assign.Lhs {
+		if id, ok := lhs.(*ast.Ident); ok && id.Name == name {
+			return true
+		}
+	}
+	return false
 }

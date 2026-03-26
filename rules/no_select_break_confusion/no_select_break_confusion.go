@@ -77,36 +77,20 @@ func (w *lintSelectBreak) Visit(node ast.Node) ast.Visitor {
 	return w
 }
 
-// checkForBody inspects the body of a for loop for select statements
-// that contain unlabeled break statements.
+// checkForBody inspects the direct children of a for loop body for select
+// statements that contain unlabeled break statements. Only select statements
+// that are direct children of the for body are checked, since a select nested
+// inside another for loop is a separate scope where break is not confusing.
 func (w *lintSelectBreak) checkForBody(body *ast.BlockStmt) {
-	ast.Inspect(body, func(n ast.Node) bool {
-		// Don't descend into nested for/range loops or function literals,
-		// because a break in those scopes wouldn't be confusing with
-		// respect to the outer for loop.
-		switch n.(type) {
-		case *ast.ForStmt:
-			// This is the outer for we are already inside (on first call)
-			// or a nested for. We handle the outer case by starting Inspect
-			// on the body, not the for itself. For nested fors, stop.
-			return false
-		case *ast.RangeStmt:
-			return false
-		case *ast.FuncLit:
-			return false
-		}
-
-		selectStmt, ok := n.(*ast.SelectStmt)
+	for _, stmt := range body.List {
+		selectStmt, ok := stmt.(*ast.SelectStmt)
 		if !ok {
-			return true
+			continue
 		}
 
-		// Found a select inside a for. Check its cases for unlabeled breaks.
+		// Found a select that is a direct child of the for body.
 		w.checkSelectCases(selectStmt)
-
-		// Don't descend further into the select; we've already checked it.
-		return false
-	})
+	}
 }
 
 // checkSelectCases looks at every case clause in a select statement and

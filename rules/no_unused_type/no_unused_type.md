@@ -73,18 +73,6 @@ func Process(input string) string {
 }
 ```
 
-```golang
-package mypackage
-
-type Color int // type Color is unused
-
-const (
-    Red   Color = iota
-    Green
-    Blue
-)
-```
-
 ### Valid
 
 ```golang
@@ -118,6 +106,34 @@ type stringer interface {
 
 func Format(s stringer) string {
     return s.String()
+}
+```
+
+```golang
+package mypackage
+
+// Type referenced by const declarations is considered used
+type Color int
+
+const (
+    Red   Color = iota
+    Green
+    Blue
+)
+```
+
+```golang
+package mypackage
+
+// Unexported type used as element type in an unexported variable declaration
+type tableTest struct {
+    name     string
+    input    string
+    expected string
+}
+
+var myTests = []tableTest{
+    {name: "test1", input: "a", expected: "b"},
 }
 ```
 

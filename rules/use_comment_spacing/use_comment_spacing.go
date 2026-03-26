@@ -19,7 +19,7 @@ var directiveOrSpecialRE = regexp.MustCompile(
 	`^//` +
 		`(?:` +
 		`line |extern |export |` + // compiler directives with space
-		`[a-z0-9]+:[a-z0-9]|` + // keyed directives like //go:generate, //nolint:foo
+		`[\w-]+:|` + // keyed directives like //go:generate, //nolint:foo, //TODO:
 		`[+\-#!]|` + // custom markers
 		`nolint\b|` + // nolint directive
 		`noinspection\b|` + // noinspection directive

@@ -138,21 +138,14 @@ func (r *NoUnusedTypeRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failu
 				for _, spec := range d.Specs {
 					switch s := spec.(type) {
 					case *ast.ValueSpec:
-						// Only count references from exported var/const as direct usage.
-						hasExportedName := false
-						for _, nameIdent := range s.Names {
-							if ast.IsExported(nameIdent.Name) {
-								hasExportedName = true
-								break
-							}
+						// Count type references from all var/const declarations as direct usage.
+						// Both exported and unexported variables may reference types that should
+						// be considered used.
+						if s.Type != nil {
+							collectExprTypeRefs(s.Type, allTypes, directlyUsed, nil)
 						}
-						if hasExportedName {
-							if s.Type != nil {
-								collectExprTypeRefs(s.Type, allTypes, directlyUsed, nil)
-							}
-							for _, val := range s.Values {
-								collectExprTypeRefs(val, allTypes, directlyUsed, nil)
-							}
+						for _, val := range s.Values {
+							collectExprTypeRefs(val, allTypes, directlyUsed, nil)
 						}
 					case *ast.TypeSpec:
 						// Build type dependency graph.

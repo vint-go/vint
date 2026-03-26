@@ -14,6 +14,11 @@ type NoLoopClosureCaptureRule struct{}
 
 // Apply applies the rule to given file.
 func (r *NoLoopClosureCaptureRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	// Since Go 1.22, loop variables are scoped per-iteration, so closure capture is no longer a bug.
+	if file.Pkg.IsAtLeastGoVersion(lint.Go122) {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	w := &lintLoopClosureCapture{

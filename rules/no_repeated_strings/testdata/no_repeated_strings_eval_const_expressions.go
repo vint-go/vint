@@ -17,7 +17,7 @@ func getEndpoint3() string {
 }
 
 const baseURL = "https://example.com/"
-const fullURL = baseURL + "api" // MATCH /string literal "https://example.com/api" appears 4 times, consider extracting it into a named constant/
+const fullURL = baseURL + "api"
 
 // Invalid: The resolved constant fullURL equals "https://example.com/api",
 // which also appears as a literal and as baseURL + "api".
@@ -26,7 +26,7 @@ func getURL1() string {
 }
 
 func getURL2() string {
-	return "https://example.com/api"
+	return "https://example.com/api" // MATCH /string literal "https://example.com/api" appears 3 times, consider extracting it into a named constant/
 }
 
 func getURL3() string {

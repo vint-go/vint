@@ -112,6 +112,16 @@ func (w *lintMergedVarDecl) checkBlock(stmts []ast.Stmt) {
 			continue
 		}
 
+		// Skip if the variable is assigned multiple times in the block.
+		if hasMultipleAssignments(stmts, varName) {
+			continue
+		}
+
+		// Skip if the RHS references the declared variable (self-referential).
+		if refersToIdent(assignStmt.Rhs[0], varName) {
+			continue
+		}
+
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Category:   lint.FailureCategoryStyle,
@@ -119,4 +129,47 @@ func (w *lintMergedVarDecl) checkBlock(stmts []ast.Stmt) {
 			Failure:    fmt.Sprintf("should merge variable declaration with assignment on next line to %s := ...", varName),
 		})
 	}
+}
+
+// hasMultipleAssignments checks whether varName appears on the LHS of
+// assignments two or more times within the given statements. This prevents
+// false positives when a variable is conditionally overridden or shared with
+// a closure and reassigned inside it.
+func hasMultipleAssignments(stmts []ast.Stmt, varName string) bool {
+	count := 0
+	for _, stmt := range stmts {
+		ast.Inspect(stmt, func(n ast.Node) bool {
+			if count >= 2 {
+				return false
+			}
+			assign, ok := n.(*ast.AssignStmt)
+			if !ok {
+				return true
+			}
+			for _, lhs := range assign.Lhs {
+				if ident, ok := lhs.(*ast.Ident); ok && ident.Name == varName {
+					count++
+				}
+			}
+			return true
+		})
+	}
+	return count >= 2
+}
+
+// refersToIdent reports whether expr contains a reference to an identifier
+// with the given name.
+func refersToIdent(expr ast.Expr, name string) bool {
+	found := false
+	ast.Inspect(expr, func(n ast.Node) bool {
+		if found {
+			return false
+		}
+		if ident, ok := n.(*ast.Ident); ok && ident.Name == name {
+			found = true
+			return false
+		}
+		return true
+	})
+	return found
 }

@@ -126,3 +126,41 @@ func breakInFuncLitInsideSelect(done chan struct{}) {
 		}
 	}
 }
+
+func nestedForSelectInsideIfNotFlagged(ch chan int, stopCh chan struct{}) {
+	for {
+		select {
+		case <-stopCh:
+			return
+		default:
+			keysToGenerate := 10
+			if keysToGenerate > 0 {
+				for i := 0; i < keysToGenerate; i++ {
+					if i > 0 {
+						select {
+						case ch <- i:
+							// sent
+						default:
+							// The select is inside an if inside the inner for,
+							// not a direct child of the inner for body. Should
+							// not be flagged.
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func breakInSelectInsideNestedFor(ch chan int) {
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			select {
+			case ch <- j:
+			default:
+				break // MATCH /break inside select inside for loop only breaks the select, not the loop; use a labeled break to exit the loop/
+			}
+		}
+	}
+}

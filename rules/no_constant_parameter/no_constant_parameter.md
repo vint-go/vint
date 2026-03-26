@@ -21,6 +21,8 @@ settings:
 
 Reports function parameters that always receive the same constant value at every call site in the program. Using whole-program analysis, `unparam` inspects all callers of a function and determines if a parameter is invariantly passed the same argument. When a parameter always receives the same value, it can typically be replaced with a local constant or variable inside the function body, simplifying both the function signature and its call sites.
 
+To avoid false positives, a parameter is only reported when there are **at least 4 call sites** that all pass the same constant value. Functions with fewer call sites are not flagged, since a small number of callers does not provide strong enough evidence that the parameter is truly unnecessary.
+
 Parameters that always receive the same value are a form of unnecessary indirection. They add complexity to the API surface without providing any flexibility, since the value never varies. This often occurs after refactoring when a parameter that once varied has been narrowed down to a single usage pattern, but the signature was never updated to reflect that change.
 
 By default, this rule only checks unexported (private) functions, since exported functions may intentionally accept a parameter for future extensibility or to satisfy an interface. Set `check-exported: true` to also analyze exported functions.
@@ -34,7 +36,7 @@ Source: https://github.com/mvdan/unparam
 ### Invalid
 
 ```golang
-// Every call to "repeat" passes 3 as the "times" argument.
+// Every call to "repeat" passes 3 as the "times" argument (4+ call sites).
 func repeat(s string, times int) string {
     var result string
     for i := 0; i < times; i++ {
@@ -47,11 +49,12 @@ func main() {
     fmt.Println(repeat("ha", 3))
     fmt.Println(repeat("ho", 3))
     fmt.Println(repeat("he", 3))
+    fmt.Println(repeat("hee", 3))
 }
 ```
 
 ```golang
-// Every caller passes true for "verbose".
+// Every caller passes true for "verbose" (4+ call sites).
 func logMessage(msg string, verbose bool) {
     if verbose {
         fmt.Println("[VERBOSE]", msg)
@@ -64,11 +67,12 @@ func run() {
     logMessage("starting", true)
     logMessage("processing", true)
     logMessage("done", true)
+    logMessage("finishing", true)
 }
 ```
 
 ```golang
-// The "separator" parameter is always ",".
+// The "separator" parameter is always "," (4+ call sites).
 func joinStrings(parts []string, separator string) string {
     return strings.Join(parts, separator)
 }
@@ -78,6 +82,9 @@ func buildCSV(rows [][]string) string {
     for _, row := range rows {
         lines = append(lines, joinStrings(row, ","))
     }
+    lines = append(lines, joinStrings(nil, ","))
+    lines = append(lines, joinStrings(nil, ","))
+    lines = append(lines, joinStrings(nil, ","))
     return strings.Join(lines, "\n")
 }
 ```

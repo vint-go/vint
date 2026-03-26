@@ -9,6 +9,7 @@ title: noLoopClosureCapture
 - This rule is **recommended**, meaning it is enabled by default.
 - This rule doesn't have a fix.
 - The default severity of this rule is **warning**.
+- This rule only applies to projects targeting Go versions **before 1.22**. Starting with Go 1.22, loop variables are scoped per iteration, making this check unnecessary.
 
 ## Configuration
 ```yaml title="vint.yaml"

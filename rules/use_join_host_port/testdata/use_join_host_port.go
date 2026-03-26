@@ -5,15 +5,35 @@ import (
 	"net"
 )
 
-func connectBadIntPort(host string, port int) (net.Conn, error) {
-	// Bad: does not work with IPv6 addresses
-	addr := fmt.Sprintf("%s:%d", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
+func connectURLIntPort(host string, port int) string {
+	// Bad: URL with scheme and host:port - does not work with IPv6 addresses
+	return fmt.Sprintf("http://%s:%d/path", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
+}
+
+func connectURLStringPort(host string, port string) string {
+	// Bad: URL with scheme and host:port - does not work with IPv6 addresses
+	return fmt.Sprintf("https://%s:%s/path", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
+}
+
+func connectURLMinimal(host string, port int) string {
+	// Bad: URL with scheme and host:port, no trailing path
+	return fmt.Sprintf("http://%s:%d", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
+}
+
+func connectURLCustomScheme(host string, port string) string {
+	// Bad: custom scheme URL with host:port
+	return fmt.Sprintf("myapp+tcp://%s:%s", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
+}
+
+func connectBareIntPort(host string, port int) (net.Conn, error) {
+	// OK: bare host:port is fine for net.Listen, http.Server.Addr, etc.
+	addr := fmt.Sprintf("%s:%d", host, port)
 	return net.Dial("tcp", addr)
 }
 
-func connectBadStringPort(host string, port string) (net.Conn, error) {
-	// Bad: does not work with IPv6 addresses
-	addr := fmt.Sprintf("%s:%s", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
+func connectBareStringPort(host string, port string) (net.Conn, error) {
+	// OK: bare host:port is fine
+	addr := fmt.Sprintf("%s:%s", host, port)
 	return net.Dial("tcp", addr)
 }
 

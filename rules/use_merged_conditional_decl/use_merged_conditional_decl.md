@@ -19,9 +19,14 @@ settings:
 
 ## Details
 
-Merge conditional assignment into variable declaration.
+Merge conditional boolean assignment into variable declaration.
 
-A variable declaration followed by a conditional assignment can be merged into a single declaration with a conditional expression.
+A boolean variable declaration initialized to `true` or `false`, followed by a
+conditional reassignment to the opposite boolean literal, can be simplified into
+a single declaration using the condition directly.
+
+This rule only applies to **boolean literals**. Non-boolean types (strings,
+integers, slices, etc.) are not flagged.
 
 Source: https://staticcheck.dev/docs/checks/#QF1007
 
@@ -32,13 +37,27 @@ Source: https://staticcheck.dev/docs/checks/#QF1007
 ```golang
 package main
 
-func process(useDefault bool) string {
-    x := "custom"
-    if useDefault {
-        x = "default"
+func process(cond bool) bool {
+    x := false
+    if cond {
+        x = true
     }
     return x
 }
+// Can be simplified to: x := cond
+```
+
+```golang
+package main
+
+func process(cond bool) bool {
+    x := true
+    if cond {
+        x = false
+    }
+    return x
+}
+// Can be simplified to: x := !cond
 ```
 
 ### Valid
@@ -46,10 +65,12 @@ func process(useDefault bool) string {
 ```golang
 package main
 
+// Non-boolean types are not flagged.
 func process(useDefault bool) string {
+    x := "custom"
     if useDefault {
-        return "default"
+        x = "default"
     }
-    return "custom"
+    return x
 }
 ```

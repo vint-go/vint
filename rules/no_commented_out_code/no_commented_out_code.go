@@ -56,16 +56,17 @@ func (r *NoCommentedOutCodeRule) Apply(file *lint.File, _ lint.Arguments) []lint
 			continue
 		}
 
-		// Merge all lines in the comment group into a single text blob
-		// and check for commented-out code.
+		// If ANY line in the comment group contains an explanatory marker,
+		// skip the entire group. This matches the behavior of go-critic's
+		// commentedOutCode checker which operates on whole CommentGroups.
+		if commentGroupHasExplanatoryMarker(group) {
+			continue
+		}
+
 		for _, comment := range group.List {
 			text := commentText(comment.Text)
 
 			if len(text) < minCommentLen {
-				continue
-			}
-
-			if hasExplanatoryMarker(text) {
 				continue
 			}
 
@@ -92,6 +93,18 @@ func commentText(raw string) string {
 		return strings.TrimSpace(raw[2 : len(raw)-2])
 	}
 	return raw
+}
+
+// commentGroupHasExplanatoryMarker returns true if any comment in the group
+// contains an explanatory marker. When a marker is found, the entire group
+// is considered explanatory (matching go-critic's CommentGroup-level behavior).
+func commentGroupHasExplanatoryMarker(group *ast.CommentGroup) bool {
+	for _, comment := range group.List {
+		if hasExplanatoryMarker(commentText(comment.Text)) {
+			return true
+		}
+	}
+	return false
 }
 
 // hasExplanatoryMarker returns true if the comment text contains markers

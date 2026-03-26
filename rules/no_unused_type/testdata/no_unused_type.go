@@ -17,9 +17,9 @@ func Process(input string) string {
 	return input
 }
 
-// Invalid: unexported named type (based on int) never referenced anywhere.
+// Valid: unexported named type referenced by unexported const declarations.
 
-type color int // MATCH /type color is unused/
+type color int
 
 const (
 	red   color = iota
@@ -52,6 +52,18 @@ type stringer interface {
 
 func Format(s stringer) string {
 	return s.String()
+}
+
+// Valid: unexported type used as element type in an unexported variable declaration.
+
+type tableTest struct {
+	name     string
+	input    string
+	expected string
+}
+
+var myTests = []tableTest{
+	{name: "test1", input: "a", expected: "b"},
 }
 
 // Valid: two types referencing each other, both used from a function.

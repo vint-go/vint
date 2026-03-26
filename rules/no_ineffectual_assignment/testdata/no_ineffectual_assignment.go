@@ -85,11 +85,53 @@ func exampleValidCondition() {
 	}
 }
 
+// Valid: Variable used after if/else (not touched in branches) - Bug 1 regression test
+func exampleValidUsedAfterIfElse(flag bool) int {
+	x := 10
+	if flag {
+		fmt.Println("branch a")
+	} else {
+		fmt.Println("branch b")
+	}
+	return x
+}
+
+// Valid: Initial value used in loop - Bug 1 regression test
+func exampleValidInitialValueInLoop() int {
+	failedAmount := 0
+	for i := 0; i < 5; i++ {
+		delay := 100 + failedAmount*failedAmount*100
+		fmt.Println(delay)
+		failedAmount++
+	}
+	return failedAmount
+}
+
+// Valid: Read-then-reassign via append - Bug 2 regression test
+func exampleValidAppendReadReassign() []int {
+	result := []int{1, 2, 3}
+	if condition {
+		result = append(result, 4)
+	}
+	return result
+}
+
+// Valid: Read-then-reassign in both branches via append - Bug 2 regression test
+func exampleValidAppendBothBranches(flag bool) []int {
+	items := []int{1}
+	if flag {
+		items = append(items, 2)
+	} else {
+		items = append(items, 3)
+	}
+	return items
+}
+
 // Helper functions for the test fixture to parse correctly
-func doSomething() error            { return nil }
-func doSomethingElse() error        { return nil }
-func computeValue() int             { return 0 }
-func otherValue() int               { return 0 }
+func doSomething() error             { return nil }
+func doSomethingElse() error         { return nil }
+func computeValue() int              { return 0 }
+func otherValue() int                { return 0 }
 func doSomethingMulti() (int, error) { return 0, nil }
 
 var condition bool

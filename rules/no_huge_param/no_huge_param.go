@@ -169,6 +169,12 @@ func (w *lintHugeParam) Visit(node ast.Node) ast.Visitor {
 
 // checkField checks a single field (parameter or receiver) for exceeding the size threshold.
 func (w *lintHugeParam) checkField(field *ast.Field) {
+	// Skip unnamed receivers/params -- matches gocritic behavior which
+	// resolves types from named identifiers only.
+	if len(field.Names) == 0 {
+		return
+	}
+
 	// Skip pointer types -- already passed by reference.
 	if _, ok := field.Type.(*ast.StarExpr); ok {
 		return
@@ -184,24 +190,14 @@ func (w *lintHugeParam) checkField(field *ast.Field) {
 		return
 	}
 
-	if size > w.sizeThreshold {
-		if len(field.Names) == 0 {
-			// Unnamed parameter.
+	if size >= w.sizeThreshold {
+		for _, name := range field.Names {
 			w.onFailure(lint.Failure{
 				Category:   lint.FailureCategoryOptimization,
 				Confidence: 1,
 				Node:       field,
-				Failure:    fmt.Sprintf("parameter exceeds the size threshold of %d bytes with a size of %d bytes, consider passing it by pointer", w.sizeThreshold, size),
+				Failure:    fmt.Sprintf("parameter '%s' exceeds the size threshold of %d bytes with a size of %d bytes, consider passing it by pointer", name.Name, w.sizeThreshold, size),
 			})
-		} else {
-			for _, name := range field.Names {
-				w.onFailure(lint.Failure{
-					Category:   lint.FailureCategoryOptimization,
-					Confidence: 1,
-					Node:       field,
-					Failure:    fmt.Sprintf("parameter '%s' exceeds the size threshold of %d bytes with a size of %d bytes, consider passing it by pointer", name.Name, w.sizeThreshold, size),
-				})
-			}
 		}
 	}
 }

@@ -286,9 +286,8 @@ func (w *lintHardcodedCredentials) isHardcodedString(expr ast.Expr) bool {
 		return true
 	}
 
-	// For credential-named variables, even low-entropy strings are suspicious
-	// if they are non-empty string literals (already filtered above)
-	return true
+	// If none of the above checks matched, the string doesn't look like a real credential
+	return false
 }
 
 // shannonEntropy calculates the Shannon entropy of a string.

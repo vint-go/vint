@@ -25,6 +25,12 @@ This rule uses SSA (Static Single Assignment) analysis to identify code patterns
 
 The rule checks for patterns where a slice is accessed with an index that is not properly validated against the slice's length. This includes direct indexing, sub-slicing, and cases where length checks are missing or insufficient.
 
+The rule recognizes the following safe patterns and does not report them:
+
+- **`len()` bounds checks**: An `if` statement whose condition involves `len(slice)` that encloses the access.
+- **`for i := range slice` loops**: The range index variable `i` is inherently bounded by the slice length, so `slice[i]` inside such a loop is safe.
+- **`sort.Slice` / `sort.SliceStable` callbacks**: The callback parameters `i` and `j` are guaranteed valid indices into the sorted slice.
+
 Source: https://github.com/securego/gosec
 
 ## Examples
@@ -81,5 +87,25 @@ func subSlice(s []int) []int {
         return nil
     }
     return s[2:5]
+}
+```
+
+```golang
+func sumElements(s []int) int {
+    // Range index is inherently bounded
+    sum := 0
+    for i := range s {
+        sum += s[i]
+    }
+    return sum
+}
+```
+
+```golang
+func sortEndpoints(endpoints []string) {
+    // sort.Slice callback parameters are safe indices
+    sort.Slice(endpoints, func(i, j int) bool {
+        return endpoints[i] < endpoints[j]
+    })
 }
 ```

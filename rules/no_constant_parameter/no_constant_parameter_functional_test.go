@@ -39,8 +39,8 @@ func TestNoConstantParameter(t *testing.T) {
 
 	expected := map[int]string{
 		9:  "times always receives 3",
-		24: "verbose always receives true",
-		39: `separator always receives ","`,
+		25: "verbose always receives true",
+		41: `separator always receives ","`,
 	}
 
 	assertExpectedFailures(t, failures, expected, "no_constant_parameter.go")

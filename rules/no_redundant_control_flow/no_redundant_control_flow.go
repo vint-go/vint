@@ -74,10 +74,6 @@ func (w *lintRedundantControlFlow) Visit(node ast.Node) ast.Visitor {
 		if n.Body != nil {
 			w.checkRedundantBreakInSwitch(n.Body)
 		}
-	case *ast.SelectStmt:
-		if n.Body != nil {
-			w.checkRedundantBreakInSelect(n.Body)
-		}
 	}
 	return w
 }
@@ -125,22 +121,10 @@ func (w *lintRedundantControlFlow) checkRedundantBreakInSwitch(body *ast.BlockSt
 	}
 }
 
-// checkRedundantBreakInSelect checks for redundant break statements at the end
-// of comm clauses in select statements.
-func (w *lintRedundantControlFlow) checkRedundantBreakInSelect(body *ast.BlockStmt) {
-	for _, item := range body.List {
-		cc, ok := item.(*ast.CommClause)
-		if !ok {
-			continue
-		}
-		w.checkRedundantBreakInCaseBody(cc.Body)
-	}
-}
-
-// checkRedundantBreakInCaseBody checks if the last statement in a case/comm
+// checkRedundantBreakInCaseBody checks if the last statement in a case
 // clause body is a redundant break (a break with no label).
 func (w *lintRedundantControlFlow) checkRedundantBreakInCaseBody(stmts []ast.Stmt) {
-	if len(stmts) == 0 {
+	if len(stmts) < 2 {
 		return
 	}
 

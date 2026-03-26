@@ -21,6 +21,8 @@ settings:
 
 Detects case-insensitive string comparisons that convert strings to lower or upper case before comparing, instead of using `strings.EqualFold`. Converting with `strings.ToLower` or `strings.ToUpper` allocates a new string, while `strings.EqualFold` performs the comparison in place without allocation and handles Unicode case folding correctly.
 
+The rule only flags comparisons where both operands are **pure** (side-effect free). Expressions involving function or method calls are considered impure and are skipped, since replacing them with `strings.EqualFold` could change evaluation semantics. Self-comparisons (both sides textually identical) are also skipped.
+
 Source: https://github.com/go-critic/go-critic
 
 ## Examples
@@ -50,5 +52,12 @@ if strings.EqualFold(a, b) {
 ```golang
 if strings.EqualFold(s, "HELLO") {
     // correct and efficient
+}
+```
+
+```golang
+// Not flagged: function call argument is impure
+if strings.ToLower(getConfig("env")) == "production" {
+    // ...
 }
 ```

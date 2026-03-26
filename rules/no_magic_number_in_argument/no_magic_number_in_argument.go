@@ -163,27 +163,41 @@ func (w *lintMagicNumberInArgument) Visit(node ast.Node) ast.Visitor {
 func (w *lintMagicNumberInArgument) checkExprForMagicNumber(expr ast.Expr) {
 	switch e := expr.(type) {
 	case *ast.BasicLit:
-		if e.Kind == token.INT || e.Kind == token.FLOAT {
-			val := normalizeNumber(e.Value)
-			if !w.ignoredNumbers[val] {
-				w.onFailure(lint.Failure{
-					Confidence: 1,
-					Category:   lint.FailureCategoryStyle,
-					Failure:    fmt.Sprintf("magic number: %s, in <argument> detected", val),
-					Node:       e,
-				})
-			}
-		}
+		w.checkBasicLit(e)
 	case *ast.BinaryExpr:
-		// Check both sides of binary expressions like 5*time.Second
-		w.checkExprForMagicNumber(e.X)
-		w.checkExprForMagicNumber(e.Y)
+		// Only check immediate operands of binary expressions like 5*time.Second.
+		// Do NOT recurse into nested BinaryExpr/UnaryExpr/ParenExpr to match
+		// go-mnd's behavior of only examining one level deep.
+		if lit, ok := e.X.(*ast.BasicLit); ok {
+			w.checkBasicLit(lit)
+		}
+		if lit, ok := e.Y.(*ast.BasicLit); ok {
+			w.checkBasicLit(lit)
+		}
 	case *ast.UnaryExpr:
-		// Check unary expressions like -5
-		w.checkExprForMagicNumber(e.X)
+		// Check unary expressions like -5 (immediate BasicLit only)
+		if lit, ok := e.X.(*ast.BasicLit); ok {
+			w.checkBasicLit(lit)
+		}
 	case *ast.ParenExpr:
-		// Check parenthesized expressions like (5)
-		w.checkExprForMagicNumber(e.X)
+		// Check parenthesized expressions like (5) (immediate BasicLit only)
+		if lit, ok := e.X.(*ast.BasicLit); ok {
+			w.checkBasicLit(lit)
+		}
+	}
+}
+
+func (w *lintMagicNumberInArgument) checkBasicLit(e *ast.BasicLit) {
+	if e.Kind == token.INT || e.Kind == token.FLOAT {
+		val := normalizeNumber(e.Value)
+		if !w.ignoredNumbers[val] {
+			w.onFailure(lint.Failure{
+				Confidence: 1,
+				Category:   lint.FailureCategoryStyle,
+				Failure:    fmt.Sprintf("magic number: %s, in <argument> detected", val),
+				Node:       e,
+			})
+		}
 	}
 }
 

@@ -27,7 +27,7 @@ The checker exempts special cases including:
 - Linting directives (`//nolint`, `//noinspection`)
 - IDE folding regions (`//region`, `//editor-fold`)
 - Custom markers starting with `+`, `-`, `#`, or `!`
-- Keyed directives matching `//key:value` patterns
+- Keyed directives matching `//key:` patterns (e.g., `//TODO:`, `//FIXME:`, `//nolint:foo`)
 
 Source: https://github.com/go-critic/go-critic
 
@@ -38,10 +38,6 @@ Source: https://github.com/go-critic/go-critic
 ```golang
 //This comment has no space after the slashes
 func f() {}
-```
-
-```golang
-//TODO: fix this later
 ```
 
 ### Valid
@@ -57,4 +53,8 @@ func f() {}
 
 ```golang
 //go:generate stringer -type=Status
+```
+
+```golang
+//TODO: fix this later
 ```

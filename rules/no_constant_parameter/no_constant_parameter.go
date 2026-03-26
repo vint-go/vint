@@ -228,7 +228,7 @@ func (r *NoConstantParameterRule) Finalize() []lint.Failure {
 					break
 				}
 				info := agg[i]
-				if info.callCount == 0 || len(info.constValues) != 1 {
+				if info.callCount < 4 || len(info.constValues) != 1 {
 					continue
 				}
 				var constVal string

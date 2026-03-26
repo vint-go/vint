@@ -81,5 +81,13 @@ func mathUsage() float64 {
 	return math.Abs(42.5)
 }
 
+// Valid: Nested BinaryExpr - 144 is inside a nested BinaryExpr, not a direct
+// operand of the top-level argument's BinaryExpr. go-mnd only checks one level
+// deep, so this should NOT be flagged.
+func nestedBinaryExpr() {
+	validityInHours := 24
+	_ = time.Now().Add(-time.Duration(validityInHours)*time.Hour - 144*time.Hour)
+}
+
 // Ensure imports are used.
 var _ sync.Mutex

@@ -145,9 +145,26 @@ func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
 		}
 	}
 
-	// The inner function must not be a function literal itself
-	if _, ok := innerCall.Fun.(*ast.FuncLit); ok {
+	// Only flag when the inner call target is a plain identifier (package-level
+	// function). Skip method calls (SelectorExpr), calls through variables, and
+	// any other complex expressions — without type info we can't tell if the
+	// callee is a stable function reference or a captured variable.
+	funIdent, ok := innerCall.Fun.(*ast.Ident)
+	if !ok {
 		return w
+	}
+
+	// If the called identifier matches any of the lambda's own parameters,
+	// it's a variable call (e.g. `func(c) error { return next(c) }` where
+	// `next` is a captured parameter), not a direct function reference.
+	if params != nil {
+		for _, field := range params.List {
+			for _, name := range field.Names {
+				if name.Name == funIdent.Name {
+					return w
+				}
+			}
+		}
 	}
 
 	w.onFailure(lint.Failure{

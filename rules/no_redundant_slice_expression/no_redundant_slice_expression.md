@@ -19,7 +19,9 @@ settings:
 
 ## Details
 
-Detects slice expressions that can be simplified to the expression itself. A slice expression like `s[:]` or `s[0:len(s)]` is equivalent to just `s` and adds unnecessary complexity. The redundant slicing should be removed for cleaner code.
+Detects slice expressions that can be simplified to the expression itself. A slice expression like `s[:]` or `s[0:len(s)]` is equivalent to just `s` when `s` is a slice or string, and adds unnecessary complexity. The redundant slicing should be removed for cleaner code.
+
+Note: This rule does **not** flag `array[:]` expressions, because slicing an array (`[N]T`) produces a slice (`[]T`), which is a necessary type conversion. Removing `[:]` from an array would cause a compilation error.
 
 Source: https://github.com/go-critic/go-critic
 
@@ -28,15 +30,28 @@ Source: https://github.com/go-critic/go-critic
 ### Invalid
 
 ```golang
+s := []int{1, 2, 3}
 x := s[:]
 ```
 
 ```golang
+s := []int{1, 2, 3}
 x := s[0:len(s)]
+```
+
+```golang
+s := "hello"
+x := s[:]
 ```
 
 ### Valid
 
 ```golang
 x := s
+```
+
+```golang
+// array[:] is a necessary conversion from [N]T to []T
+var a [5]int
+x := a[:]
 ```

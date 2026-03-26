@@ -3,6 +3,7 @@ package use_slice_append
 import (
 	"fmt"
 	"go/ast"
+	"go/types"
 
 	"github.com/vint-go/vint/internal/astutils"
 	"github.com/vint-go/vint/internal/rulecache"
@@ -15,13 +16,19 @@ type UseSliceAppendRule struct{}
 
 // Apply applies the rule to given file.
 func (r *UseSliceAppendRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	file.Pkg.TypeCheck()
+	typesInfo := file.Pkg.TypesInfo()
+	if typesInfo == nil {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
 	}
 
-	w := &lintSliceAppend{onFailure: onFailure}
+	w := &lintSliceAppend{onFailure: onFailure, typesInfo: typesInfo}
 	ast.Walk(w, file.AST)
 
 	return failures
@@ -29,13 +36,19 @@ func (r *UseSliceAppendRule) Apply(file *lint.File, _ lint.Arguments) []lint.Fai
 
 // ApplyToNode applies the rule while walking the AST together with other rules.
 func (r *UseSliceAppendRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	file.Pkg.TypeCheck()
+	typesInfo := file.Pkg.TypesInfo()
+	if typesInfo == nil {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
 	}
 
-	w := &lintSliceAppend{onFailure: onFailure}
+	w := &lintSliceAppend{onFailure: onFailure, typesInfo: typesInfo}
 	w.Visit(node)
 	return failures
 }
@@ -52,11 +65,17 @@ func (*UseSliceAppendRule) Group() string {
 
 // CacheTier returns the cache tier for this rule.
 func (*UseSliceAppendRule) CacheTier() rulecache.CacheTier {
-	return rulecache.TierFileOnly
+	return rulecache.TierPackageAware
+}
+
+// RequiresTypecheck returns true because this rule uses type information.
+func (*UseSliceAppendRule) RequiresTypecheck() bool {
+	return true
 }
 
 type lintSliceAppend struct {
 	onFailure func(lint.Failure)
+	typesInfo *types.Info
 }
 
 func (w *lintSliceAppend) Visit(node ast.Node) ast.Visitor {
@@ -117,6 +136,18 @@ func (w *lintSliceAppend) Visit(node ast.Node) ast.Visitor {
 	// The second argument to append must be the range value variable.
 	secondArgStr := astutils.GoFmt(callExpr.Args[1])
 	if secondArgStr != valIdent.Name {
+		return w
+	}
+
+	// Verify the range expression is a slice or array (not a map or channel).
+	rangeType := w.typesInfo.TypeOf(rangeStmt.X)
+	if rangeType == nil {
+		return w
+	}
+	switch rangeType.Underlying().(type) {
+	case *types.Slice, *types.Array:
+		// OK, proceed
+	default:
 		return w
 	}
 

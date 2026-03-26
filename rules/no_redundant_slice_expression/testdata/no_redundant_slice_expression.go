@@ -21,10 +21,17 @@ func redundantStringSlice() {
 	_ = x
 }
 
-// Invalid: array full slice
-func redundantArraySlice() {
+// Valid: array[:] is a necessary conversion from [N]T to []T
+func arrayToSliceConversion() {
 	var a [5]int
-	x := a[:] // MATCH /redundant slice expression a[:] can be simplified to a/
+	x := a[:]
+	_ = x
+}
+
+// Valid: array[0:len(a)] is also a conversion from [N]T to []T
+func arrayToSliceConversionWithLen() {
+	var a [5]int
+	x := a[0:len(a)]
 	_ = x
 }
 

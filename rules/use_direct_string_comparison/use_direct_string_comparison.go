@@ -3,6 +3,7 @@ package use_direct_string_comparison
 import (
 	"go/ast"
 	"go/token"
+	"go/types"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
@@ -14,12 +15,16 @@ type UseDirectStringComparisonRule struct{}
 
 // Apply applies the rule to given file.
 func (r *UseDirectStringComparisonRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	if file.Pkg.TypeCheck() != nil {
+		return nil
+	}
+
 	var failures []lint.Failure
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
 	}
 
-	w := &lintDirectStringComparison{onFailure: onFailure}
+	w := &lintDirectStringComparison{file: file, onFailure: onFailure}
 	ast.Walk(w, file.AST)
 
 	return failures
@@ -31,7 +36,7 @@ func (r *UseDirectStringComparisonRule) ApplyToNode(file *lint.File, node ast.No
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
 	}
-	w := &lintDirectStringComparison{onFailure: onFailure}
+	w := &lintDirectStringComparison{file: file, onFailure: onFailure}
 	w.Visit(node)
 	return failures
 }
@@ -48,10 +53,16 @@ func (*UseDirectStringComparisonRule) Group() string {
 
 // CacheTier returns the cache tier for this rule.
 func (*UseDirectStringComparisonRule) CacheTier() rulecache.CacheTier {
-	return rulecache.TierFileOnly
+	return rulecache.TierPackageAware
+}
+
+// RequiresTypecheck indicates this rule needs type information.
+func (*UseDirectStringComparisonRule) RequiresTypecheck() bool {
+	return true
 }
 
 type lintDirectStringComparison struct {
+	file      *lint.File
 	onFailure func(lint.Failure)
 }
 
@@ -66,13 +77,13 @@ func (w *lintDirectStringComparison) Visit(node ast.Node) ast.Visitor {
 	}
 
 	// Check for len(s) == 0 or len(s) != 0
-	if isLenCall(binExpr.X) && isZeroLiteral(binExpr.Y) {
+	if w.isStringLenCall(binExpr.X) && isZeroLiteral(binExpr.Y) {
 		w.report(binExpr)
 		return w
 	}
 
 	// Check for 0 == len(s) or 0 != len(s)
-	if isZeroLiteral(binExpr.X) && isLenCall(binExpr.Y) {
+	if isZeroLiteral(binExpr.X) && w.isStringLenCall(binExpr.Y) {
 		w.report(binExpr)
 		return w
 	}
@@ -89,8 +100,8 @@ func (w *lintDirectStringComparison) report(node ast.Node) {
 	})
 }
 
-// isLenCall checks if the expression is a call to the builtin len function.
-func isLenCall(expr ast.Expr) bool {
+// isStringLenCall checks if the expression is a call to len() with a string argument.
+func (w *lintDirectStringComparison) isStringLenCall(expr ast.Expr) bool {
 	call, ok := expr.(*ast.CallExpr)
 	if !ok {
 		return false
@@ -101,7 +112,22 @@ func isLenCall(expr ast.Expr) bool {
 		return false
 	}
 
-	return ident.Name == "len" && len(call.Args) == 1
+	if ident.Name != "len" || len(call.Args) != 1 {
+		return false
+	}
+
+	// Check that the argument is a string type
+	argType := w.file.Pkg.TypeOf(call.Args[0])
+	if argType == nil {
+		return false
+	}
+
+	basic, ok := argType.Underlying().(*types.Basic)
+	if !ok {
+		return false
+	}
+
+	return basic.Info()&types.IsString != 0
 }
 
 // isZeroLiteral checks if the expression is the integer literal 0.

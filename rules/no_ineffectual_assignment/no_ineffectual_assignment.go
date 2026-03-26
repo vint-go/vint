@@ -85,11 +85,12 @@ type lintIneffectualAssignment struct {
 
 // varState tracks whether a variable's latest assignment has been read.
 type varState struct {
-	assigned   bool     // whether the variable has been assigned a value
-	read       bool     // whether the variable has been read since last assignment
-	node       ast.Node // the assignment node (for reporting)
-	name       string   // variable name
-	fromParent bool     // whether this state was inherited from a parent scope (branch)
+	assigned        bool     // whether the variable has been assigned a value
+	read            bool     // whether the variable has been read since last assignment
+	node            ast.Node // the assignment node (for reporting)
+	name            string   // variable name
+	fromParent      bool     // whether this state was inherited from a parent scope (branch)
+	parentValueRead bool     // whether the previous assignment's value was read during this assignment (e.g., x = append(x, ...))
 }
 
 // scope tracks variable states within a block scope.
@@ -171,19 +172,26 @@ func (w *lintIneffectualAssignment) analyzeStmt(stmt ast.Stmt, sc *scope, inLoop
 				continue
 			}
 			// Check if there is a prior assignment that was not read
-			if vs, exists := sc.vars[ident.Name]; exists && vs.assigned && !vs.read && !inLoop {
+			oldState, hasOld := sc.vars[ident.Name]
+			if hasOld && oldState.assigned && !oldState.read && !inLoop {
 				// Only report if this is not an inherited parent-scope assignment
 				// (parent-scope assignments in branches are handled by mergeScopes)
-				if !vs.fromParent {
-					w.reportFailure(vs)
+				if !oldState.fromParent {
+					w.reportFailure(oldState)
 				}
 			}
+			// Preserve the fact that the old value was read (e.g., x = append(x, ...))
+			// The RHS markReads has already set oldState.read = true if the variable
+			// was referenced on the RHS. Carry that forward so the parent assignment
+			// is not considered ineffectual.
+			parentRead := hasOld && oldState.read
 			// Update state: new assignment, not yet read
 			sc.vars[ident.Name] = &varState{
-				assigned: true,
-				read:     false,
-				node:     s,
-				name:     ident.Name,
+				assigned:        true,
+				read:            false,
+				node:            s,
+				name:            ident.Name,
+				parentValueRead: parentRead,
 			}
 		}
 
@@ -381,9 +389,10 @@ func (w *lintIneffectualAssignment) mergeScopes(parent, branch1, branch2 *scope)
 
 		if b1Read || b2Read {
 			vs.read = true
-		} else if has1 && has2 && b1.assigned && b2.assigned && !b1.read && !b2.read {
-			// Both branches assigned without reading -> parent assignment is dead
-			// The parent's assignment is ineffectual; flag it if it was an actual assignment
+		} else if has1 && has2 && b1.assigned && b2.assigned && !b1.read && !b2.read &&
+			!b1.fromParent && !b2.fromParent && !b1.parentValueRead && !b2.parentValueRead {
+			// Both branches actually reassigned without reading -> parent assignment is dead
+			// Only fire if BOTH branches made new assignments (not inherited from parent)
 			if vs.assigned && !vs.read {
 				w.reportFailure(vs)
 				// Mark as read so we don't report again

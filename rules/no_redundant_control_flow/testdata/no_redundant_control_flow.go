@@ -55,16 +55,6 @@ func redundantBreakTypeSwitch() {
 	}
 }
 
-func redundantBreakSelect() {
-	ch := make(chan int, 1)
-	ch <- 1
-	select {
-	case v := <-ch:
-		fmt.Println(v)
-		break // MATCH /redundant break statement/
-	}
-}
-
 // --- Invalid: redundant return in function literal ---
 
 var _ = func() {
@@ -122,6 +112,30 @@ func validNoCaseBreak() {
 func validNamedReturn() (result int) {
 	result = 42
 	return
+}
+
+// --- Valid: break-only case clause (explicit no-op, not redundant) ---
+
+func validBreakOnlyCase() {
+	x := 1
+	switch x {
+	case 1:
+		break
+	case 2:
+		fmt.Println("two")
+	}
+}
+
+// --- Valid: select statement break (not checked) ---
+
+func validSelectBreak() {
+	ch := make(chan int, 1)
+	ch <- 1
+	select {
+	case v := <-ch:
+		fmt.Println(v)
+		break
+	}
 }
 
 // --- Valid: break not at end of case ---

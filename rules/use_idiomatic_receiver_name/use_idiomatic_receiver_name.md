@@ -21,7 +21,7 @@ settings:
 
 Poorly chosen receiver name.
 
-Receiver names should be short (usually one or two letters), consistent across all methods of the type, and should not be generic names like `this` or `self`. The receiver name should be a shortened form of the type name.
+Receiver names should not be generic names like `this` or `self`, and should not be an underscore `_`.
 
 Source: https://staticcheck.dev/docs/checks/#ST1006
 

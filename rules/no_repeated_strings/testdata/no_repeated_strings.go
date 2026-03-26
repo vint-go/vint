@@ -80,3 +80,45 @@ func mixedContexts() {
 	fmt.Println("mixed_context")
 	_ = x == "mixed_context"
 }
+
+// Valid: Strings in const declarations should not be counted as occurrences.
+// Even though "postgres" appears 3 times below, all are in const blocks,
+// so it should NOT be flagged.
+const dbDriver = "postgres"
+const dbDriver2 = "postgres"
+const dbDriver3 = "postgres"
+
+// Valid: Strings in const blocks should not contribute to occurrence count.
+// "config_key" appears once in a const and twice in code — only 2 non-const
+// occurrences, which is below the threshold of 3.
+const configConst = "config_key"
+
+func useConfigKey1() string {
+	return "config_key"
+}
+
+func useConfigKey2() string {
+	return "config_key"
+}
+
+// Valid: Strings in composite literals (struct/slice/map values) are not counted.
+type Config struct {
+	Driver string
+	Host   string
+}
+
+func getConfigs() []Config {
+	return []Config{
+		{Driver: "comp_lit_str", Host: "comp_lit_str"},
+		{Driver: "comp_lit_str", Host: "comp_lit_str"},
+	}
+}
+
+// Valid: Strings appearing only in map literals are not counted.
+func getMap() map[string]string {
+	return map[string]string{
+		"map_lit_key": "map_lit_val",
+		"map_lit_key": "map_lit_val",
+		"map_lit_key": "map_lit_val",
+	}
+}

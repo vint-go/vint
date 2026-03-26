@@ -81,3 +81,49 @@ func good8() {
 	_ = x
 	_ = y
 }
+
+// Valid: variable is conditionally overridden (multiple assignments)
+func good9() {
+	var gormLogger int
+	gormLogger = 1
+	if true {
+		gormLogger = 2
+	}
+	_ = gormLogger
+}
+
+// Valid: variable is reassigned inside a closure (multiple assignments)
+func good10() {
+	var err error
+	err = doSomething(func() {
+		err = nil
+	})
+	_ = err
+}
+
+// Valid: self-referential RHS
+func good11() {
+	var x int
+	x = process(x)
+	_ = x
+}
+
+// Valid: self-referential RHS nested in expression
+func good12() {
+	var s string
+	s = s + "suffix"
+	_ = s
+}
+
+// Valid: multiple assignments in different branches
+func good13() {
+	var x int
+	x = 1
+	for i := 0; i < 10; i++ {
+		x = i
+	}
+	_ = x
+}
+
+func doSomething(f func()) error { f(); return nil }
+func process(x int) int          { return x }

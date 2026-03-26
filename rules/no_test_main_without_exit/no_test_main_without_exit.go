@@ -14,6 +14,10 @@ type NoTestMainWithoutExitRule struct{}
 
 // Apply applies the rule to given file.
 func (r *NoTestMainWithoutExitRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	if file.Pkg.IsAtLeastGoVersion(lint.Go115) {
+		return nil
+	}
+
 	var failures []lint.Failure
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)
@@ -27,6 +31,10 @@ func (r *NoTestMainWithoutExitRule) Apply(file *lint.File, _ lint.Arguments) []l
 
 // ApplyToNode applies the rule while walking the AST together with other rules.
 func (r *NoTestMainWithoutExitRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	if file.Pkg.IsAtLeastGoVersion(lint.Go115) {
+		return nil
+	}
+
 	var failures []lint.Failure
 	onFailure := func(failure lint.Failure) {
 		failures = append(failures, failure)

@@ -73,7 +73,7 @@ func (w *lintMergedConditionalDecl) Visit(node ast.Node) ast.Visitor {
 // conditional-reassignment pairs that could be merged.
 func (w *lintMergedConditionalDecl) checkBlock(stmts []ast.Stmt) {
 	for i := 0; i < len(stmts)-1; i++ {
-		varName, ok := extractSingleVarAssign(stmts[i])
+		varName, initBool, ok := extractSingleBoolVarAssign(stmts[i])
 		if !ok {
 			continue
 		}
@@ -117,6 +117,12 @@ func (w *lintMergedConditionalDecl) checkBlock(stmts []ast.Stmt) {
 			continue
 		}
 
+		// The reassignment must be the opposite boolean literal
+		reassignBool, ok := isBoolLiteral(assignStmt.Rhs[0])
+		if !ok || reassignBool != oppositeBool(initBool) {
+			continue
+		}
+
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Category:   lint.FailureCategoryStyle,
@@ -126,43 +132,73 @@ func (w *lintMergedConditionalDecl) checkBlock(stmts []ast.Stmt) {
 	}
 }
 
-// extractSingleVarAssign returns the variable name if the statement is a short
-// variable declaration (:=) or var declaration with exactly one name and one value.
-func extractSingleVarAssign(stmt ast.Stmt) (string, bool) {
-	// Check for short variable declaration: x := "value"
+// extractSingleBoolVarAssign returns the variable name and the boolean literal value
+// if the statement is a short variable declaration (:=) or var declaration with
+// exactly one name and one boolean literal value (true or false).
+func extractSingleBoolVarAssign(stmt ast.Stmt) (string, string, bool) {
+	// Check for short variable declaration: x := true
 	if assignStmt, ok := stmt.(*ast.AssignStmt); ok {
 		if assignStmt.Tok != token.DEFINE {
-			return "", false
+			return "", "", false
 		}
 		if len(assignStmt.Lhs) != 1 || len(assignStmt.Rhs) != 1 {
-			return "", false
+			return "", "", false
 		}
 		ident, ok := assignStmt.Lhs[0].(*ast.Ident)
 		if !ok {
-			return "", false
+			return "", "", false
 		}
-		return ident.Name, true
+		boolVal, ok := isBoolLiteral(assignStmt.Rhs[0])
+		if !ok {
+			return "", "", false
+		}
+		return ident.Name, boolVal, true
 	}
 
-	// Check for var declaration: var x = "value"
+	// Check for var declaration: var x = true
 	declStmt, ok := stmt.(*ast.DeclStmt)
 	if !ok {
-		return "", false
+		return "", "", false
 	}
 	genDecl, ok := declStmt.Decl.(*ast.GenDecl)
 	if !ok || genDecl.Tok != token.VAR {
-		return "", false
+		return "", "", false
 	}
 	if len(genDecl.Specs) != 1 {
-		return "", false
+		return "", "", false
 	}
 	valueSpec, ok := genDecl.Specs[0].(*ast.ValueSpec)
 	if !ok {
-		return "", false
+		return "", "", false
 	}
 	// Must declare exactly one variable WITH an initial value
 	if len(valueSpec.Names) != 1 || len(valueSpec.Values) != 1 {
+		return "", "", false
+	}
+	boolVal, ok := isBoolLiteral(valueSpec.Values[0])
+	if !ok {
+		return "", "", false
+	}
+	return valueSpec.Names[0].Name, boolVal, true
+}
+
+// isBoolLiteral checks if the expression is a boolean literal (true or false)
+// and returns the literal name.
+func isBoolLiteral(expr ast.Expr) (string, bool) {
+	ident, ok := expr.(*ast.Ident)
+	if !ok {
 		return "", false
 	}
-	return valueSpec.Names[0].Name, true
+	if ident.Name == "true" || ident.Name == "false" {
+		return ident.Name, true
+	}
+	return "", false
+}
+
+// oppositeBool returns the opposite boolean literal name.
+func oppositeBool(b string) string {
+	if b == "true" {
+		return "false"
+	}
+	return "true"
 }

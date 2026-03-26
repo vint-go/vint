@@ -3,14 +3,13 @@ package use_filepath_join
 import (
 	"go/ast"
 	"go/token"
-	"strings"
 
 	"github.com/vint-go/vint/internal/rulecache"
 	"github.com/vint-go/vint/lint"
 )
 
-// UseFilepathJoinRule detects path concatenation using + and "/" that can be
-// replaced with filepath.Join.
+// UseFilepathJoinRule detects path concatenation using string(os.PathSeparator)
+// that can be replaced with filepath.Join.
 type UseFilepathJoinRule struct{}
 
 // Apply applies the rule to given file.
@@ -69,12 +68,12 @@ func (w *lintFilepathJoin) Visit(node ast.Node) ast.Visitor {
 		return w
 	}
 
-	if containsPathSeparatorLiteral(binExpr) {
+	if containsPathSeparatorConversion(binExpr) {
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Node:       binExpr,
 			Category:   lint.FailureCategoryBadPractice,
-			Failure:    "path concatenation can be replaced with filepath.Join",
+			Failure:    "path concatenation using string(os.PathSeparator) can be replaced with filepath.Join",
 		})
 		return nil // don't recurse into children to avoid duplicate reports
 	}
@@ -82,26 +81,45 @@ func (w *lintFilepathJoin) Visit(node ast.Node) ast.Visitor {
 	return w
 }
 
-// containsPathSeparatorLiteral checks if a binary ADD expression tree contains
-// a string literal with a path separator (/ or \).
-func containsPathSeparatorLiteral(expr ast.Expr) bool {
+// containsPathSeparatorConversion checks if a binary ADD expression tree
+// contains a string(os.PathSeparator) type conversion.
+func containsPathSeparatorConversion(expr ast.Expr) bool {
 	switch e := expr.(type) {
 	case *ast.BinaryExpr:
 		if e.Op != token.ADD {
 			return false
 		}
-		return containsPathSeparatorLiteral(e.X) || containsPathSeparatorLiteral(e.Y)
-	case *ast.BasicLit:
-		if e.Kind != token.STRING {
-			return false
-		}
-		// Extract the string value (remove quotes)
-		val := e.Value
-		if len(val) >= 2 {
-			val = val[1 : len(val)-1]
-		}
-		return strings.ContainsAny(val, "/\\")
+		return containsPathSeparatorConversion(e.X) || containsPathSeparatorConversion(e.Y)
+	case *ast.CallExpr:
+		return isStringOsPathSeparator(e)
 	default:
 		return false
 	}
+}
+
+// isStringOsPathSeparator returns true if the call expression is string(os.PathSeparator).
+func isStringOsPathSeparator(call *ast.CallExpr) bool {
+	// Must be a type conversion: Fun is *ast.Ident with Name "string"
+	ident, ok := call.Fun.(*ast.Ident)
+	if !ok || ident.Name != "string" {
+		return false
+	}
+
+	// Must have exactly 1 argument
+	if len(call.Args) != 1 {
+		return false
+	}
+
+	// Argument must be os.PathSeparator
+	sel, ok := call.Args[0].(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+
+	x, ok := sel.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	return x.Name == "os" && sel.Sel.Name == "PathSeparator"
 }

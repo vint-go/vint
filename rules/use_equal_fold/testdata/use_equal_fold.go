@@ -24,6 +24,10 @@ func invalid(a, b, s string) {
 	}
 }
 
+func getConfig(key string) string {
+	return key
+}
+
 func valid(a, b, s string) {
 	if strings.EqualFold(a, b) {
 		// efficient case-insensitive comparison
@@ -47,5 +51,20 @@ func valid(a, b, s string) {
 	// ToLower/ToUpper in non-equality comparisons
 	if strings.ToLower(s) > "abc" {
 		// not an equality check
+	}
+
+	// Impure argument: function call as argument to ToLower — should not flag
+	if strings.ToLower(getConfig("env")) == "production" {
+		// getConfig is a function call (impure)
+	}
+
+	// Impure argument: function call on the other side of the comparison
+	if strings.ToLower(a) == getConfig("env") {
+		// getConfig is a function call (impure)
+	}
+
+	// Self-comparison: both sides are identical — should not flag
+	if strings.ToLower(a) == strings.ToLower(a) {
+		// comparing the same expression
 	}
 }

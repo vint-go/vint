@@ -21,7 +21,7 @@ settings:
 
 Omit redundant control flow.
 
-A `return` at the end of a function that returns nothing, or a `break` at the end of a case clause, is redundant and can be removed.
+A `return` at the end of a function that returns nothing, or a `break` at the end of a case clause in a switch/type switch, is redundant and can be removed. A standalone `break` that is the only statement in a case clause is not flagged, as it serves as an explicit no-op marker. Select statements are not checked.
 
 Source: https://staticcheck.dev/docs/checks/#S1023
 

@@ -23,6 +23,10 @@ Merge variable declaration and assignment.
 
 A variable declaration followed immediately by an assignment can be combined into a short variable declaration.
 
+The rule avoids false positives by skipping cases where:
+- The variable is assigned more than once in the same block (e.g., conditionally overridden or reassigned inside a closure).
+- The right-hand side of the assignment references the declared variable itself (self-referential assignment).
+
 Source: https://staticcheck.dev/docs/checks/#S1021
 
 ## Examples
@@ -46,6 +50,31 @@ package main
 
 func process() {
     x := 42
+    _ = x
+}
+```
+
+```golang
+package main
+
+// Variable is conditionally overridden — no merge suggested.
+func process() {
+    var x int
+    x = 1
+    if someCondition {
+        x = 2
+    }
+    _ = x
+}
+```
+
+```golang
+package main
+
+// RHS references the declared variable — no merge suggested.
+func process() {
+    var x int
+    x = transform(x)
     _ = x
 }
 ```

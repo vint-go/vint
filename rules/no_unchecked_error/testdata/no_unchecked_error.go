@@ -13,7 +13,7 @@ func noUncheckedErrorOpenIgnored() {
 }
 
 func noUncheckedErrorBlankIdentifier() {
-	f, _ := os.Open("file.txt") // MATCH /unchecked error in call to os.Open/
+	f, _ := os.Open("file.txt")
 	defer f.Close() // MATCH /unchecked error in call to os.File.Close/
 }
 

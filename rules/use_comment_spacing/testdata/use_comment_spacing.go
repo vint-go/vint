@@ -6,7 +6,6 @@ package fixtures
 func f() {}
 
 //TODO: fix this later
-// MATCH /no space between comment delimiter and comment text/
 
 // This comment has proper spacing
 func g() {}

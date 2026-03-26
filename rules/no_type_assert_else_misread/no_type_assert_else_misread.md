@@ -62,3 +62,22 @@ func process(x interface{}) {
     }
 }
 ```
+
+Variable redeclaration via `:=` in an inner scope is not flagged, since the inner variable is independent:
+
+```golang
+package main
+
+import "fmt"
+
+func process(x interface{}, y interface{}) {
+    if v, ok := x.(string); ok {
+        fmt.Println("string:", v)
+    } else {
+        // v is redeclared here — refers to a new variable, not the outer zero value
+        if v, ok := y.(string); ok {
+            fmt.Println("inner:", v) // OK: this v is from the inner assertion
+        }
+    }
+}
+```

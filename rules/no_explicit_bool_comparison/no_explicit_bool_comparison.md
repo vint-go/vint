@@ -23,6 +23,8 @@ Omit comparison with boolean constant.
 
 Comparing a boolean value to `true` or `false` is redundant. Use the boolean value directly or negate it.
 
+This rule does not apply to test files (`*_test.go`). In tests, explicit boolean comparisons like `if got == true` can feel more natural as they mirror the common `if got != want` pattern. This matches the behavior of staticcheck S1002 since version 2019.1.
+
 Source: https://staticcheck.dev/docs/checks/#S1002
 
 ## Examples

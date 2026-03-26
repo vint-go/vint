@@ -16,6 +16,10 @@ type NoExplicitBoolComparisonRule struct{}
 
 // Apply applies the rule to given file.
 func (r *NoExplicitBoolComparisonRule) Apply(file *lint.File, _ lint.Arguments) []lint.Failure {
+	if file.IsTest() {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	w := &lintNoExplicitBoolComparison{
@@ -30,6 +34,10 @@ func (r *NoExplicitBoolComparisonRule) Apply(file *lint.File, _ lint.Arguments) 
 
 // ApplyToNode applies the rule while walking the AST together with other rules.
 func (r *NoExplicitBoolComparisonRule) ApplyToNode(file *lint.File, node ast.Node, _ lint.Arguments) []lint.Failure {
+	if file.IsTest() {
+		return nil
+	}
+
 	var failures []lint.Failure
 
 	w := &lintNoExplicitBoolComparison{

@@ -143,3 +143,42 @@ func example() {
     }
 }
 ```
+
+```golang
+// Variable used after if/else where branches don't touch it
+func example(flag bool) int {
+    x := 10
+    if flag {
+        fmt.Println("a")
+    } else {
+        fmt.Println("b")
+    }
+    return x
+}
+```
+
+```golang
+// Initial value used inside a loop
+func example() int {
+    count := 0
+    for i := 0; i < 5; i++ {
+        total := 100 + count*count
+        fmt.Println(total)
+        count++
+    }
+    return count
+}
+```
+
+```golang
+// Value read via append before reassignment
+func example(flag bool) []int {
+    items := []int{1}
+    if flag {
+        items = append(items, 2)
+    } else {
+        items = append(items, 3)
+    }
+    return items
+}
+```

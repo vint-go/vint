@@ -73,3 +73,19 @@ func indexOnly(a, b []int) []int {
 	}
 	return a
 }
+
+// Valid: ranging over a map (spread operator doesn't work on maps)
+func mergeMapValues(dst []int, m map[string]int) []int {
+	for _, v := range m {
+		dst = append(dst, v)
+	}
+	return dst
+}
+
+// Valid: ranging over a channel
+func collectFromChan(dst []int, ch <-chan int) []int {
+	for v := range ch {
+		dst = append(dst, v)
+	}
+	return dst
+}

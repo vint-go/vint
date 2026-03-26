@@ -89,7 +89,24 @@ func logFatalWithReturn() int {
 	return 0
 }
 
+// Valid: local variable named "log" calling Panic is NOT stdlib log.Panic.
+// This should NOT be flagged as unreachable (e.g., *zap.SugaredLogger).
+func localVarNamedLog() {
+	log := getLogger()
+	log.Panic("something went wrong")
+	cleanup() // reachable: log is a local variable, not the log package
+}
+
+// Valid: local variable named "t" calling Fatal is NOT testing.T.Fatal.
+func localVarNamedT() {
+	t := getTracer()
+	t.Fatal("trace error")
+	cleanup() // reachable: t is a local variable, not *testing.T
+}
+
 // helper stubs
 func cleanup()              {}
 func doWork()               {}
 func someCondition() bool   { return false }
+func getLogger() interface{ Panic(args ...interface{}) } { return nil }
+func getTracer() interface{ Fatal(args ...interface{}) } { return nil }
