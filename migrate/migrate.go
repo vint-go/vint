@@ -169,6 +169,12 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 		result.Warnings = append(result.Warnings, presetWarnings...)
 	}
 
+	// Apply per-linter path-based exclusion rules.
+	if rules := golangciCfg.Linters.Exclusions.Rules; len(rules) > 0 {
+		w := applyExclusionRules(rules, registry, allConfigs)
+		result.Warnings = append(result.Warnings, w...)
+	}
+
 	// Render vint.yaml.
 	yamlContent, err := RenderVintYAML(allConfigs)
 	if err != nil {

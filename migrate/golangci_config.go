@@ -26,9 +26,17 @@ type LintersCfg struct {
 	Exclusions ExclusionsCfg             `yaml:"exclusions"`
 }
 
-// ExclusionsCfg holds the exclusion presets configuration from golangci-lint.
+// ExclusionRuleEntry represents a single entry in the exclusions.rules array.
+type ExclusionRuleEntry struct {
+	Linters []string `yaml:"linters"`
+	Path    string   `yaml:"path"`
+	Text    string   `yaml:"text"`
+}
+
+// ExclusionsCfg holds the exclusion configuration from golangci-lint.
 type ExclusionsCfg struct {
-	Presets []string `yaml:"presets"`
+	Presets []string             `yaml:"presets"`
+	Rules   []ExclusionRuleEntry `yaml:"rules"`
 }
 
 // LoadGolangciConfig reads and parses a .golangci.yml file.

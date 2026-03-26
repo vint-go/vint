@@ -198,6 +198,69 @@ func applyStdErrorHandlingPreset(
 	}
 }
 
+// applyExclusionRules processes per-linter path-based exclusion rules from
+// golangci-lint's exclusions.rules array. For each rule, it maps the listed
+// linters to their vint rule equivalents and adds the path pattern as an
+// exclude entry on each affected rule config.
+func applyExclusionRules(
+	rules []ExclusionRuleEntry,
+	registry *RuleRegistry,
+	allConfigs map[string]VintRuleConfig,
+) []string {
+	var warnings []string
+
+	for _, entry := range rules {
+		if entry.Text != "" {
+			warnings = append(warnings,
+				fmt.Sprintf("exclusions.rules: text-based exclusion %q cannot be translated (text matching is not supported) — skipped", entry.Text))
+		}
+
+		if entry.Path == "" {
+			continue
+		}
+
+		// golangci-lint path values are regexes; vint uses ~ prefix for regex patterns.
+		excludePattern := "~" + entry.Path
+
+		for _, linterName := range entry.Linters {
+			for _, mapped := range registry.RulesForLinter(linterName) {
+				if mapped.FullVintPath == "" {
+					continue
+				}
+				cfg, exists := allConfigs[mapped.FullVintPath]
+				if !exists {
+					continue
+				}
+
+				if cfg.Options == nil {
+					cfg.Options = make(map[string]any)
+				}
+
+				// Deduplicate: skip if this pattern is already present.
+				existing := anyToStringSlice(cfg.Options["exclude"])
+				alreadyPresent := false
+				for _, ex := range existing {
+					if ex == excludePattern {
+						alreadyPresent = true
+						break
+					}
+				}
+				if !alreadyPresent {
+					asAny := make([]any, len(existing)+1)
+					for i, s := range existing {
+						asAny[i] = s
+					}
+					asAny[len(existing)] = excludePattern
+					cfg.Options["exclude"] = asAny
+					allConfigs[mapped.FullVintPath] = cfg
+				}
+			}
+		}
+	}
+
+	return warnings
+}
+
 // anyToStringSlice converts an any value to a []string.
 // Handles []any (from YAML) and []string.
 func anyToStringSlice(v any) []string {

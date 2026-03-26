@@ -1,0 +1,163 @@
+settings:
+    lint/correctness/noRangeVariableAlias:
+        exclude:
+            - ~_test\.go
+    lint/correctness/noSliceBoundsOutOfRange:
+        exclude:
+            - ~_test\.go
+    lint/correctness/noUncheckedError:
+        exclude:
+            - ~_test\.go
+    lint/security/noAtoiOverflow:
+        exclude:
+            - ~_test\.go
+    lint/security/noBindToAllInterfaces:
+        exclude:
+            - ~_test\.go
+    lint/security/noCgiImport:
+        exclude:
+            - ~_test\.go
+    lint/security/noCommandInjectionTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noContextPropagationFailure:
+        exclude:
+            - ~_test\.go
+    lint/security/noDeprecatedHashFunction:
+        exclude:
+            - ~_test\.go
+    lint/security/noExposedPprof:
+        exclude:
+            - ~_test\.go
+    lint/security/noFileInclusionViaVariable:
+        exclude:
+            - ~_test\.go
+    lint/security/noFilesystemRootServing:
+        exclude:
+            - ~_test\.go
+    lint/security/noFilesystemToctou:
+        exclude:
+            - ~_test\.go
+    lint/security/noHardcodedCredentials:
+        exclude:
+            - ~_test\.go
+    lint/security/noHardcodedIv:
+        exclude:
+            - ~_test\.go
+    lint/security/noHttpRequestSmuggling:
+        exclude:
+            - ~_test\.go
+    lint/security/noInsecureCookie:
+        exclude:
+            - ~_test\.go
+    lint/security/noInsecureHostKeyCallback:
+        exclude:
+            - ~_test\.go
+    lint/security/noInsecureRandom:
+        exclude:
+            - ~_test\.go
+    lint/security/noInsecureTlsConfig:
+        exclude:
+            - ~_test\.go
+    lint/security/noIntegerOverflowConversion:
+        exclude:
+            - ~_test\.go
+    lint/security/noLogInjectionTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noMissingReadHeaderTimeout:
+        exclude:
+            - ~_test\.go
+    lint/security/noPathTraversalTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noPermissiveDirectoryPermissions:
+        exclude:
+            - ~_test\.go
+    lint/security/noPermissiveFilePermissions:
+        exclude:
+            - ~_test\.go
+    lint/security/noPermissiveOsCreate:
+        exclude:
+            - ~_test\.go
+    lint/security/noPermissiveWriteFilePermissions:
+        exclude:
+            - ~_test\.go
+    lint/security/noPredictableTempFile:
+        exclude:
+            - ~_test\.go
+    lint/security/noSecretInSerialization:
+        exclude:
+            - ~_test\.go
+    lint/security/noServeWithoutTimeout:
+        exclude:
+            - ~_test\.go
+    lint/security/noShortRsaKey:
+        exclude:
+            - ~_test\.go
+    lint/security/noSmtpInjectionTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noSqlConcatenation:
+        exclude:
+            - ~_test\.go
+    lint/security/noSqlFormatString:
+        exclude:
+            - ~_test\.go
+    lint/security/noSqlInjectionTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noSshAuthBypass:
+        exclude:
+            - ~_test\.go
+    lint/security/noSsrfTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noSsrfViaVariable:
+        exclude:
+            - ~_test\.go
+    lint/security/noTemplateInjection:
+        exclude:
+            - ~_test\.go
+    lint/security/noTlsSessionResumptionBypass:
+        exclude:
+            - ~_test\.go
+    lint/security/noTrojanSourceBidi:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnboundedDecompression:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnboundedFormParsing:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnescapedHtmlTemplate:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnsafeCorsBypass:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnsafeDeserialization:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnsafePackage:
+        exclude:
+            - ~_test\.go
+    lint/security/noUnsafeRedirectPolicy:
+        exclude:
+            - ~_test\.go
+    lint/security/noVariableCommandExecution:
+        exclude:
+            - ~_test\.go
+    lint/security/noWeakCryptoHash:
+        exclude:
+            - ~_test\.go
+    lint/security/noWeakEncryptionAlgorithm:
+        exclude:
+            - ~_test\.go
+    lint/security/noXssTaint:
+        exclude:
+            - ~_test\.go
+    lint/security/noZipSlip:
+        exclude:
+            - ~_test\.go
