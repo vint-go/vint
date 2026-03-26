@@ -15,15 +15,17 @@ import (
 )
 
 var nolintRegexp = regexp.MustCompile(`//nolint(?::(\S+))?`)
+var nosecRegexp = regexp.MustCompile(`(?://|/\*)\s*#nosec\b\s*((?:G\d+\s*)*)(?:\*/)?`)
 
-// nolintDirective represents a parsed //nolint comment in source code.
+// nolintDirective represents a parsed //nolint or #nosec comment in source code.
 type nolintDirective struct {
-	line        int      // 1-based line number
-	linters     []string // linter names (empty = bare //nolint = all)
-	colStart    int      // byte offset of //nolint within the line
-	fullMatch   string   // the full matched text
-	isInline    bool     // true if code precedes the //nolint on the same line
-	explanation string   // text after // following the nolint (if any)
+	line         int      // 1-based line number
+	linters      []string // linter names (empty = bare //nolint = all)
+	gosecRuleIDs []string // gosec rule IDs from #nosec (e.g. ["G101", "G202"])
+	colStart     int      // byte offset of the directive within the line
+	fullMatch    string   // the full matched text
+	isInline     bool     // true if code precedes the directive on the same line
+	explanation  string   // text after // following the directive (if any)
 }
 
 // nolintScope describes which lines a nolint directive covers.
@@ -57,8 +59,20 @@ func ConvertNolintInFile(filePath string, registry *RuleRegistry, ruleConfigs ma
 func ConvertNolintInSource(filePath string, contentStr string, registry *RuleRegistry, ruleConfigs map[string]VintRuleConfig) (*NolintConvertResult, error) {
 	lines := strings.Split(contentStr, "\n")
 
-	// Find all nolint directives.
+	// Find all nolint and #nosec directives.
 	directives := findNolintDirectives(lines)
+	nosecDirectives := findNosecDirectives(lines)
+	// Skip nosec directives on lines that already have a nolint directive.
+	nolintLines := make(map[int]bool, len(directives))
+	for _, d := range directives {
+		nolintLines[d.line] = true
+	}
+	for _, d := range nosecDirectives {
+		if !nolintLines[d.line] {
+			directives = append(directives, d)
+		}
+	}
+	sort.Slice(directives, func(i, j int) bool { return directives[i].line < directives[j].line })
 	if len(directives) == 0 {
 		return &NolintConvertResult{
 			OriginalPath: filePath,
@@ -118,7 +132,11 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 		// Determine explanation text.
 		explanation := d.explanation
 		if explanation == "" {
-			if len(d.linters) > 0 {
+			if len(d.gosecRuleIDs) > 0 {
+				explanation = fmt.Sprintf("migrated from #nosec %s", strings.Join(d.gosecRuleIDs, " "))
+			} else if strings.Contains(d.fullMatch, "#nosec") {
+				explanation = "migrated from #nosec"
+			} else if len(d.linters) > 0 {
 				explanation = fmt.Sprintf("migrated from nolint:%s", strings.Join(d.linters, ","))
 			} else {
 				explanation = "migrated from nolint"
@@ -136,7 +154,7 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 
 		// Generate vint-ignore lines and insert before the code line.
 		if len(candidateRules) == 0 {
-			// No rules fired — the nolint was unnecessary.
+			// No rules fired — the nolint/nosec was unnecessary.
 			resultLines = append(resultLines,
 				indent+fmt.Sprintf("// NOTE: nolint removed — no vint rules fired (was: %s)", d.fullMatch))
 		} else {
@@ -183,8 +201,8 @@ func matchRulesToDirective(
 
 	var candidateRules []string
 
-	if len(d.linters) == 0 {
-		// Bare //nolint — return all rules that fire within scope.
+	if len(d.linters) == 0 && len(d.gosecRuleIDs) == 0 {
+		// Bare //nolint or bare #nosec — return all rules that fire within scope.
 		seen := make(map[string]bool)
 		for line := scope.startLine; line <= scope.endLine; line++ {
 			for r := range failuresByLine[line] {
@@ -198,6 +216,18 @@ func matchRulesToDirective(
 		// Specific linters — only include rules mapped to those linters that fire.
 		for _, linter := range d.linters {
 			for _, mapped := range registry.RulesForLinter(linter) {
+				if mapped.FullVintPath != "" {
+					if isAggregatingRule(mapped.Rule) {
+						candidateRules = append(candidateRules, mapped.FullVintPath)
+					} else if ruleFiresInScope(mapped.FullVintPath) {
+						candidateRules = append(candidateRules, mapped.FullVintPath)
+					}
+				}
+			}
+		}
+		// Specific gosec rule IDs — resolve to vint rules via extractor ID.
+		for _, id := range d.gosecRuleIDs {
+			for _, mapped := range registry.RulesForExtractorID("gosec", id) {
 				if mapped.FullVintPath != "" {
 					if isAggregatingRule(mapped.Rule) {
 						candidateRules = append(candidateRules, mapped.FullVintPath)
@@ -260,13 +290,67 @@ func findNolintDirectives(lines []string) []nolintDirective {
 	return directives
 }
 
-// stripNolintComments removes //nolint... from lines so rules can fire.
+// findNosecDirectives scans source lines for #nosec comments.
+// Supports: // #nosec, /* #nosec */, // #nosec G101, // #nosec G101 G202
+func findNosecDirectives(lines []string) []nolintDirective {
+	var directives []nolintDirective
+	for i, line := range lines {
+		loc := nosecRegexp.FindStringIndex(line)
+		if loc == nil {
+			continue
+		}
+
+		match := nosecRegexp.FindStringSubmatch(line)
+		fullMatch := match[0]
+
+		// Parse optional gosec rule IDs (space-separated).
+		var gosecIDs []string
+		if len(match) > 1 && strings.TrimSpace(match[1]) != "" {
+			for _, id := range strings.Fields(match[1]) {
+				gosecIDs = append(gosecIDs, id)
+			}
+		}
+
+		// Check if there's code before the #nosec (inline).
+		prefix := strings.TrimSpace(line[:loc[0]])
+		isInline := prefix != ""
+
+		// Check for explanation after the directive.
+		rest := line[loc[1]:]
+		var explanation string
+		if idx := strings.Index(rest, "//"); idx != -1 {
+			explanation = strings.TrimSpace(rest[idx+2:])
+		}
+
+		d := nolintDirective{
+			line:        i + 1, // 1-based
+			colStart:    loc[0],
+			fullMatch:   fullMatch,
+			isInline:    isInline,
+			explanation: explanation,
+		}
+		if len(gosecIDs) > 0 {
+			d.gosecRuleIDs = gosecIDs
+		} else {
+			// Bare #nosec — equivalent to suppressing all gosec rules.
+			d.linters = []string{"gosec"}
+		}
+		directives = append(directives, d)
+	}
+	return directives
+}
+
+// stripNolintComments removes //nolint... and #nosec... from lines so rules can fire.
 func stripNolintComments(lines []string, directives []nolintDirective) []string {
 	stripped := make([]string, len(lines))
 	copy(stripped, lines)
 	for _, d := range directives {
 		idx := d.line - 1
+		// Try nolint first, then nosec.
 		loc := nolintRegexp.FindStringIndex(stripped[idx])
+		if loc == nil {
+			loc = nosecRegexp.FindStringIndex(stripped[idx])
+		}
 		if loc != nil {
 			stripped[idx] = strings.TrimRight(stripped[idx][:loc[0]], " \t")
 		}
@@ -280,8 +364,8 @@ func collectRulesToRun(directives []nolintDirective, registry *RuleRegistry) []l
 	var rules []lint.Rule
 
 	for _, d := range directives {
-		if len(d.linters) == 0 {
-			// Bare //nolint — need all rules.
+		if len(d.linters) == 0 && len(d.gosecRuleIDs) == 0 {
+			// Bare //nolint or bare #nosec — need all rules.
 			return registry.AllRuleInstances()
 		}
 	}
@@ -293,6 +377,18 @@ func collectRulesToRun(directives []nolintDirective, registry *RuleRegistry) []l
 				if !seen[fullName] {
 					seen[fullName] = true
 					rules = append(rules, r)
+				}
+			}
+		}
+		// Resolve gosec rule IDs (e.g. G101) to specific vint rules.
+		for _, id := range d.gosecRuleIDs {
+			for _, mapped := range registry.RulesForExtractorID("gosec", id) {
+				if mapped.Rule != nil {
+					fullName := lint.FullRuleName(mapped.Rule)
+					if !seen[fullName] {
+						seen[fullName] = true
+						rules = append(rules, mapped.Rule)
+					}
 				}
 			}
 		}

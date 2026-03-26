@@ -154,6 +154,18 @@ func (r *RuleRegistry) RuleInstancesForLinter(linterName string) []lint.Rule {
 	return rules
 }
 
+// RulesForExtractorID returns vint rules matching a specific extractor rule ID
+// (e.g. "G101" for gosec) within a given linter.
+func (r *RuleRegistry) RulesForExtractorID(linterName, extractorID string) []MappedRule {
+	var matched []MappedRule
+	for _, m := range r.byLinter[linterName] {
+		if m.ExtractorRule == extractorID {
+			matched = append(matched, m)
+		}
+	}
+	return matched
+}
+
 // AllRuleInstances returns all resolved lint.Rule instances across all linters.
 func (r *RuleRegistry) AllRuleInstances() []lint.Rule {
 	seen := make(map[string]bool)

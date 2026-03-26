@@ -190,8 +190,8 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 			continue
 		}
 
-		// Quick check if the file has any nolint directives.
-		if !nolintRegexp.Match(content) {
+		// Quick check if the file has any nolint or #nosec directives.
+		if !nolintRegexp.Match(content) && !nosecRegexp.Match(content) {
 			continue
 		}
 

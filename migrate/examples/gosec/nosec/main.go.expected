@@ -1,0 +1,10 @@
+package example
+
+// vint-ignore lint/security/noHardcodedCredentials: migrated from #nosec G101
+var password = "supersecretpassword123"
+
+// vint-ignore lint/security/noHardcodedCredentials: migrated from #nosec
+var secret = "supersecretpassword123"
+
+// vint-ignore lint/security/noHardcodedCredentials: migrated from #nosec
+var apiKey = "supersecretpassword123"
