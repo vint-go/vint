@@ -2,7 +2,9 @@ package migrate
 
 import (
 	"fmt"
+	"go/ast"
 	"go/token"
+	"math"
 	"os"
 	"regexp"
 	"sort"
@@ -22,6 +24,13 @@ type nolintDirective struct {
 	fullMatch   string   // the full matched text
 	isInline    bool     // true if code precedes the //nolint on the same line
 	explanation string   // text after // following the nolint (if any)
+}
+
+// nolintScope describes which lines a nolint directive covers.
+type nolintScope struct {
+	isFileLevel bool // true if the directive is before the package keyword
+	startLine   int  // first line to check for failures (inclusive)
+	endLine     int  // last line to check for failures (inclusive)
 }
 
 // NolintConvertResult holds the result of converting a single file.
@@ -66,8 +75,9 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 
 	// Run the rules on the stripped source, using migrated configuration.
 	var failures []lint.Failure
+	var parsedFile *lint.File
 	if len(rulesToRun) > 0 {
-		failures = runRulesOnSource(filePath, []byte(strippedSource), rulesToRun, ruleConfigs)
+		failures, parsedFile = runRulesOnSource(filePath, []byte(strippedSource), rulesToRun, ruleConfigs)
 	}
 
 	// Build failure lookup: line → set of rule names.
@@ -79,6 +89,9 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 		}
 		failuresByLine[line][f.RuleName] = true
 	}
+
+	// Compute nolint scopes using AST information.
+	scopes := computeDirectiveScopes(directives, parsedFile, len(lines))
 
 	// Build index of which lines have directives.
 	directiveByLine := make(map[int]*nolintDirective)
@@ -97,8 +110,10 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 			continue
 		}
 
+		scope := scopes[d.line]
+
 		// Determine which rules to suppress.
-		candidateRules := matchRulesToDirective(d, failuresByLine, registry)
+		candidateRules := matchRulesToDirective(d, failuresByLine, registry, scope)
 
 		// Determine explanation text.
 		explanation := d.explanation
@@ -113,6 +128,12 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 		// Get indentation of original line.
 		indent := leadingWhitespace(origLine)
 
+		// Choose the correct vint-ignore variant.
+		ignoreDirective := "vint-ignore"
+		if scope.isFileLevel {
+			ignoreDirective = "vint-ignore-all"
+		}
+
 		// Generate vint-ignore lines and insert before the code line.
 		if len(candidateRules) == 0 {
 			// No rules fired — the nolint was unnecessary.
@@ -121,7 +142,7 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 		} else {
 			for _, rule := range candidateRules {
 				resultLines = append(resultLines,
-					indent+fmt.Sprintf("// vint-ignore %s: %s", rule, explanation))
+					indent+fmt.Sprintf("// %s %s: %s", ignoreDirective, rule, explanation))
 			}
 		}
 
@@ -141,21 +162,36 @@ func ConvertNolintInSource(filePath string, contentStr string, registry *RuleReg
 	}, nil
 }
 
-// matchRulesToDirective finds which rules from the directive's linters actually fire.
-// For aggregating rules (which require cross-file analysis and cannot fire from
-// single-file Apply), we trust the linter-to-rule mapping unconditionally.
+// matchRulesToDirective finds which rules from the directive's linters actually fire
+// within the scope of the directive. For aggregating rules (which require cross-file
+// analysis and cannot fire from single-file Apply), we trust the mapping unconditionally.
 func matchRulesToDirective(
 	d *nolintDirective,
 	failuresByLine map[int]map[string]bool,
 	registry *RuleRegistry,
+	scope nolintScope,
 ) []string {
+	// ruleFiresInScope checks whether the given rule has a failure within the scope.
+	ruleFiresInScope := func(ruleName string) bool {
+		for line := scope.startLine; line <= scope.endLine; line++ {
+			if failuresByLine[line] != nil && failuresByLine[line][ruleName] {
+				return true
+			}
+		}
+		return false
+	}
+
 	var candidateRules []string
 
 	if len(d.linters) == 0 {
-		// Bare //nolint — return all rules that fire on this line.
-		if rules, ok := failuresByLine[d.line]; ok {
-			for r := range rules {
-				candidateRules = append(candidateRules, r)
+		// Bare //nolint — return all rules that fire within scope.
+		seen := make(map[string]bool)
+		for line := scope.startLine; line <= scope.endLine; line++ {
+			for r := range failuresByLine[line] {
+				if !seen[r] {
+					seen[r] = true
+					candidateRules = append(candidateRules, r)
+				}
 			}
 		}
 	} else {
@@ -163,12 +199,9 @@ func matchRulesToDirective(
 		for _, linter := range d.linters {
 			for _, mapped := range registry.RulesForLinter(linter) {
 				if mapped.FullVintPath != "" {
-					// Aggregating rules (e.g. noDuplicateCode) use Collect/Finalize
-					// and always return nil from Apply, so they cannot fire during
-					// single-file analysis. Trust the mapping unconditionally.
 					if isAggregatingRule(mapped.Rule) {
 						candidateRules = append(candidateRules, mapped.FullVintPath)
-					} else if failuresByLine[d.line] != nil && failuresByLine[d.line][mapped.FullVintPath] {
+					} else if ruleFiresInScope(mapped.FullVintPath) {
 						candidateRules = append(candidateRules, mapped.FullVintPath)
 					}
 				}
@@ -269,7 +302,8 @@ func collectRulesToRun(directives []nolintDirective, registry *RuleRegistry) []l
 
 // runRulesOnSource creates a lint.File from raw source and runs rules against it.
 // ruleConfigs provides the migrated configuration for each rule so they fire correctly.
-func runRulesOnSource(filePath string, source []byte, rules []lint.Rule, ruleConfigs map[string]VintRuleConfig) []lint.Failure {
+// Returns the failures and the parsed lint.File (for AST access); file may be nil on parse error.
+func runRulesOnSource(filePath string, source []byte, rules []lint.Rule, ruleConfigs map[string]VintRuleConfig) ([]lint.Failure, *lint.File) {
 	fset := token.NewFileSet()
 	goVer := goversion.Must(goversion.NewVersion("1.22"))
 	imp := lint.NewSharedImporter()
@@ -277,7 +311,7 @@ func runRulesOnSource(filePath string, source []byte, rules []lint.Rule, ruleCon
 
 	file, err := pkg.AddFile(filePath, source)
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
 	// Configure rules with migrated settings before running them.
@@ -315,7 +349,93 @@ func runRulesOnSource(filePath string, source []byte, rules []lint.Rule, ruleCon
 		allFailures = append(allFailures, failures...)
 	}
 
-	return allFailures
+	return allFailures, file
+}
+
+// computeDirectiveScopes determines the effective line range for each nolint directive.
+// For inline directives, the scope is just the directive's own line.
+// For standalone directives before the package keyword, the scope is the entire file (file-level).
+// For standalone directives above a statement, the scope covers the next AST node's line range.
+func computeDirectiveScopes(directives []nolintDirective, file *lint.File, totalLines int) map[int]nolintScope {
+	scopes := make(map[int]nolintScope, len(directives))
+
+	// Determine the package declaration line.
+	packageLine := math.MaxInt32
+	if file != nil && file.AST != nil && file.AST.Package.IsValid() {
+		packageLine = file.ToPosition(file.AST.Package).Line
+	}
+
+	// Collect sorted node line ranges from the AST for standalone scope resolution.
+	var nodeRanges []nodeRange
+	if file != nil && file.AST != nil {
+		nodeRanges = collectNodeRanges(file)
+	}
+
+	for _, d := range directives {
+		if d.isInline {
+			// Inline: only suppress on this exact line.
+			scopes[d.line] = nolintScope{startLine: d.line, endLine: d.line}
+			continue
+		}
+
+		if d.line < packageLine {
+			// File-level: before the package keyword → entire file.
+			scopes[d.line] = nolintScope{
+				isFileLevel: true,
+				startLine:   1,
+				endLine:     totalLines,
+			}
+			continue
+		}
+
+		// Standalone comment above a statement: find the next AST node.
+		scope := nolintScope{startLine: d.line, endLine: d.line}
+		for _, nr := range nodeRanges {
+			if nr.start > d.line {
+				scope.startLine = nr.start
+				scope.endLine = nr.end
+				break
+			}
+		}
+		scopes[d.line] = scope
+	}
+
+	return scopes
+}
+
+// nodeRange represents the start and end line of an AST node.
+type nodeRange struct {
+	start int
+	end   int
+}
+
+// collectNodeRanges walks the AST and collects line ranges for all
+// declarations, specs, and statements, sorted by start line.
+func collectNodeRanges(file *lint.File) []nodeRange {
+	var ranges []nodeRange
+	ast.Inspect(file.AST, func(n ast.Node) bool {
+		if n == nil {
+			return false
+		}
+		switch n.(type) {
+		case *ast.GenDecl, *ast.FuncDecl,
+			*ast.ValueSpec, *ast.TypeSpec, // specs inside var()/const()/type() blocks
+			*ast.AssignStmt, *ast.ExprStmt, *ast.ReturnStmt,
+			*ast.IfStmt, *ast.ForStmt, *ast.RangeStmt,
+			*ast.SwitchStmt, *ast.TypeSwitchStmt,
+			*ast.SelectStmt, *ast.GoStmt, *ast.DeferStmt,
+			*ast.SendStmt, *ast.IncDecStmt, *ast.BranchStmt,
+			*ast.LabeledStmt, *ast.DeclStmt:
+			start := file.ToPosition(n.Pos()).Line
+			end := file.ToPosition(n.End()).Line
+			ranges = append(ranges, nodeRange{start: start, end: end})
+		}
+		return true
+	})
+	sort.Slice(ranges, func(i, j int) bool {
+		return ranges[i].start < ranges[j].start
+	})
+	return ranges
 }
 
 func leadingWhitespace(s string) string {
