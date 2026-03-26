@@ -145,6 +145,41 @@ func goodCallThroughParameter() {
 	_ = f
 }
 
+// Valid: callee is a parameter of the enclosing function (captured variable)
+func goodCallThroughEnclosingParam() {
+	type HandlerFunc func(int) error
+	type MiddlewareFunc func(HandlerFunc) HandlerFunc
+
+	var middleware MiddlewareFunc = func(next HandlerFunc) HandlerFunc {
+		return func(i int) error {
+			return next(i) // next is captured from enclosing func — not a direct ref
+		}
+	}
+	_ = middleware
+}
+
+// Valid: callee is a parameter two levels up (deeply nested capture)
+func goodCallThroughDeepEnclosingParam() {
+	outer := func(handler func(int)) {
+		_ = func() {
+			inner := func(i int) {
+				handler(i) // handler is captured from two scopes up
+			}
+			inner(1)
+		}
+	}
+	outer(func(int) {})
+}
+
+// Invalid: nested lambda wrapping a package-level function (enclosing params don't save it)
+func badNestedButPackageLevel() {
+	_ = func(next func(int)) {
+		f := func() { doWork() } // MATCH /unnecessary lambda, use the function directly/
+		_ = f
+		_ = next
+	}
+}
+
 type waiter struct{}
 
 func (w *waiter) WithPort(port string) *waiter { return w }

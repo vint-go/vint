@@ -54,18 +54,59 @@ func (*NoUnnecessaryLambdaRule) CacheTier() rulecache.CacheTier {
 }
 
 type lintUnnecessaryLambda struct {
-	onFailure func(lint.Failure)
+	onFailure      func(lint.Failure)
+	enclosedParams []map[string]bool // stack of parameter name sets from enclosing funcs
 }
 
 func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
-	funcLit, ok := node.(*ast.FuncLit)
-	if !ok {
-		return w
+	if node == nil {
+		return nil
 	}
+
+	switch n := node.(type) {
+	case *ast.FuncDecl:
+		// Push param scope for named function declarations.
+		return w.withParams(n.Type.Params)
+	case *ast.FuncLit:
+		return w.visitFuncLit(n)
+	}
+	return w
+}
+
+// withParams returns a new walker with the given params pushed onto the scope stack.
+func (w *lintUnnecessaryLambda) withParams(params *ast.FieldList) *lintUnnecessaryLambda {
+	paramSet := make(map[string]bool)
+	if params != nil {
+		for _, field := range params.List {
+			for _, name := range field.Names {
+				paramSet[name.Name] = true
+			}
+		}
+	}
+	return &lintUnnecessaryLambda{
+		onFailure:      w.onFailure,
+		enclosedParams: append(append([]map[string]bool{}, w.enclosedParams...), paramSet),
+	}
+}
+
+// isEnclosedParam returns true if name is a parameter of any enclosing function.
+func (w *lintUnnecessaryLambda) isEnclosedParam(name string) bool {
+	for _, paramSet := range w.enclosedParams {
+		if paramSet[name] {
+			return true
+		}
+	}
+	return false
+}
+
+func (w *lintUnnecessaryLambda) visitFuncLit(funcLit *ast.FuncLit) ast.Visitor {
+	// Always return a child walker that has this func's params in scope,
+	// so nested func literals can see them.
+	childWalker := w.withParams(funcLit.Type.Params)
 
 	// The function literal body must contain exactly one statement
 	if funcLit.Body == nil || len(funcLit.Body.List) != 1 {
-		return w
+		return childWalker
 	}
 
 	// Extract the inner call from the single statement.
@@ -78,36 +119,36 @@ func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
 	case *ast.ExprStmt:
 		call, ok := stmt.X.(*ast.CallExpr)
 		if !ok {
-			return w
+			return childWalker
 		}
 		// If the function literal has return values but body is just an expression
 		// statement (not a return), this is not a simple wrapper.
 		if funcLit.Type.Results != nil && len(funcLit.Type.Results.List) > 0 {
-			return w
+			return childWalker
 		}
 		innerCall = call
 	case *ast.ReturnStmt:
 		// Must have exactly one return value that is a call
 		if len(stmt.Results) != 1 {
-			return w
+			return childWalker
 		}
 		call, ok := stmt.Results[0].(*ast.CallExpr)
 		if !ok {
-			return w
+			return childWalker
 		}
 		// The function literal must have return values for a return statement
 		// to make sense as a simple wrapper
 		if funcLit.Type.Results == nil || len(funcLit.Type.Results.List) == 0 {
-			return w
+			return childWalker
 		}
 		innerCall = call
 	default:
-		return w
+		return childWalker
 	}
 
 	// The inner call must not use variadic expansion (...)
 	if innerCall.Ellipsis.IsValid() {
-		return w
+		return childWalker
 	}
 
 	// Get the function literal's parameters
@@ -127,7 +168,7 @@ func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
 
 	// The inner call must have the same number of arguments as the outer parameters
 	if len(innerCall.Args) != paramCount {
-		return w
+		return childWalker
 	}
 
 	// If there are parameters, each argument must be the corresponding parameter
@@ -137,10 +178,10 @@ func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
 		for i, arg := range innerCall.Args {
 			argIdent, ok := arg.(*ast.Ident)
 			if !ok {
-				return w
+				return childWalker
 			}
 			if argIdent.Name != paramNames[i] {
-				return w
+				return childWalker
 			}
 		}
 	}
@@ -151,20 +192,25 @@ func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
 	// callee is a stable function reference or a captured variable.
 	funIdent, ok := innerCall.Fun.(*ast.Ident)
 	if !ok {
-		return w
+		return childWalker
 	}
 
 	// If the called identifier matches any of the lambda's own parameters,
-	// it's a variable call (e.g. `func(c) error { return next(c) }` where
-	// `next` is a captured parameter), not a direct function reference.
+	// it's a variable call, not a direct function reference.
 	if params != nil {
 		for _, field := range params.List {
 			for _, name := range field.Names {
 				if name.Name == funIdent.Name {
-					return w
+					return childWalker
 				}
 			}
 		}
+	}
+
+	// If the called identifier matches a parameter of any enclosing function,
+	// it's a captured variable, not a package-level function reference.
+	if w.isEnclosedParam(funIdent.Name) {
+		return childWalker
 	}
 
 	w.onFailure(lint.Failure{
@@ -174,7 +220,7 @@ func (w *lintUnnecessaryLambda) Visit(node ast.Node) ast.Visitor {
 		Failure:    "unnecessary lambda, use the function directly",
 	})
 
-	return w
+	return childWalker
 }
 
 // collectParamNames returns the parameter names in order from a FieldList.
