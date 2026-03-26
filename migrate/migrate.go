@@ -122,10 +122,13 @@ func Migrate(configPath, dir string) (*MigrateResult, error) {
 			if len(registry.RulesForLinter(linterName)) > 0 {
 				result.Warnings = append(result.Warnings,
 					fmt.Sprintf("linter %q has mapped rules but no migrator — rules will be enabled with defaults", linterName))
-				// Enable the mapped rules with default config.
+				// Enable the mapped rules with default config, but do not
+			// overwrite configs already set by a proper migrator.
 				for _, mapped := range registry.RulesForLinter(linterName) {
 					if mapped.FullVintPath != "" {
-						allConfigs[mapped.FullVintPath] = VintRuleConfig{}
+						if _, alreadySet := allConfigs[mapped.FullVintPath]; !alreadySet {
+							allConfigs[mapped.FullVintPath] = VintRuleConfig{}
+						}
 						addRuleSource(mapped.FullVintPath, linterName)
 					}
 				}
