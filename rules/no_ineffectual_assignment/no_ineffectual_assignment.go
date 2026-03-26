@@ -3,6 +3,7 @@ package no_ineffectual_assignment
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 	"strings"
 
 	"github.com/vint-go/vint/internal/rulecache"
@@ -185,9 +186,13 @@ func (w *lintIneffectualAssignment) analyzeStmt(stmt ast.Stmt, sc *scope, inLoop
 			// was referenced on the RHS. Carry that forward so the parent assignment
 			// is not considered ineffectual.
 			parentRead := hasOld && oldState.read
+			// Short variable declarations (:=) initialized to zero-value
+			// literals are treated as type declarations, not real assignments,
+			// matching ineffassign behavior.
+			isZeroInit := s.Tok == token.DEFINE && allZeroValueLiterals(s.Rhs)
 			// Update state: new assignment, not yet read
 			sc.vars[ident.Name] = &varState{
-				assigned:        true,
+				assigned:        !isZeroInit,
 				read:            false,
 				node:            s,
 				name:            ident.Name,
@@ -213,8 +218,11 @@ func (w *lintIneffectualAssignment) analyzeStmt(stmt ast.Stmt, sc *scope, inLoop
 				if name.Name == "_" {
 					continue
 				}
-				// Variable declared with initial value
-				if len(vs.Values) > 0 {
+				// Variable declared with initial value.
+				// Zero-value literals (false, 0, "", nil) are treated the
+				// same as bare `var x T` — this is idiomatic Go for declaring
+				// intent/type and matches ineffassign behavior.
+				if len(vs.Values) > 0 && !allZeroValueLiterals(vs.Values) {
 					sc.vars[name.Name] = &varState{
 						assigned: true,
 						read:     false,
@@ -469,6 +477,30 @@ func (w *lintIneffectualAssignment) reportFailure(vs *varState) {
 		Failure:    fmt.Sprintf("ineffectual assignment to %s", vs.name),
 		Node:       vs.node,
 	})
+}
+
+// allZeroValueLiterals returns true if every expression in the slice is a
+// zero-value literal: false, 0 (any numeric zero), "", or nil.
+func allZeroValueLiterals(exprs []ast.Expr) bool {
+	for _, expr := range exprs {
+		if !isZeroValueLiteral(expr) {
+			return false
+		}
+	}
+	return true
+}
+
+// isZeroValueLiteral returns true if the expression is a zero-value literal.
+func isZeroValueLiteral(expr ast.Expr) bool {
+	switch e := expr.(type) {
+	case *ast.BasicLit:
+		// "0", "0.0", "0x0", etc.
+		return e.Value == "0" || e.Value == "0.0" || e.Value == `""`
+	case *ast.Ident:
+		// false, nil
+		return e.Name == "false" || e.Name == "nil"
+	}
+	return false
 }
 
 // isRuleOption returns true if arg and name are the same after normalization.

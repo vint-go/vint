@@ -25,9 +25,21 @@ func exampleReassigned() {
 	fmt.Println(x)
 }
 
-// Invalid: Variable assigned in all branches before being read
+// Valid: Zero-value init followed by overwrite in all branches.
+// Zero-value short decls are treated as type declarations (matches ineffassign).
 func exampleAllBranches(flag bool) int {
-	x := 0 // MATCH /ineffectual assignment to x/
+	x := 0
+	if flag {
+		x = 1
+	} else {
+		x = 2
+	}
+	return x
+}
+
+// Invalid: Non-zero-value init overwritten in all branches before being read
+func exampleAllBranchesNonZero(flag bool) int {
+	x := 42 // MATCH /ineffectual assignment to x/
 	if flag {
 		x = 1
 	} else {
