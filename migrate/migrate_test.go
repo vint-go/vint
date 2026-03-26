@@ -35,6 +35,7 @@ import (
 	_ "github.com/vint-go/vint/migrate/migrator/linters/nakedret"
 	_ "github.com/vint-go/vint/migrate/migrator/linters/noctx"
 	_ "github.com/vint-go/vint/migrate/migrator/linters/nolintlint"
+	_ "github.com/vint-go/vint/migrate/migrator/linters/revive"
 	_ "github.com/vint-go/vint/migrate/migrator/linters/sloglint"
 	_ "github.com/vint-go/vint/migrate/migrator/linters/staticcheck"
 	_ "github.com/vint-go/vint/migrate/migrator/linters/unconvert"
