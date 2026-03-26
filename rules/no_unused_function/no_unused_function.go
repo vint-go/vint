@@ -152,10 +152,27 @@ func hasCgoExportOrLinkname(funcDecl *ast.FuncDecl) bool {
 	return false
 }
 
+// buildMethodSuffixIndex builds a reverse index from method short name (e.g.
+// "createTopic") to all composite keys in allFuncs (e.g.
+// "TopicsAdminClient.createTopic"). This allows resolving selector expression
+// calls like obj.createTopic() to their method key.
+func buildMethodSuffixIndex(allFuncs map[string]bool) map[string][]string {
+	idx := map[string][]string{}
+	for key := range allFuncs {
+		if dot := strings.IndexByte(key, '.'); dot >= 0 {
+			shortName := key[dot+1:]
+			idx[shortName] = append(idx[shortName], key)
+		}
+	}
+	return idx
+}
+
 // buildCallGraph walks each function/method body and records which other
 // package-level functions it references (by name). It also walks method bodies
 // so that method-to-function call edges are captured.
 func buildCallGraph(file *lint.File, allFuncs map[string]bool, callGraph map[string]map[string]bool) {
+	methodByShortName := buildMethodSuffixIndex(allFuncs)
+
 	for _, decl := range file.AST.Decls {
 		funcDecl, ok := decl.(*ast.FuncDecl)
 		if !ok || funcDecl.Body == nil {
@@ -168,19 +185,33 @@ func buildCallGraph(file *lint.File, allFuncs map[string]bool, callGraph map[str
 		}
 
 		ast.Inspect(funcDecl.Body, func(n ast.Node) bool {
-			ident, ok := n.(*ast.Ident)
-			if !ok {
-				return true
-			}
-			// Check if this identifier refers to a known function in the package.
-			name := ident.Name
-			if name == callerName {
-				return true // skip self-references
-			}
-			// Use the set of known function names instead of ident.Obj, which
-			// is nil for cross-file references (parser resolves per-file only).
-			if allFuncs[name] {
-				callGraph[callerName][name] = true
+			switch node := n.(type) {
+			case *ast.SelectorExpr:
+				// Handle method calls like obj.methodName() — resolve
+				// the selector to composite method keys.
+				selName := node.Sel.Name
+				for _, key := range methodByShortName[selName] {
+					if key != callerName {
+						callGraph[callerName][key] = true
+					}
+				}
+				return true // continue walking into receiver expr
+			case *ast.Ident:
+				// Check if this identifier refers to a known function in the package.
+				name := node.Name
+				if name == callerName {
+					return true // skip self-references
+				}
+				if allFuncs[name] {
+					callGraph[callerName][name] = true
+				}
+				// Also check method suffix index for bare identifier references
+				// (e.g., passing a method value: _ = obj.method)
+				for _, key := range methodByShortName[name] {
+					if key != callerName {
+						callGraph[callerName][key] = true
+					}
+				}
 			}
 			return true
 		})

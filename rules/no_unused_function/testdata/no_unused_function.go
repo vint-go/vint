@@ -81,6 +81,46 @@ func deepHelper() int {
 	return 99
 }
 
+// Valid: unexported function called from an unexported method that is itself
+// called via a selector expression from an exported method.
+// This tests that obj.method() calls are resolved in the call graph.
+
+type processor struct{}
+
+func (p *processor) doProcess() int {
+	return selectorCalledHelper()
+}
+
+func NewProcessor() int {
+	p := &processor{}
+	return p.doProcess()
+}
+
+func selectorCalledHelper() int {
+	return 77
+}
+
+// Valid: chain of selector calls — exported method calls unexported method
+// via selector, which calls a plain function.
+
+type pipeline struct{}
+
+func (p *pipeline) step1() string {
+	return p.step2()
+}
+
+func (p *pipeline) step2() string {
+	return pipelineHelper()
+}
+
+func (p *pipeline) Run() string {
+	return p.step1()
+}
+
+func pipelineHelper() string {
+	return "pipeline done"
+}
+
 // Invalid: unexported function called only from an unexported method on an
 // unexported type — the method itself is unreachable.
 
@@ -92,4 +132,17 @@ func (h *hiddenService) run() string {
 
 func unreachableViaMethod() string { // MATCH /func unreachableViaMethod is unused/
 	return "nobody calls me"
+}
+
+// Invalid: unexported function called only from an unreachable unexported
+// method via selector expression — still unreachable.
+
+type isolated struct{}
+
+func (iso *isolated) secret() int {
+	return isolatedHelper()
+}
+
+func isolatedHelper() int { // MATCH /func isolatedHelper is unused/
+	return 0
 }
