@@ -3398,10 +3398,11 @@ linter = "revive"
 source = "https://github.com/mgechev/revive"
 extractor_rule = "var-naming"
 
-[rules.useWaitGroupGo]
+[rules.useWaitGroupGoModernize]
 linter = "modernize"
 source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/modernize"
 extractor_rule = "waitgroup"
+subsumed_by = "useWaitgroupGo"
 
 [rules.useWaitgroupGo]
 linter = "revive"
