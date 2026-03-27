@@ -44,20 +44,31 @@ func TestCrossFileDuplicateDetected(t *testing.T) {
 		t.Fatal("expected at least one duplicate code failure across files, got none")
 	}
 
-	// Verify that failures reference both files.
+	// Verify that failures reference both files (one in position, one in message).
 	foundCrossFile := false
 	for _, f := range failures {
-		t.Logf("failure: %s", f.Failure)
+		t.Logf("failure: %s (at %s)", f.Failure, f.Position.Start.Filename)
 		if f.Category != lint.FailureCategoryComplexity {
 			t.Errorf("expected category %q, got %q", lint.FailureCategoryComplexity, f.Category)
 		}
-		// The failure message should mention both files.
-		if containsBoth(f.Failure, "cross_dup_a.go", "cross_dup_b.go") {
+		// The position should reference one file, the message should reference the other.
+		posFile := f.Position.Start.Filename
+		msgRefA := contains(f.Failure, "cross_dup_a.go")
+		msgRefB := contains(f.Failure, "cross_dup_b.go")
+		if (contains(posFile, "cross_dup_b.go") && msgRefA) ||
+			(contains(posFile, "cross_dup_a.go") && msgRefB) {
 			foundCrossFile = true
+		}
+		// Verify that line numbers are set.
+		if f.Position.Start.Line == 0 {
+			t.Error("expected start line to be set")
+		}
+		if f.Position.End.Line == 0 {
+			t.Error("expected end line to be set")
 		}
 	}
 	if !foundCrossFile {
-		t.Error("expected at least one failure mentioning both cross_dup_a.go and cross_dup_b.go")
+		t.Error("expected at least one failure referencing both cross_dup_a.go and cross_dup_b.go")
 	}
 }
 

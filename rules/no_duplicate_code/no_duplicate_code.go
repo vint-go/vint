@@ -85,9 +85,10 @@ func (r *NoDuplicateCodeRule) Collect(file *lint.File, _ lint.Arguments) {
 	r.global.end = append(r.global.end, td.end...)
 	r.global.owns = append(r.global.owns, td.owns...)
 	r.spans = append(r.spans, fileSpan{
-		start: start,
-		end:   r.global.len(),
-		file:  file.Name,
+		start:     start,
+		end:       r.global.len(),
+		file:      file.Name,
+		tokenFile: file.Pkg.FileSet().File(file.AST.Pos()),
 	})
 	r.mu.Unlock()
 }
@@ -136,18 +137,18 @@ func (r *NoDuplicateCodeRule) Finalize() []lint.Failure {
 					continue
 				}
 
-				fileI := r.fileForIndex(fragI[0].startIdx)
-				fileJ := r.fileForIndex(fragJ[0].startIdx)
+				spanI := r.spanForIndex(fragI[0].startIdx)
+				spanJ := r.spanForIndex(fragJ[0].startIdx)
 
 				posI := r.global.pos[fragI[0].startIdx]
 				posJ := r.global.pos[fragJ[0].startIdx]
 
-				keyI := fragKey{fileI, posI}
-				keyJ := fragKey{fileJ, posJ}
+				keyI := fragKey{spanI.file, posI}
+				keyJ := fragKey{spanJ.file, posJ}
 
 				// Normalize order for dedup key.
 				pairKey := [2]fragKey{keyI, keyJ}
-				if fileI > fileJ || (fileI == fileJ && posI > posJ) {
+				if spanI.file > spanJ.file || (spanI.file == spanJ.file && posI > posJ) {
 					pairKey = [2]fragKey{keyJ, keyI}
 				}
 
@@ -156,24 +157,24 @@ func (r *NoDuplicateCodeRule) Finalize() []lint.Failure {
 				}
 				reported[pairKey] = true
 
+				lastFragI := fragI[len(fragI)-1]
 				lastFragJ := fragJ[len(fragJ)-1]
+
+				startJ := positionFor(spanJ, posJ)
+				endJ := positionFor(spanJ, r.global.end[lastFragJ.startIdx])
+				startI := positionFor(spanI, posI)
+				endI := positionFor(spanI, r.global.end[lastFragI.startIdx])
 
 				failures = append(failures, lint.Failure{
 					Confidence: 1,
 					Category:   lint.FailureCategoryComplexity,
 					Failure: fmt.Sprintf(
-						"duplicate code detected: %s has code duplicated from %s (>= %d tokens of identical structure)",
-						fileJ, fileI, r.threshold,
+						"duplicate code detected: lines %d-%d (%d lines) are duplicated from %s:%d-%d",
+						startJ.Line, endJ.Line, endJ.Line-startJ.Line+1, spanI.file, startI.Line, endI.Line,
 					),
 					Position: lint.FailurePosition{
-						Start: token.Position{
-							Filename: fileJ,
-							Offset:   int(posJ),
-						},
-						End: token.Position{
-							Filename: fileJ,
-							Offset:   int(r.global.end[lastFragJ.startIdx]),
-						},
+						Start: startJ,
+						End:   endJ,
 					},
 				})
 			}
@@ -183,14 +184,28 @@ func (r *NoDuplicateCodeRule) Finalize() []lint.Failure {
 	return failures
 }
 
-// fileForIndex returns the filename for a given global token index.
-func (r *NoDuplicateCodeRule) fileForIndex(idx int) string {
+// spanForIndex returns the fileSpan for a given global token index.
+func (r *NoDuplicateCodeRule) spanForIndex(idx int) fileSpan {
 	for _, span := range r.spans {
 		if idx >= span.start && idx < span.end {
-			return span.file
+			return span
 		}
 	}
-	return "<unknown>"
+	return fileSpan{file: "<unknown>"}
+}
+
+// positionFor converts a byte offset within a file span to a token.Position with line/column info.
+func positionFor(span fileSpan, offset int32) token.Position {
+	p := token.Position{Filename: span.file, Offset: int(offset)}
+	if span.tokenFile != nil {
+		pos := span.tokenFile.Pos(int(offset))
+		if pos.IsValid() {
+			tp := span.tokenFile.Position(pos)
+			p.Line = tp.Line
+			p.Column = tp.Column
+		}
+	}
+	return p
 }
 
 func normalizeOption(s string) string {

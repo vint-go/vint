@@ -73,9 +73,10 @@ func (td *tokenData) len() int { return len(td.types) }
 
 // fileSpan records which slice of the global token sequence belongs to which file.
 type fileSpan struct {
-	start int    // first index in global tokenData
-	end   int    // one past last index
-	file  string // source filename
+	start     int         // first index in global tokenData
+	end       int         // one past last index
+	file      string      // source filename
+	tokenFile *token.File // token file for offset→line/col conversion
 }
 
 // serializeAST converts an already-parsed ast.File into flat token arrays.

@@ -10,11 +10,12 @@ import (
 	"github.com/vint-go/vint/lint"
 )
 
-// UseJoinHostPortRule checks for fmt.Sprintf calls that construct URL host:port
-// addresses with a scheme prefix (e.g., "http://%s:%d"). These patterns do not
-// work correctly with IPv6 addresses. Use net.JoinHostPort instead.
-// Bare host:port patterns like "%s:%d" are not flagged, as they are commonly
-// used for net.Listen, http.Server.Addr, etc. where IPv6 breakage is less of a concern.
+// UseJoinHostPortRule checks for fmt.Sprintf calls that construct host:port
+// addresses that do not work correctly with IPv6. It detects two scopes:
+//   - URL-prefix patterns like "http://%s:%d" (from nosprintfhostport)
+//   - Bare "%s:%d" / "%s:%s" patterns (from govet hostport)
+//
+// Use net.JoinHostPort instead.
 type UseJoinHostPortRule struct{}
 
 // Apply applies the rule to given file.
@@ -61,8 +62,10 @@ func (*UseJoinHostPortRule) CacheTier() rulecache.CacheTier {
 
 // hostPortURLPattern matches format strings that construct a URL with a scheme
 // prefix and a host:port suffix (e.g., "http://%s:%d", "https://%s:%s").
-// Only URL constructions are flagged because IPv6 breakage is a real risk there.
 var hostPortURLPattern = regexp.MustCompile(`^"[a-zA-Z][a-zA-Z0-9+\-.]*://%s:[^@]*"$`)
+
+// hostPortBarePattern matches bare host:port format strings: exactly "%s:%d" or "%s:%s".
+var hostPortBarePattern = regexp.MustCompile(`^"%s:%(d|s)"$`)
 
 type lintJoinHostPort struct {
 	onFailure func(lint.Failure)
@@ -89,7 +92,7 @@ func (w *lintJoinHostPort) Visit(node ast.Node) ast.Visitor {
 		return w
 	}
 
-	if hostPortURLPattern.MatchString(formatArg.Value) {
+	if hostPortURLPattern.MatchString(formatArg.Value) || hostPortBarePattern.MatchString(formatArg.Value) {
 		w.onFailure(lint.Failure{
 			Confidence: 1,
 			Node:       ce,

@@ -26,14 +26,14 @@ func connectURLCustomScheme(host string, port string) string {
 }
 
 func connectBareIntPort(host string, port int) (net.Conn, error) {
-	// OK: bare host:port is fine for net.Listen, http.Server.Addr, etc.
-	addr := fmt.Sprintf("%s:%d", host, port)
+	// Bad: bare host:port does not work with IPv6 addresses
+	addr := fmt.Sprintf("%s:%d", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
 	return net.Dial("tcp", addr)
 }
 
 func connectBareStringPort(host string, port string) (net.Conn, error) {
-	// OK: bare host:port is fine
-	addr := fmt.Sprintf("%s:%s", host, port)
+	// Bad: bare host:port does not work with IPv6 addresses
+	addr := fmt.Sprintf("%s:%s", host, port) // MATCH /use net.JoinHostPort instead of fmt.Sprintf for host:port construction to support IPv6/
 	return net.Dial("tcp", addr)
 }
 

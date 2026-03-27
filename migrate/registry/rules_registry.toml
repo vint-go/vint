@@ -1778,6 +1778,12 @@ linter = "govet"
 source = "https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/findcall"
 extractor_rule = "findcall"
 
+[rules.noSprintfHostPort]
+linter = "nosprintfhostport"
+source = "https://github.com/stbenjam/no-sprintf-host-port"
+extractor_rule = "sprintf-host-port"
+subsumed_by = "useJoinHostPort"
+
 [rules.noSqlConcatenation]
 linter = "gosec"
 source = "https://github.com/securego/gosec"
