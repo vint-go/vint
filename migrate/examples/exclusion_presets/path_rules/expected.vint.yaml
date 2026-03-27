@@ -1,10 +1,4 @@
 settings:
-    lint/correctness/noRangeVariableAlias:
-        exclude:
-            - ~_test\.go
-    lint/correctness/noSliceBoundsOutOfRange:
-        exclude:
-            - ~_test\.go
     lint/correctness/noUncheckedError:
         exclude:
             - ~_test\.go

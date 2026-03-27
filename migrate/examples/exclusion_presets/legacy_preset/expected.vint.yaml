@@ -44,12 +44,10 @@ settings:
     lint/correctness/noOddSizeSliceArg: {}
     lint/correctness/noOverlappingEncoderSlice: {}
     lint/correctness/noPrintfFormatMismatch: {}
-    lint/correctness/noRangeVariableAlias: {}
     lint/correctness/noSelectBreakConfusion: {}
     lint/correctness/noSelfAssignment: {}
     lint/correctness/noSelfReferencingFinalizer: {}
     lint/correctness/noSingleArgAppend: {}
-    lint/correctness/noSliceBoundsOutOfRange: {}
     lint/correctness/noSlogKeyValueMismatch: {}
     lint/correctness/noStdMethodSignatureMismatch: {}
     lint/correctness/noStdlibVersionMismatch: {}

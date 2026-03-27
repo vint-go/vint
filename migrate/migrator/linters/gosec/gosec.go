@@ -238,6 +238,15 @@ func migratePermissionConfig(perRuleConfig map[string]any, ruleID string) map[st
 	return nil
 }
 
+// disabledByDefault lists gosec rule IDs that are disabled by default in modern
+// gosec versions. These are only enabled when explicitly listed in "includes".
+// - G601: disabled in gosec v2.18.0 — Go 1.22 loop variable semantics made it obsolete.
+// - G602: disabled in gosec v2.19.0 — high false-positive rate.
+var disabledByDefault = map[string]bool{
+	"G601": true,
+	"G602": true,
+}
+
 // resolveActiveRules determines which gosec rule IDs should be active
 // based on the includes and excludes settings.
 func resolveActiveRules(settings map[string]any) map[string]bool {
@@ -259,9 +268,11 @@ func resolveActiveRules(settings map[string]any) map[string]bool {
 			}
 		}
 	} else {
-		// Default: all rules are active.
+		// Default: all rules are active, except those disabled by default.
 		for id := range allRules {
-			active[id] = true
+			if !disabledByDefault[id] {
+				active[id] = true
+			}
 		}
 	}
 

@@ -1,6 +1,4 @@
 settings:
-    lint/correctness/noRangeVariableAlias: {}
-    lint/correctness/noSliceBoundsOutOfRange: {}
     lint/correctness/noUncheckedError: {}
     lint/security/noAtoiOverflow: {}
     lint/security/noBindToAllInterfaces: {}

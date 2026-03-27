@@ -50,8 +50,10 @@ func (*NoSliceBoundsOutOfRangeRule) RequiresTypecheck() bool {
 }
 
 type lintNoSliceBoundsOutOfRange struct {
-	pkg       *lint.Package
-	onFailure func(lint.Failure)
+	pkg        *lint.Package
+	onFailure  func(lint.Failure)
+	makeAllocs map[string]string // varName -> length expression string (e.g. "len(pes)" or "length")
+	copyPairs  [][2]string       // pairs of slice names known to have the same length (from copier.Copy etc.)
 }
 
 // rangeScope tracks a for-range statement whose key variable is a safe index.
@@ -66,37 +68,48 @@ type sortSliceScope struct {
 	sliceName  string   // the slice being sorted
 }
 
-func (w *lintNoSliceBoundsOutOfRange) checkFunctionBody(body *ast.BlockStmt) {
-	w.walkBlock(body, body, nil, nil)
+// forScope tracks a C-style for loop (for i := 0; i < n; i++) whose iterator is a safe index.
+type forScope struct {
+	keyName   string // iterator variable (e.g., "i")
+	boundExpr string // upper bound expression as string (e.g., "length")
 }
 
-// walkBlock recursively walks AST nodes, tracking range and sort.Slice scopes.
-func (w *lintNoSliceBoundsOutOfRange) walkBlock(node ast.Node, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+func (w *lintNoSliceBoundsOutOfRange) checkFunctionBody(body *ast.BlockStmt) {
+	w.makeAllocs = collectMakeAllocs(body)
+	w.copyPairs = collectCopyPairs(body)
+	w.walkBlock(body, body, nil, nil, nil)
+}
+
+// walkBlock recursively walks AST nodes, tracking range, sort.Slice, and for-loop scopes.
+func (w *lintNoSliceBoundsOutOfRange) walkBlock(node ast.Node, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) {
 	ast.Inspect(node, func(n ast.Node) bool {
 		if n == nil {
 			return false
 		}
 		switch expr := n.(type) {
 		case *ast.RangeStmt:
-			w.walkRange(expr, body, ranges, sortScopes)
+			w.walkRange(expr, body, ranges, sortScopes, forScopes)
 			return false // we handle children ourselves
+		case *ast.ForStmt:
+			w.walkForStmt(expr, body, ranges, sortScopes, forScopes)
+			return false
 		case *ast.CallExpr:
 			if sliceName, paramNames := w.parseSortSliceCall(expr); sliceName != "" {
 				newScope := sortSliceScope{paramNames: paramNames, sliceName: sliceName}
-				w.walkSortSliceCallback(expr, body, ranges, append(sortScopes, newScope))
+				w.walkSortSliceCallback(expr, body, ranges, append(sortScopes, newScope), forScopes)
 				return false
 			}
 		case *ast.IndexExpr:
-			w.checkIndexExprWithScopes(expr, body, ranges, sortScopes)
+			w.checkIndexExprWithScopes(expr, body, ranges, sortScopes, forScopes)
 		case *ast.SliceExpr:
-			w.checkSliceExprWithScopes(expr, body, ranges, sortScopes)
+			w.checkSliceExprWithScopes(expr, body, ranges, sortScopes, forScopes)
 		}
 		return true
 	})
 }
 
 // walkRange walks a for-range statement, adding its key variable as a safe index.
-func (w *lintNoSliceBoundsOutOfRange) walkRange(rs *ast.RangeStmt, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+func (w *lintNoSliceBoundsOutOfRange) walkRange(rs *ast.RangeStmt, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) {
 	// Only track if the range key is an identifier and the ranged expression is a named slice
 	if rs.Key != nil && rs.Body != nil {
 		keyIdent, ok := rs.Key.(*ast.Ident)
@@ -104,13 +117,76 @@ func (w *lintNoSliceBoundsOutOfRange) walkRange(rs *ast.RangeStmt, body *ast.Blo
 			sliceName := w.exprName(rs.X)
 			if sliceName != "" {
 				newRanges := append(ranges, rangeScope{keyName: keyIdent.Name, sliceName: sliceName})
-				w.walkBlock(rs.Body, body, newRanges, sortScopes)
+				w.walkBlock(rs.Body, body, newRanges, sortScopes, forScopes)
 				return
 			}
 		}
 	}
 	// Fallback: walk children with current scopes
-	w.walkBlock(rs.Body, body, ranges, sortScopes)
+	if rs.Body != nil {
+		w.walkBlock(rs.Body, body, ranges, sortScopes, forScopes)
+	}
+}
+
+// walkForStmt walks a C-style for statement, detecting for i := 0; i < n; i++ patterns.
+func (w *lintNoSliceBoundsOutOfRange) walkForStmt(fs *ast.ForStmt, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) {
+	if keyName, boundExpr := parseForStmt(fs); keyName != "" {
+		newForScopes := append(forScopes, forScope{keyName: keyName, boundExpr: boundExpr})
+		if fs.Body != nil {
+			w.walkBlock(fs.Body, body, ranges, sortScopes, newForScopes)
+		}
+		return
+	}
+	if fs.Body != nil {
+		w.walkBlock(fs.Body, body, ranges, sortScopes, forScopes)
+	}
+}
+
+// parseForStmt detects for i := 0; i < n; i++ and returns (keyName, boundExpr).
+func parseForStmt(fs *ast.ForStmt) (string, string) {
+	if fs.Init == nil || fs.Cond == nil || fs.Post == nil {
+		return "", ""
+	}
+
+	// Init: i := 0
+	init, ok := fs.Init.(*ast.AssignStmt)
+	if !ok || init.Tok != token.DEFINE || len(init.Lhs) != 1 || len(init.Rhs) != 1 {
+		return "", ""
+	}
+	keyIdent, ok := init.Lhs[0].(*ast.Ident)
+	if !ok {
+		return "", ""
+	}
+	lit, ok := init.Rhs[0].(*ast.BasicLit)
+	if !ok || lit.Kind != token.INT || lit.Value != "0" {
+		return "", ""
+	}
+
+	// Cond: i < n
+	cond, ok := fs.Cond.(*ast.BinaryExpr)
+	if !ok || cond.Op != token.LSS {
+		return "", ""
+	}
+	condIdent, ok := cond.X.(*ast.Ident)
+	if !ok || condIdent.Name != keyIdent.Name {
+		return "", ""
+	}
+	bound := exprString(cond.Y)
+	if bound == "" {
+		return "", ""
+	}
+
+	// Post: i++
+	post, ok := fs.Post.(*ast.IncDecStmt)
+	if !ok || post.Tok != token.INC {
+		return "", ""
+	}
+	postIdent, ok := post.X.(*ast.Ident)
+	if !ok || postIdent.Name != keyIdent.Name {
+		return "", ""
+	}
+
+	return keyIdent.Name, bound
 }
 
 // parseSortSliceCall checks if a call is sort.Slice(slice, func(i, j int) bool { ... })
@@ -156,16 +232,16 @@ func (w *lintNoSliceBoundsOutOfRange) parseSortSliceCall(call *ast.CallExpr) (st
 
 // walkSortSliceCallback walks the sort.Slice call but avoids re-walking the callback body
 // with different scopes. Instead, we walk the callback body with the new sort scope.
-func (w *lintNoSliceBoundsOutOfRange) walkSortSliceCallback(call *ast.CallExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+func (w *lintNoSliceBoundsOutOfRange) walkSortSliceCallback(call *ast.CallExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) {
 	funcLit, ok := call.Args[1].(*ast.FuncLit)
 	if !ok || funcLit.Body == nil {
 		return
 	}
 	// Walk the callback body with the added sort scope
-	w.walkBlock(funcLit.Body, body, ranges, sortScopes)
+	w.walkBlock(funcLit.Body, body, ranges, sortScopes, forScopes)
 }
 
-func (w *lintNoSliceBoundsOutOfRange) isIndexSafe(indexExpr ast.Expr, sliceName string, ranges []rangeScope, sortScopes []sortSliceScope) bool {
+func (w *lintNoSliceBoundsOutOfRange) isIndexSafe(indexExpr ast.Expr, sliceName string, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) bool {
 	idxIdent, ok := indexExpr.(*ast.Ident)
 	if !ok {
 		return false
@@ -174,8 +250,27 @@ func (w *lintNoSliceBoundsOutOfRange) isIndexSafe(indexExpr ast.Expr, sliceName 
 
 	// Check range scopes
 	for _, rs := range ranges {
-		if rs.keyName == idxName && rs.sliceName == sliceName {
-			return true
+		if rs.keyName == idxName {
+			// Direct match: indexing the same slice being ranged
+			if rs.sliceName == sliceName {
+				return true
+			}
+			// Cross-slice: indexed slice was make'd with len(ranged slice)
+			if lenExpr, ok := w.makeAllocs[sliceName]; ok {
+				if lenExpr == "len("+rs.sliceName+")" {
+					return true
+				}
+			}
+			// Cross-slice reverse: ranged slice was make'd with len(indexed slice)
+			if lenExpr, ok := w.makeAllocs[rs.sliceName]; ok {
+				if lenExpr == "len("+sliceName+")" {
+					return true
+				}
+			}
+			// Copy pair: ranged slice and indexed slice are known to have the same length
+			if w.areCopyPaired(rs.sliceName, sliceName) {
+				return true
+			}
 		}
 	}
 
@@ -190,10 +285,26 @@ func (w *lintNoSliceBoundsOutOfRange) isIndexSafe(indexExpr ast.Expr, sliceName 
 		}
 	}
 
+	// Check C-style for scopes
+	for _, fs := range forScopes {
+		if fs.keyName == idxName {
+			// Direct len() bound: for i := 0; i < len(slice); i++ makes slice[i] safe
+			if fs.boundExpr == "len("+sliceName+")" {
+				return true
+			}
+			// Make alloc match: slice was make'd with the same bound expression
+			if lenExpr, ok := w.makeAllocs[sliceName]; ok {
+				if lenExpr == fs.boundExpr {
+					return true
+				}
+			}
+		}
+	}
+
 	return false
 }
 
-func (w *lintNoSliceBoundsOutOfRange) checkIndexExprWithScopes(expr *ast.IndexExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+func (w *lintNoSliceBoundsOutOfRange) checkIndexExprWithScopes(expr *ast.IndexExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) {
 	if !w.isSliceType(expr.X) {
 		return
 	}
@@ -203,7 +314,7 @@ func (w *lintNoSliceBoundsOutOfRange) checkIndexExprWithScopes(expr *ast.IndexEx
 		return
 	}
 
-	if w.isIndexSafe(expr.Index, sliceName, ranges, sortScopes) {
+	if w.isIndexSafe(expr.Index, sliceName, ranges, sortScopes, forScopes) {
 		return
 	}
 
@@ -219,7 +330,7 @@ func (w *lintNoSliceBoundsOutOfRange) checkIndexExprWithScopes(expr *ast.IndexEx
 	})
 }
 
-func (w *lintNoSliceBoundsOutOfRange) checkSliceExprWithScopes(expr *ast.SliceExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope) {
+func (w *lintNoSliceBoundsOutOfRange) checkSliceExprWithScopes(expr *ast.SliceExpr, body *ast.BlockStmt, ranges []rangeScope, sortScopes []sortSliceScope, forScopes []forScope) {
 	if !w.isSliceType(expr.X) {
 		return
 	}
@@ -234,8 +345,8 @@ func (w *lintNoSliceBoundsOutOfRange) checkSliceExprWithScopes(expr *ast.SliceEx
 	}
 
 	// Check if low/high bounds are safe via range or sort scopes
-	lowSafe := expr.Low == nil || w.isIndexSafe(expr.Low, sliceName, ranges, sortScopes)
-	highSafe := expr.High == nil || w.isIndexSafe(expr.High, sliceName, ranges, sortScopes)
+	lowSafe := expr.Low == nil || w.isIndexSafe(expr.Low, sliceName, ranges, sortScopes, forScopes)
+	highSafe := expr.High == nil || w.isIndexSafe(expr.High, sliceName, ranges, sortScopes, forScopes)
 	if lowSafe && highSafe {
 		return
 	}
@@ -351,4 +462,117 @@ func (w *lintNoSliceBoundsOutOfRange) isLenCall(expr ast.Expr, sliceName string)
 // containsPos checks if a node's range contains the given position.
 func containsPos(node ast.Node, pos token.Pos) bool {
 	return node.Pos() <= pos && pos <= node.End()
+}
+
+// exprString converts an AST expression to a comparable string representation.
+// Handles identifiers, selector expressions, len() calls, and integer literals.
+func exprString(expr ast.Expr) string {
+	switch e := expr.(type) {
+	case *ast.Ident:
+		return e.Name
+	case *ast.SelectorExpr:
+		prefix := exprString(e.X)
+		if prefix != "" {
+			return prefix + "." + e.Sel.Name
+		}
+		return e.Sel.Name
+	case *ast.CallExpr:
+		if ident, ok := e.Fun.(*ast.Ident); ok && ident.Name == "len" && len(e.Args) == 1 {
+			arg := exprString(e.Args[0])
+			if arg != "" {
+				return "len(" + arg + ")"
+			}
+		}
+	case *ast.BasicLit:
+		return e.Value
+	}
+	return ""
+}
+
+// areCopyPaired returns true if a and b are known to have the same length via a copy function.
+func (w *lintNoSliceBoundsOutOfRange) areCopyPaired(a, b string) bool {
+	for _, pair := range w.copyPairs {
+		if (pair[0] == a && pair[1] == b) || (pair[0] == b && pair[1] == a) {
+			return true
+		}
+	}
+	return false
+}
+
+// knownCopyFunctions lists function names (pkg.Func) that copy a slice from src to dst,
+// preserving length. The call pattern is func(&dst, src) or func(dst, src).
+var knownCopyFunctions = map[string]bool{
+	"copier.Copy":        true,
+	"copier.CopyWithOption": true,
+}
+
+// collectCopyPairs scans a function body for calls to known copy functions
+// and returns pairs of slice names known to have the same length.
+func collectCopyPairs(body *ast.BlockStmt) [][2]string {
+	var pairs [][2]string
+	ast.Inspect(body, func(n ast.Node) bool {
+		call, ok := n.(*ast.CallExpr)
+		if !ok || len(call.Args) < 2 {
+			return true
+		}
+		sel, ok := call.Fun.(*ast.SelectorExpr)
+		if !ok {
+			return true
+		}
+		pkgIdent, ok := sel.X.(*ast.Ident)
+		if !ok {
+			return true
+		}
+		funcName := pkgIdent.Name + "." + sel.Sel.Name
+		if !knownCopyFunctions[funcName] {
+			return true
+		}
+		// Extract dst and src names. dst may be &dst (address-of).
+		dstExpr := call.Args[0]
+		srcExpr := call.Args[1]
+		// Unwrap &dst
+		if unary, ok := dstExpr.(*ast.UnaryExpr); ok && unary.Op == token.AND {
+			dstExpr = unary.X
+		}
+		dstName := exprString(dstExpr)
+		srcName := exprString(srcExpr)
+		if dstName != "" && srcName != "" {
+			pairs = append(pairs, [2]string{dstName, srcName})
+		}
+		return true
+	})
+	return pairs
+}
+
+// collectMakeAllocs scans a function body for make([]T, lenExpr) allocations
+// and returns a map of variable name -> length expression string.
+func collectMakeAllocs(body *ast.BlockStmt) map[string]string {
+	allocs := map[string]string{}
+	ast.Inspect(body, func(n ast.Node) bool {
+		assign, ok := n.(*ast.AssignStmt)
+		if !ok || assign.Tok != token.DEFINE || len(assign.Lhs) != 1 || len(assign.Rhs) != 1 {
+			return true
+		}
+		ident, ok := assign.Lhs[0].(*ast.Ident)
+		if !ok {
+			return true
+		}
+		call, ok := assign.Rhs[0].(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+		fun, ok := call.Fun.(*ast.Ident)
+		if !ok || fun.Name != "make" {
+			return true
+		}
+		if len(call.Args) < 2 {
+			return true
+		}
+		lenStr := exprString(call.Args[1])
+		if lenStr != "" {
+			allocs[ident.Name] = lenStr
+		}
+		return true
+	})
+	return allocs
 }
