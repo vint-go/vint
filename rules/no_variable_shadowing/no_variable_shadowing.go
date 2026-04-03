@@ -74,6 +74,7 @@ func (r *NoVariableShadowingRule) Apply(file *lint.File, _ lint.Arguments) []lin
 				if ident, ok := obj.Decl.(*ast.Ident); ok {
 					if tObj := typesInfo.Defs[ident]; tObj != nil {
 						entry.typ = tObj.Type()
+						entry.obj = tObj
 					}
 				}
 			}
@@ -111,7 +112,8 @@ func (*NoVariableShadowingRule) RequiresTypecheck() bool { return true }
 // scopeEntry stores position and optional type information for a scope variable.
 type scopeEntry struct {
 	pos token.Pos
-	typ types.Type // nil if type info unavailable
+	typ types.Type   // nil if type info unavailable
+	obj types.Object // nil if type info unavailable; used for usage tracking
 }
 
 // pendingShadow records a shadow that needs to be confirmed against
@@ -119,7 +121,8 @@ type scopeEntry struct {
 type pendingShadow struct {
 	failure    lint.Failure
 	name       string
-	scopeDepth int // depth (index) of the scope where the shadowed outer variable lives
+	scopeDepth int          // depth (index) of the scope where the shadowed outer variable lives
+	outerObj   types.Object // the shadowed outer variable's types.Object (nil if type info unavailable)
 }
 
 type lintVariableShadowing struct {
@@ -183,11 +186,16 @@ func (w *lintVariableShadowing) visitFunc(funcType *ast.FuncType, body *ast.Bloc
 	// Create a new walker with the function scope pushed.
 	// We walk the body statements directly (not via walkBlock) to avoid
 	// creating an extra scope level, since params and body share a scope.
+	//
+	// Each function gets its own pendingShadows slice. In non-strict mode,
+	// go vet's shadow resolves shadows within the function where they occur —
+	// shadows inside closures do NOT bubble up to the enclosing function.
+	var funcPending []pendingShadow
 	inner := &lintVariableShadowing{
 		onFailure:      w.onFailure,
 		scopes:         append(copyScopes(w.scopes), funcScope),
 		strict:         w.strict,
-		pendingShadows: w.pendingShadows,
+		pendingShadows: &funcPending,
 		typesInfo:      w.typesInfo,
 	}
 
@@ -233,7 +241,7 @@ func (w *lintVariableShadowing) walkStmtList(stmts []ast.Stmt) {
 			for _, ps := range newPending {
 				if ps.scopeDepth == currentDepth {
 					// The shadowed variable lives in OUR scope — resolve here.
-					if identUsedInStmts(ps.name, remaining) {
+					if w.outerVarUsedInStmts(ps, remaining) {
 						w.onFailure(ps.failure)
 					}
 				} else {
@@ -544,6 +552,7 @@ func (w *lintVariableShadowing) checkShadowAndAdd(ident *ast.Ident) {
 						failure:    f,
 						name:       name,
 						scopeDepth: i,
+						outerObj:   shadowed.obj,
 					})
 				}
 				break
@@ -561,6 +570,7 @@ func (w *lintVariableShadowing) makeScopeEntry(ident *ast.Ident) scopeEntry {
 	if w.typesInfo != nil {
 		if obj := w.typesInfo.Defs[ident]; obj != nil {
 			entry.typ = obj.Type()
+			entry.obj = obj
 		}
 	}
 	return entry
@@ -592,9 +602,52 @@ func copyScopes(scopes []map[string]scopeEntry) []map[string]scopeEntry {
 	return result
 }
 
+// outerVarUsedInStmts checks whether the shadowed outer variable is actually
+// referenced in the remaining statements. When type information is available,
+// it uses types.Object identity (matching go vet's shadow behavior) to avoid
+// false positives from new := declarations of the same name. Falls back to
+// name-based matching when type info is unavailable.
+func (w *lintVariableShadowing) outerVarUsedInStmts(ps pendingShadow, stmts []ast.Stmt) bool {
+	if w.typesInfo != nil && ps.outerObj != nil {
+		return objUsedInStmts(w.typesInfo, ps.outerObj, stmts)
+	}
+	// Fallback: no type info, use name-based matching.
+	return identUsedInStmts(ps.name, stmts)
+}
+
+// objUsedInStmts checks whether a specific types.Object is referenced (used)
+// anywhere within the given statements, using the type checker's Uses map
+// for precise identity matching.
+func objUsedInStmts(info *types.Info, obj types.Object, stmts []ast.Stmt) bool {
+	for _, stmt := range stmts {
+		if objUsedInNode(info, obj, stmt) {
+			return true
+		}
+	}
+	return false
+}
+
+// objUsedInNode checks whether a specific types.Object is referenced (used)
+// anywhere within the given AST node.
+func objUsedInNode(info *types.Info, obj types.Object, node ast.Node) bool {
+	found := false
+	ast.Inspect(node, func(n ast.Node) bool {
+		if found {
+			return false
+		}
+		if ident, ok := n.(*ast.Ident); ok {
+			if usedObj := info.Uses[ident]; usedObj == obj {
+				found = true
+				return false
+			}
+		}
+		return true
+	})
+	return found
+}
+
 // identUsedInStmts checks whether a variable name is referenced as an identifier
-// anywhere within the given statements. Used in non-strict mode to determine
-// if a shadowed outer variable is still relevant after the shadowing scope.
+// anywhere within the given statements. Used as fallback when type info is unavailable.
 func identUsedInStmts(name string, stmts []ast.Stmt) bool {
 	for _, stmt := range stmts {
 		if identUsedInNode(name, stmt) {
