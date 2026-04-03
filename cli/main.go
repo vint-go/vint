@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/vint-go/vint/config"
 	"github.com/vint-go/vint/lint"
+	"github.com/vint-go/vint/mcpserver"
 	"github.com/vint-go/vint/migrate"
 	"github.com/vint-go/vint/vintlint0"
 
@@ -101,6 +103,12 @@ func RunVint(extraRules ...ExtraRule) {
 	// Handle subcommands before flag parsing.
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		migrate.RunMigrate(os.Args[2:])
+		return
+	}
+	if len(os.Args) > 1 && os.Args[1] == "mcp" {
+		if err := mcpserver.Run(context.Background()); err != nil {
+			fail(err.Error())
+		}
 		return
 	}
 
